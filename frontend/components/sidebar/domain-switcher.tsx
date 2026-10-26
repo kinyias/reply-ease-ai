@@ -41,7 +41,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Determine current active domain from URL (e.g. /settings/gadget-store.vn) or default to first domain
+  // Determine current active domain from URL or default to first domain
   const activeDomain = React.useMemo(() => {
     const match = pathname.match(/\/settings\/([^/]+)/);
     if (match && match[1]) {
@@ -61,7 +61,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
 
   if (isLoading && domains.length === 0) {
     return (
-      <div className="h-12 rounded-xl bg-muted/40 animate-pulse border border-border/40" />
+      <div className="h-12 rounded-xl bg-sidebar-accent/50 animate-pulse border border-sidebar-border" />
     );
   }
 
@@ -71,13 +71,13 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-xl border border-border/60 bg-card hover:bg-muted/40 transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-xl border border-sidebar-border bg-sidebar hover:bg-sidebar-accent transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-ring ${
           isCollapsed ? "justify-center px-2" : ""
         }`}
         title={activeDomain ? activeDomain.name : "Chọn domain"}
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="relative size-7 rounded-lg overflow-hidden bg-muted/80 border border-border/80 shrink-0 flex items-center justify-center">
+          <div className="relative size-7 rounded-lg overflow-hidden bg-muted/80 border border-sidebar-border shrink-0 flex items-center justify-center">
             {activeDomain?.icon ? (
               <Image
                 src={activeDomain.icon}
@@ -93,10 +93,10 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
 
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 text-left">
-              <span className="text-xs font-semibold text-foreground truncate">
+              <span className="text-xs font-semibold text-sidebar-foreground truncate">
                 {activeDomain ? activeDomain.name : "Chưa có domain"}
               </span>
-              <span className="text-[10px] text-muted-foreground truncate">
+              <span className="text-[11px] text-muted-foreground truncate">
                 {quota ? `Gói ${quota.plan}` : "Quản lý website"}
               </span>
             </div>
@@ -110,7 +110,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 w-64 rounded-xl border border-border/80 bg-background/95 backdrop-blur-md p-2 shadow-xl z-50 space-y-2 animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute top-full left-0 mt-1.5 w-64 rounded-xl border border-border bg-popover text-popover-foreground p-2 shadow-md z-50 space-y-2 animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Header & Quota */}
           <div className="px-2 py-1.5 border-b border-border/40 space-y-1">
             <div className="flex items-center justify-between text-xs">
@@ -194,7 +194,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
 
             {quota && !quota.can_create_domain && (
               <div className="mt-1 px-2 py-1 rounded-md bg-muted/40 text-[10px] text-muted-foreground flex items-center gap-1">
-                <SparklesIcon className="size-3 text-amber-500 shrink-0" />
+                <SparklesIcon className="size-3 text-primary shrink-0" />
                 <span>Nâng cấp gói để mở thêm domain</span>
               </div>
             )}

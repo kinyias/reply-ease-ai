@@ -14,11 +14,11 @@ import {
 } from "@/schemas/domain";
 
 export const CHATBOT_COLOR_PRESETS = [
-  { name: "Safety Amber", hex: "#f25f22" },
+  { name: "Safety Amber", hex: "#c2410c" },
   { name: "Corinna Orange", hex: "#ff7a00" },
   { name: "Midnight Slate", hex: "#0f172a" },
   { name: "Emerald Forest", hex: "#059669" },
-  { name: "Indigo Blue", hex: "#4f46e5" },
+  { name: "Ocean Teal", hex: "#0d9488" },
   { name: "Rose Crimson", hex: "#e11d48" },
 ];
 

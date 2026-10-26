@@ -55,7 +55,7 @@ export function ChatbotCustomizer({
     formState: { errors, isDirty },
   } = form;
 
-  const currentBg = watch("background") || "#f25f22";
+  const currentBg = watch("background") || "#c2410c";
   const currentAvatar = watch("icon") || CHATBOT_AVATAR_PRESETS[0].url;
   const currentHelpdesk = watch("helpdesk") ?? false;
   const currentTextColor = watch("text_color") || "#ffffff";
@@ -69,7 +69,7 @@ export function ChatbotCustomizer({
           <h2 className="text-xl font-bold tracking-tight text-foreground">
             Chatbot Customizer
           </h2>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-accent/10 px-2.5 py-0.5 text-xs font-semibold text-brand-accent">
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
             <Sparkles className="size-3" />
             AI Widget
           </span>
@@ -94,7 +94,7 @@ export function ChatbotCustomizer({
                 htmlFor="welcome_message"
                 className="text-sm font-semibold flex items-center gap-1.5"
               >
-                <Bot className="size-4 text-brand-accent" />
+                <Bot className="size-4 text-primary" />
                 <span>Lời chào mở đầu (Welcome Greeting)</span>
               </Label>
               <span className="text-xs text-muted-foreground font-mono">
@@ -186,7 +186,7 @@ export function ChatbotCustomizer({
               <Input
                 id="custom_icon"
                 type="url"
-                placeholder="https://example.com/bot-avatar.png"
+                placeholder="https://cuahang.vn/bot-avatar.png"
                 className="mt-1"
                 {...register("icon")}
               />
@@ -201,7 +201,7 @@ export function ChatbotCustomizer({
           {/* 3. Theme Colors */}
           <div className="border-t border-border pt-5 space-y-3">
             <Label className="text-sm font-semibold flex items-center gap-1.5">
-              <Palette className="size-4 text-brand-accent" />
+              <Palette className="size-4 text-primary" />
               <span>Bảng màu giao diện (Header Background)</span>
             </Label>
             <p className="text-xs text-muted-foreground">
@@ -290,7 +290,7 @@ export function ChatbotCustomizer({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5 pr-4">
                 <div className="flex items-center gap-1.5">
-                  <HelpCircle className="size-4 text-brand-accent" />
+                  <HelpCircle className="size-4 text-primary" />
                   <Label
                     htmlFor="helpdesk-switch"
                     className="text-sm font-semibold cursor-pointer"
@@ -328,7 +328,7 @@ export function ChatbotCustomizer({
             <Button
               type="submit"
               disabled={isSaving || isLoading}
-              className="h-9 px-5 text-xs font-semibold bg-brand-accent hover:bg-brand-accent/90 text-white gap-1.5 shadow-xs"
+              className="h-9 px-5 text-xs font-semibold bg-primary hover:bg-[#9a3412] text-primary-foreground gap-1.5 shadow-xs"
             >
               {isSaving ? (
                 <>

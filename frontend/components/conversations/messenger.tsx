@@ -24,10 +24,10 @@ interface MessengerProps {
 }
 
 const QUICK_RESPONSES = [
-  "👋 Chào bạn, mình có thể hỗ trợ gì cho bạn ạ?",
-  "⏳ Dạ bên mình đang kiểm tra thông tin và sẽ phản hồi ngay nhé!",
-  "📞 Bạn vui lòng để lại số điện thoại để chuyên viên tư vấn chi tiết hơn nhé ạ.",
-  "🎁 Dạ hiện tại bên em đang có chương trình ưu đãi đặc biệt hôm nay ạ!",
+  "Chào bạn, mình có thể hỗ trợ gì cho bạn ạ?",
+  "Dạ bên mình đang kiểm tra thông tin và sẽ phản hồi ngay nhé!",
+  "Bạn vui lòng để lại số điện thoại để chuyên viên tư vấn chi tiết hơn nhé ạ.",
+  "Dạ hiện tại bên em đang có chương trình ưu đãi đặc biệt hôm nay ạ!",
 ];
 
 function formatMessageTime(dateString: string): string {
@@ -280,11 +280,11 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
       </div>
 
       {/* 3. Footer & Input Section */}
-      <div className="p-4 border-t border-border/60 bg-card/40 space-y-3 shrink-0">
+      <div className="p-4 border-t border-border bg-card space-y-3 shrink-0">
         {/* Quick reply suggestion chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
           <span className="text-[11px] text-muted-foreground shrink-0 font-medium mr-1 flex items-center gap-1">
-            <SparklesIcon className="size-3 text-amber-500" /> Gợi ý:
+            <SparklesIcon className="size-3 text-primary" /> Gợi ý:
           </span>
           {QUICK_RESPONSES.map((chip, idx) => (
             <button

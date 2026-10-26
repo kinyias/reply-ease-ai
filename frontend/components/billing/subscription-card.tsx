@@ -34,6 +34,8 @@ const PLANS: PlanTier[] = [
       "Chatbot AI trả lời tự động",
       "Thu thập email khách hàng tiềm năng",
       "Mã nhúng iframe widget đơn giản",
+      "Tự động tạo VietQR đơn hàng",
+      "Đối soát thanh toán thủ công",
       "Hỗ trợ qua cộng đồng",
     ],
   },
@@ -92,7 +94,7 @@ export function SubscriptionCard({
   isLoading = false,
 }: SubscriptionCardProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {PLANS.map((plan) => {
         const isCurrent = currentPlan === plan.id;
         const isUpgradeAvailable =
@@ -104,14 +106,14 @@ export function SubscriptionCard({
             key={plan.id}
             className={`relative flex flex-col justify-between rounded-2xl border transition-all duration-200 bg-card p-6 ${
               plan.isPopular
-                ? "border-primary/80 shadow-md ring-1 ring-primary/30"
+                ? "border-primary"
                 : "border-border/70 hover:border-border"
             }`}
           >
             {/* Header Badge */}
             {plan.badge && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-primary hover:bg-primary text-primary-foreground font-medium px-3 py-0.5 text-xs shadow-sm flex items-center gap-1">
+                <Badge className="bg-[#c2410c] hover:bg-[#9a3412] text-white font-semibold px-3 py-0.5 text-xs flex items-center gap-1">
                   <SparklesIcon className="size-3" />
                   <span>{plan.badge}</span>
                 </Badge>
@@ -153,15 +155,13 @@ export function SubscriptionCard({
 
               {/* Features List */}
               <div className="space-y-3 mb-6">
-                <p className="text-xs font-semibold text-foreground tracking-wide uppercase">
+                <p className="text-xs font-semibold text-foreground">
                   Tính năng bao gồm:
                 </p>
                 <ul className="space-y-2.5">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 text-xs text-muted-foreground">
-                      <div className="size-4 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                        <CheckIcon className="size-2.5 stroke-[3]" />
-                      </div>
+                      <CheckIcon className="size-4 text-primary shrink-0 mt-0.5" />
                       <span className="leading-snug">{feature}</span>
                     </li>
                   ))}
@@ -185,7 +185,7 @@ export function SubscriptionCard({
                   disabled={isLoading}
                   className={`w-full text-xs font-semibold gap-1.5 ${
                     plan.isPopular
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+                      ? "bg-[#c2410c] hover:bg-[#9a3412] text-white"
                       : "bg-foreground hover:bg-foreground/90 text-background"
                   }`}
                 >

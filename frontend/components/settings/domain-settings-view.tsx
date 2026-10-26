@@ -100,10 +100,10 @@ export function DomainSettingsView({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Navigation breadcrumb & domain status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+            <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
               <ArrowLeft className="size-3.5" />
               <span>Dashboard</span>
             </Button>
@@ -120,16 +120,16 @@ export function DomainSettingsView({
             variant="outline"
             size="sm"
             onClick={() => setActiveTab("embed")}
-            className="text-xs gap-1.5 h-8 font-medium"
+            className="text-xs gap-1.5 h-8 font-medium border-border"
           >
             <Code2Icon className="size-3.5 text-primary" />
-            Lấy mã nhúng
+            <span>Lấy mã nhúng</span>
           </Button>
         </div>
       </div>
 
       {/* Tabs navigation pill bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border/60">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 p-1.5 bg-muted/50 rounded-xl border border-border">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -139,14 +139,14 @@ export function DomainSettingsView({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all ${
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-colors ${
                 isActive
-                  ? "bg-background text-foreground shadow-xs border border-border/80 font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  ? "bg-card text-foreground shadow-xs border border-border font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               <div
-                className={`p-1.5 rounded-lg shrink-0 ${
+                className={`p-1.5 rounded-md shrink-0 ${
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "bg-muted text-muted-foreground"
@@ -155,7 +155,7 @@ export function DomainSettingsView({
                 <Icon className="size-4" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-medium truncate">{tab.label}</span>
+                <span className="text-xs font-semibold truncate">{tab.label}</span>
                 <span className="text-[10px] text-muted-foreground hidden xl:inline-block truncate">
                   {tab.description}
                 </span>

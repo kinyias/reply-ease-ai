@@ -18,11 +18,11 @@ export function PortalHeader({
   badgeText = "Bảo mật SSL 256-bit",
 }: PortalHeaderProps) {
   return (
-    <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+    <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-0 z-30">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Left: Domain Brand Identity */}
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-xl overflow-hidden bg-gradient-to-tr from-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
+          <div className="size-9 rounded-xl overflow-hidden bg-primary text-primary-foreground flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0">
             {domainIcon ? (
               <Image
                 src={domainIcon}

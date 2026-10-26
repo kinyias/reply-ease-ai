@@ -63,7 +63,7 @@ export function OrderSuccess({
       {/* Invoice Receipt Card */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xs">
         {/* Top Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-white flex items-center justify-between">
+        <div className="bg-emerald-600 px-6 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ReceiptIcon className="size-4" />
             <span className="font-semibold text-sm tracking-wide">

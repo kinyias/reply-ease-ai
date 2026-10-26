@@ -87,7 +87,7 @@ export function StripeCardPayment({
       {/* Title */}
       <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="size-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+          <div className="size-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
             <CreditCardIcon className="size-5" />
           </div>
           <div>
@@ -112,7 +112,7 @@ export function StripeCardPayment({
         <div className="space-y-1.5">
           <label
             htmlFor="card-number"
-            className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider"
+            className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
           >
             Số thẻ
           </label>
@@ -136,7 +136,7 @@ export function StripeCardPayment({
           <div className="space-y-1.5">
             <label
               htmlFor="card-expiry"
-              className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider"
+              className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
             >
               Hết hạn (MM/YY)
             </label>
@@ -155,7 +155,7 @@ export function StripeCardPayment({
           <div className="space-y-1.5">
             <label
               htmlFor="card-cvc"
-              className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider"
+              className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
             >
               CVC / CVV
             </label>
@@ -179,7 +179,7 @@ export function StripeCardPayment({
         <div className="space-y-1.5">
           <label
             htmlFor="card-name"
-            className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider"
+            className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
           >
             Tên in trên thẻ
           </label>

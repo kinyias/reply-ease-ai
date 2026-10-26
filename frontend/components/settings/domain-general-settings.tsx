@@ -161,7 +161,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
               </Label>
               <Input
                 id="domain-icon"
-                placeholder="https://example.com/logo.png"
+                placeholder="https://cuahang.vn/logo.png"
                 {...register("icon")}
               />
               {errors.icon && (

@@ -16,7 +16,7 @@ export function TransactionHistoryTable({
 }: TransactionHistoryTableProps) {
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-border/60 bg-card p-8 text-center">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto mb-2" />
         <p className="text-xs text-muted-foreground">Đang tải lịch sử giao dịch...</p>
       </div>
@@ -38,10 +38,10 @@ export function TransactionHistoryTable({
   }
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-card overflow-hidden shadow-xs">
+    <div className="rounded-2xl border border-border bg-card overflow-hidden ">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
-          <thead className="bg-muted/40 border-b border-border/60 text-muted-foreground font-medium uppercase tracking-wider text-[11px]">
+          <thead className="bg-muted/40 border-b border-border text-muted-foreground font-medium uppercase tracking-wider text-[11px]">
             <tr>
               <th className="py-3 px-4">Mã đơn hàng</th>
               <th className="py-3 px-4">Loại giao dịch</th>

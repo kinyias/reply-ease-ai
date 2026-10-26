@@ -110,9 +110,9 @@ export function SepayIntegrationView() {
   return (
     <div className="p-6 md:p-8 max-w-4xl mx-auto space-y-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Tích hợp SePay Connect
             </h1>
@@ -129,7 +129,7 @@ export function SepayIntegrationView() {
         <div>
           {isConfigured ? (
             <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-medium px-3 py-1 flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="size-2 rounded-full bg-emerald-500 " />
               <span>Đang hoạt động</span>
             </Badge>
           ) : (
@@ -145,14 +145,12 @@ export function SepayIntegrationView() {
       <div className={`p-5 rounded-2xl border transition-all ${
         isConfigured
           ? "border-emerald-500/30 bg-emerald-500/5"
-          : "border-border/70 bg-card"
+          : "border-border bg-card"
       }`}>
         <div className="flex items-start gap-3.5">
-          <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 ${
-            isConfigured ? "bg-emerald-500/10 text-emerald-500" : "bg-primary/10 text-primary"
-          }`}>
-            <ShieldCheckIcon className="size-5" />
-          </div>
+          <ShieldCheckIcon className={`size-5 shrink-0 ${
+            isConfigured ? "text-emerald-600 dark:text-emerald-400" : "text-primary"
+          }`} />
           <div>
             <h3 className="text-sm font-semibold text-foreground">
               {isConfigured
@@ -178,7 +176,7 @@ export function SepayIntegrationView() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         {/* Main Settings Form (2 cols) */}
-        <div className="md:col-span-2 rounded-2xl border border-border/60 bg-card p-6 shadow-xs">
+        <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 ">
           <h2 className="text-base font-semibold text-foreground mb-1">
             Thông tin kết nối SePay
           </h2>
@@ -310,17 +308,15 @@ export function SepayIntegrationView() {
         {/* Webhook & Guide Side Cards (1 col) */}
         <div className="space-y-4">
           {/* Webhook URL Box */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs text-xs space-y-3">
+          <div className="rounded-2xl border border-border bg-card p-5  text-xs space-y-3">
             <div className="flex items-center gap-2">
-              <div className="size-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <RadioIcon className="size-3.5" />
-              </div>
+              <RadioIcon className="size-4 text-primary shrink-0" />
               <h3 className="font-semibold text-foreground">Webhook URL</h3>
             </div>
             <p className="text-muted-foreground text-[11px] leading-relaxed">
               Cài đặt URL này vào mục <strong>Webhooks</strong> tại SePay để hệ thống tự động nhận biến động số dư:
             </p>
-            <div className="p-2 rounded-lg bg-muted/60 border border-border/60 font-mono text-[11px] break-all select-all text-foreground">
+            <div className="p-2 rounded-lg bg-muted/60 border border-border font-mono text-[11px] break-all select-all text-foreground">
               {config?.webhook_url || "http://localhost:8000/api/v1/payments/sepay/webhook"}
             </div>
             <Button
@@ -328,7 +324,7 @@ export function SepayIntegrationView() {
               variant="outline"
               size="sm"
               onClick={handleCopyWebhook}
-              className="w-full text-xs font-medium gap-1.5 h-8 border-border/70"
+              className="w-full text-xs font-medium gap-1.5 h-8 border-border"
             >
               {copiedWebhook ? (
                 <>
@@ -345,11 +341,9 @@ export function SepayIntegrationView() {
           </div>
 
           {/* Quick Guide */}
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs text-xs space-y-3">
+          <div className="rounded-2xl border border-border bg-card p-5  text-xs space-y-3">
             <div className="flex items-center gap-2">
-              <div className="size-7 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
-                <HelpCircleIcon className="size-3.5" />
-              </div>
+              <HelpCircleIcon className="size-4 text-primary shrink-0" />
               <h3 className="font-semibold text-foreground">Hướng dẫn tích hợp</h3>
             </div>
             <ol className="space-y-2 text-[11px] text-muted-foreground list-decimal list-inside leading-relaxed">

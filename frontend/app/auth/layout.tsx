@@ -32,7 +32,7 @@ export default function AuthLayout({
         </main>
 
         {/* Bottom Legal / Help Footer */}
-        <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#94a3b8] border-t border-[#f1f5f9] pt-6 w-full max-w-xl mx-auto">
+        <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#475569] border-t border-[#f1f5f9] pt-6 w-full max-w-xl mx-auto">
           <span>ReplyEase AI · Autonomous Customer Support & Instant Checkout</span>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-[#475569] transition-colors">

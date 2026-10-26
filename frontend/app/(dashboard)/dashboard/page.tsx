@@ -7,11 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRightIcon,
   BotIcon,
-  Code2Icon,
   GlobeIcon,
-  GraduationCapIcon,
   Loader2Icon,
-  PackageIcon,
   PlusIcon,
   SparklesIcon,
   ZapIcon,
@@ -42,7 +39,7 @@ export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Welcome Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border">
         <div className="space-y-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Xin chào, {user?.fullname || "Chủ doanh nghiệp"}
@@ -54,7 +51,7 @@ export default function DashboardPage() {
 
         <Button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold h-9 px-4 gap-1.5 shadow-xs shrink-0"
+          className="bg-primary hover:bg-[#9a3412] text-primary-foreground text-xs font-semibold h-9 px-4 gap-1.5 shrink-0"
         >
           <PlusIcon className="size-4" />
           <span>Thêm Domain mới</span>
@@ -64,7 +61,7 @@ export default function DashboardPage() {
       {/* KPI Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Domain Quota Card */}
-        <Card className="border border-border/60 bg-card shadow-xs">
+        <Card className="border border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
               <span>Hạn mức Domain</span>
@@ -73,19 +70,19 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-foreground">
+              <span className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
                 {domains.length}
               </span>
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground tabular-nums">
                 / {quota?.max_domains || 1} domains
               </span>
             </div>
 
             {quota && (
               <div className="space-y-1 pt-1">
-                <div className="w-full bg-muted/60 h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
                   <div
-                    className="bg-primary h-full rounded-full transition-all"
+                    className="bg-primary h-full rounded-full transition-[width] duration-300"
                     style={{
                       width: `${Math.min(
                         (domains.length / Math.max(quota.max_domains, 1)) * 100,
@@ -106,16 +103,16 @@ export default function DashboardPage() {
         </Card>
 
         {/* AI Credits Card */}
-        <Card className="border border-border/60 bg-card shadow-xs">
+        <Card className="border border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
               <span>Credits Email & AI</span>
-              <SparklesIcon className="size-4 text-amber-500" />
+              <SparklesIcon className="size-4 text-primary" />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-foreground">
+              <span className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
                 {quota?.credits ?? 0}
               </span>
               <span className="text-xs text-muted-foreground">credits</span>
@@ -127,16 +124,16 @@ export default function DashboardPage() {
         </Card>
 
         {/* System Status Card */}
-        <Card className="border border-border/60 bg-card shadow-xs">
+        <Card className="border border-border bg-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
               <span>RAG Engine Status</span>
-              <ZapIcon className="size-4 text-emerald-500" />
+              <ZapIcon className="size-4 text-emerald-600 dark:text-emerald-400" />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="size-2 rounded-full bg-emerald-500" />
               <span className="text-sm font-semibold text-foreground">
                 Gemini + Pinecone Online
               </span>
@@ -171,9 +168,9 @@ export default function DashboardPage() {
 
         {/* Empty state */}
         {!isLoading && domains.length === 0 && (
-          <Card className="border border-dashed border-border/80 bg-muted/20">
+          <Card className="border border-dashed border-border bg-card">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center px-4">
-              <div className="size-14 rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground mb-4">
+              <div className="size-14 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mb-4">
                 <GlobeIcon className="size-7 stroke-[1.5]" />
               </div>
               <h3 className="text-base font-semibold text-foreground">
@@ -182,7 +179,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground max-w-sm mt-1.5 mb-6">
                 Thêm domain đầu tiên để bắt đầu tạo Trợ lý bán hàng tự động và tùy biến giao diện widget nhúng.
               </p>
-              <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 text-xs font-medium">
+              <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 text-xs font-medium bg-primary hover:bg-[#9a3412] text-primary-foreground">
                 <PlusIcon className="size-4" />
                 <span>Thêm Domain đầu tiên</span>
               </Button>
@@ -196,13 +193,13 @@ export default function DashboardPage() {
             {domains.map((dom) => (
               <Card
                 key={dom.id}
-                className="overflow-hidden border border-border/80 bg-card hover:border-primary/40 transition-all duration-200 shadow-xs flex flex-col justify-between"
+                className="overflow-hidden border border-border bg-card hover:border-primary/50 transition-colors flex flex-col justify-between"
               >
                 <div className="p-5 space-y-4">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative size-11 rounded-xl overflow-hidden bg-muted border border-border/80 shrink-0">
+                      <div className="relative size-11 rounded-xl overflow-hidden bg-muted border border-border shrink-0">
                         {dom.icon ? (
                           <Image
                             src={dom.icon}
@@ -228,28 +225,28 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                       Active
                     </span>
                   </div>
 
                   {/* Micro stats */}
-                  <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-muted/30 border border-border/40 text-center text-xs">
+                  <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-lg bg-muted/40 border border-border/60 text-center text-xs">
                     <div>
                       <span className="text-muted-foreground block text-[10px]">Sản phẩm</span>
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-foreground tabular-nums">
                         {dom.products?.length ?? 0}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">FAQ</span>
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-foreground tabular-nums">
                         {dom.helpdesk?.length ?? 0}
                       </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block text-[10px]">Câu lọc</span>
-                      <span className="font-semibold text-foreground">
+                      <span className="font-semibold text-foreground tabular-nums">
                         {dom.filter_questions?.length ?? 0}
                       </span>
                     </div>
@@ -257,14 +254,14 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Card Actions */}
-                <div className="px-5 py-3 bg-muted/20 border-t border-border/50 flex items-center justify-between">
+                <div className="px-5 py-3 bg-muted/20 border-t border-border flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <BotIcon className="size-3.5 text-primary" />
                     <span>Chatbot sẵn sàng</span>
                   </div>
 
                   <Link href={`/settings/${dom.name}`}>
-                    <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1 text-primary hover:text-primary">
+                    <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1 text-primary hover:text-[#9a3412] hover:bg-primary/10">
                       <span>Cài đặt</span>
                       <ArrowRightIcon className="size-3" />
                     </Button>

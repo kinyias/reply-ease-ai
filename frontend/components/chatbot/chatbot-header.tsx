@@ -31,7 +31,7 @@ export function ChatbotHeader({
     <div
       style={bgStyle}
       className={`px-4 py-3.5 flex items-center justify-between border-b border-white/10 select-none ${
-        !themeColor ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white" : ""
+        !themeColor ? "bg-primary text-primary-foreground" : ""
       }`}
     >
       {/* Bot & Status Info */}
@@ -54,12 +54,12 @@ export function ChatbotHeader({
 
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
-            <h3
+            <h1
               style={{ color: fgColor }}
               className="text-sm font-semibold tracking-tight truncate max-w-[180px] sm:max-w-[220px]"
             >
               {domainName}
-            </h3>
+            </h1>
             {isLive && (
               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-red-500/90 text-white animate-pulse">
                 <RadioIcon className="size-2.5" />

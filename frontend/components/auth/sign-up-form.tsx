@@ -464,7 +464,7 @@ export function SignUpForm() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="name@example.com"
+                placeholder="name@cuahang.vn"
                 className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.email ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}

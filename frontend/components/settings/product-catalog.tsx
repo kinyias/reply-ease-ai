@@ -335,7 +335,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               </Label>
               <Input
                 id="image"
-                placeholder="https://example.com/product.jpg"
+                placeholder="https://cuahang.vn/product.jpg"
                 {...register("image")}
               />
               {errors.image && (

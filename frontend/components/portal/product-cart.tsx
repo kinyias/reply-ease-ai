@@ -151,11 +151,11 @@ export function ProductCart({
             onClick={() => onChangePaymentMethod("stripe")}
             className={`p-4 rounded-2xl border text-left transition-all flex items-start gap-3 ${
               paymentMethod === "stripe"
-                ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-500 ring-2 ring-indigo-500/20 shadow-xs"
+                ? "bg-primary/5 border-primary ring-2 ring-primary/20"
                 : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300"
             }`}
           >
-            <div className="size-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <CreditCardIcon className="size-4" />
             </div>
             <div>

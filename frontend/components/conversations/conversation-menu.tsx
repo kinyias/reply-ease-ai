@@ -72,9 +72,9 @@ export function ConversationMenu({
   }, []);
 
   return (
-    <aside className="w-full md:w-80 lg:w-96 border-r border-border/60 bg-card/40 flex flex-col h-full shrink-0">
+    <aside className="w-full md:w-80 lg:w-96 border-r border-border bg-sidebar/60 flex flex-col h-full shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-border/60 space-y-3 shrink-0">
+      <div className="p-4 border-b border-border space-y-3 shrink-0">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h1 className="font-semibold text-base text-foreground tracking-tight">
@@ -109,7 +109,7 @@ export function ConversationMenu({
               onChange={(e) => onSelectDomain(e.target.value)}
               className="w-full h-8.5 text-xs bg-background/80 border border-border/70 rounded-md px-2.5 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer pr-8 truncate font-medium"
             >
-              <option value="all">🌐 Tất cả các Domain ({domains.length})</option>
+              <option value="all">Tất cả các Domain ({domains.length})</option>
               {domains.map((dom) => (
                 <option key={dom.id} value={dom.id}>
                   {dom.name}
@@ -168,11 +168,9 @@ export function ConversationMenu({
             ))}
           </div>
         ) : rooms.length === 0 ? (
-          <div className="py-16 text-center px-4 space-y-2">
-            <div className="size-10 rounded-full bg-muted/60 flex items-center justify-center mx-auto text-muted-foreground">
-              <InboxIcon className="size-5" />
-            </div>
-            <p className="text-sm font-medium text-foreground">
+          <div className="py-16 text-center px-4 space-y-3">
+            <InboxIcon className="size-8 mx-auto text-muted-foreground/50 stroke-[1.5]" />
+            <p className="text-sm font-semibold text-foreground">
               Không có cuộc hội thoại nào
             </p>
             <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">

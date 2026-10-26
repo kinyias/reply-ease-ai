@@ -10,9 +10,9 @@ const AVATAR_PALETTE = [
   { bg: "bg-sky-100 dark:bg-sky-950/60", text: "text-sky-700 dark:text-sky-300" },
   { bg: "bg-emerald-100 dark:bg-emerald-950/60", text: "text-emerald-700 dark:text-emerald-300" },
   { bg: "bg-amber-100 dark:bg-amber-950/60", text: "text-amber-700 dark:text-amber-300" },
-  { bg: "bg-violet-100 dark:bg-violet-950/60", text: "text-violet-700 dark:text-violet-300" },
+  { bg: "bg-orange-100 dark:bg-orange-950/60", text: "text-orange-700 dark:text-orange-300" },
   { bg: "bg-rose-100 dark:bg-rose-950/60", text: "text-rose-700 dark:text-rose-300" },
-  { bg: "bg-indigo-100 dark:bg-indigo-950/60", text: "text-indigo-700 dark:text-indigo-300" },
+  { bg: "bg-slate-200 dark:bg-slate-800", text: "text-slate-700 dark:text-slate-300" },
   { bg: "bg-teal-100 dark:bg-teal-950/60", text: "text-teal-700 dark:text-teal-300" },
 ];
 
@@ -86,8 +86,8 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
       onClick={() => onSelect(room.id)}
       className={`w-full text-left p-3.5 rounded-lg border transition-all duration-150 flex items-start gap-3 relative select-none ${
         isActive
-          ? "bg-accent/80 border-border text-foreground shadow-xs ring-1 ring-primary/20"
-          : "bg-card/60 hover:bg-muted/60 border-border/40 text-muted-foreground hover:text-foreground"
+          ? "bg-sidebar-accent border-primary/40 text-foreground shadow-2xs"
+          : "bg-card hover:bg-muted/50 border-border text-muted-foreground hover:text-foreground"
       }`}
     >
       {/* Avatar with deterministic hue */}
@@ -113,7 +113,7 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
                 className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded-full border border-emerald-500/20 shrink-0"
                 title="Đang trong chế độ Live nhân viên hỗ trợ"
               >
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="size-1.5 rounded-full bg-emerald-500 " />
                 Live
               </span>
             )}

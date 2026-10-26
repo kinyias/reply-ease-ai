@@ -82,7 +82,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
       {/* Modern Ticket / Receipt Card */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-sm">
         {/* Top Branding Bar */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 text-white flex items-center justify-between">
+        <div className="bg-primary text-primary-foreground px-6 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <SparklesIcon className="size-4" />
             <span className="font-semibold text-sm tracking-wide">

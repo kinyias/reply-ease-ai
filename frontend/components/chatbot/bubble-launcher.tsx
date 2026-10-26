@@ -35,9 +35,9 @@ export function BubbleLauncher({
       {!isOpen && showTooltip && (
         <div
           onClick={onToggle}
-          className="cursor-pointer group flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl shadow-zinc-950/10 transition-all hover:scale-102 animate-in fade-in slide-in-from-bottom-2 duration-300"
+          className="cursor-pointer group flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md shadow-zinc-950/10 transition-all hover:scale-102 animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
-          <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="size-2 rounded-full bg-emerald-500 " />
           <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
             Xin chào! Em có thể giúp gì cho mình ạ?
           </span>
@@ -61,13 +61,13 @@ export function BubbleLauncher({
         onClick={onToggle}
         aria-label={isOpen ? "Đóng cửa sổ chat" : "Mở cửa sổ chat"}
         style={{ backgroundColor: bgColor }}
-        className="relative size-14 sm:size-15 rounded-full flex items-center justify-center text-white shadow-lg shadow-orange-950/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+        className="relative size-14 sm:size-15 rounded-full flex items-center justify-center text-white shadow-md shadow-orange-950/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
       >
         {/* Subtle Ping Animation when closed */}
         {!isOpen && (
           <span
             style={{ backgroundColor: bgColor }}
-            className="absolute -inset-1 rounded-full opacity-35 animate-ping -z-10 pointer-events-none"
+            className="absolute -inset-1 rounded-full opacity-35  -z-10 pointer-events-none"
           />
         )}
 

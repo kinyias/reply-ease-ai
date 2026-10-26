@@ -6,17 +6,17 @@ export function AuthShowcase() {
       {/* Top Telemetry Bar */}
       <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-5 w-full max-w-xl xl:max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 rounded-md border border-[#e2e8f0] bg-white px-2.5 py-1 text-xs shadow-xs">
-          <span className="size-2 rounded-full bg-[#10b981]" />
+          <span className="size-2 rounded-full bg-[#047857]" />
           <span className="font-mono text-[11px] text-[#475569]">
             agent.cluster-vn.replyease.ai
           </span>
         </div>
         <div className="flex items-center gap-2 text-xs text-[#64748b]">
           <span className="font-mono font-medium text-[#0f172a]">240ms</span>
-          <span className="text-[#94a3b8]">latency</span>
+          <span className="text-[#475569]">latency</span>
           <span className="text-[#cbd5e1]">·</span>
-          <span className="font-mono font-medium text-[#10b981]">99.8%</span>
-          <span className="text-[#94a3b8]">uptime</span>
+          <span className="font-mono font-medium text-[#047857]">99.8%</span>
+          <span className="text-[#475569]">uptime</span>
         </div>
       </div>
 
@@ -28,7 +28,7 @@ export function AuthShowcase() {
             <span>End-to-End Automation: Consultation & Instant VietQR Checkout</span>
           </div>
           <h2 className="font-semibold text-3xl tracking-tight text-[#0f172a] sm:text-4xl leading-tight">
-            AI website assistant that understands your catalog and settles orders autonomously.
+            Catalog consultation and autonomous VietQR settlement.
           </h2>
           <p className="text-sm leading-relaxed text-[#64748b]">
             Never miss midnight buyers again. ReplyEase AI indexes your company documents and triggers automated SePay VietQR orders instantly.
@@ -44,12 +44,12 @@ export function AuthShowcase() {
                 <Globe className="size-3.5" />
               </div>
               <span className="font-medium text-[#0f172a]">tracy-store.com</span>
-              <span className="rounded bg-[#f8fafc] border border-[#e2e8f0] px-1.5 py-0.5 font-mono text-[10px] text-[#64748b]">
+              <span className="rounded bg-[#f8fafc] border border-[#e2e8f0] px-1.5 py-0.5 font-mono text-xs text-[#64748b]">
                 Widget ID #8841
               </span>
             </div>
-            <span className="font-mono text-[11px] text-[#10b981] font-medium flex items-center gap-1">
-              <span className="size-1.5 rounded-full bg-[#10b981]" />
+            <span className="font-mono text-[11px] text-[#047857] font-medium flex items-center gap-1">
+              <span className="size-1.5 rounded-full bg-[#047857]" />
               Live Session
             </span>
           </div>
@@ -60,7 +60,7 @@ export function AuthShowcase() {
             <div className="rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
               <div className="flex items-center justify-between text-[11px] text-[#64748b] mb-1">
                 <span>Customer (Visitor #492)</span>
-                <span className="font-mono text-[10px] text-[#94a3b8]">14:22:04</span>
+                <span className="font-mono text-xs text-[#475569]">14:22:04</span>
               </div>
               <p className="text-[#1e293b] text-[13px]">
                 &ldquo;Hi! Do you have the beige wool blazer in size L? How fast can it be delivered within the city?&rdquo;
@@ -86,7 +86,7 @@ export function AuthShowcase() {
                   <Bot className="size-3.5" />
                   <span>ReplyEase AI Assistant</span>
                 </div>
-                <span className="font-mono text-[10px] text-[#94a3b8]">14:22:05 (240ms)</span>
+                <span className="font-mono text-xs text-[#475569]">14:22:05 (240ms)</span>
               </div>
               <p className="text-[#334155] text-[13px] leading-relaxed">
                 Yes! We currently have exactly 2 <strong className="text-[#0f172a]">beige wool blazers in size L</strong> in stock. Express city delivery arrives within 2 hours. I have generated a VietQR code below so you can secure your reservation right away!
@@ -95,7 +95,7 @@ export function AuthShowcase() {
               {/* VietQR SePay Snippet */}
               <div className="flex items-center justify-between rounded-md border border-[#fed7aa] bg-[#fff7ed] px-3 py-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <div className="flex size-5 items-center justify-center rounded bg-[#10b981]/15 text-[#10b981]">
+                  <div className="flex size-5 items-center justify-center rounded bg-[#047857]/15 text-[#047857]">
                     <CheckCircle2 className="size-3.5" />
                   </div>
                   <span className="text-[#9a3412] font-medium">Automated SePay VietQR</span>
@@ -132,10 +132,10 @@ export function AuthShowcase() {
       {/* Bottom Credibility Anchor */}
       <div className="flex items-center justify-between border-t border-[#e2e8f0] pt-5 text-xs text-[#64748b] w-full max-w-xl xl:max-w-2xl mx-auto">
         <div className="flex items-center gap-2">
-          <Shield className="size-4 text-[#10b981]" />
+          <Shield className="size-4 text-[#047857]" />
           <span>Bank-grade encryption · Two-factor OTP authentication</span>
         </div>
-        <span className="font-mono text-[#94a3b8]">ReplyEase v1.0</span>
+        <span className="font-mono text-[#475569]">ReplyEase v1.0</span>
       </div>
     </div>
   )

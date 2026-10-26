@@ -25,10 +25,10 @@ interface ChatTabProps {
 }
 
 const QUICK_SUGGESTIONS = [
-  "💡 Tư vấn sản phẩm & dịch vụ",
-  "💰 Báo giá chi tiết",
-  "📅 Tôi muốn đặt lịch hẹn",
-  "👨‍💼 Gặp nhân viên tư vấn trực tiếp",
+  "Tư vấn sản phẩm & dịch vụ",
+  "Báo giá chi tiết",
+  "Tôi muốn đặt lịch hẹn",
+  "Gặp nhân viên tư vấn trực tiếp",
 ];
 
 export function ChatTab({
@@ -224,7 +224,7 @@ export function ChatTab({
         {/* Quick Suggestion Chips (Shown when messages <= 3) */}
         {messages.length <= 3 && !isTyping && (
           <div className="pt-2">
-            <p className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 mb-2 px-1">
+            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-2 px-1">
               Gợi ý câu hỏi nhanh:
             </p>
             <div className="flex flex-wrap gap-1.5">

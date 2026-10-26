@@ -83,7 +83,7 @@ export function StepSchedule({
             type="email"
             value={email}
             onChange={(e) => onChangeEmail(e.target.value)}
-            placeholder="tenban@example.com"
+            placeholder="khachhang@gmail.com"
             required
             className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-900/50 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-zinc-400"
           />

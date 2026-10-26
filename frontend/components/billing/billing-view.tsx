@@ -52,7 +52,7 @@ export function BillingView() {
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-border/60">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-border">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -69,7 +69,7 @@ export function BillingView() {
 
         <div className="flex items-center gap-2.5">
           <Link href="/integration">
-            <Button variant="outline" size="sm" className="text-xs gap-1.5 border-border/70">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5 border-border">
               <ShieldCheckIcon className="size-3.5 text-primary" />
               <span>Tích hợp SePay Shop</span>
             </Button>
@@ -78,7 +78,7 @@ export function BillingView() {
             variant="outline"
             size="sm"
             onClick={() => refetchTransactions()}
-            className="text-xs gap-1.5 border-border/70"
+            className="text-xs gap-1.5 border-border"
             title="Làm mới dữ liệu"
           >
             <RotateCcwIcon className="size-3.5 text-muted-foreground" />
@@ -88,21 +88,19 @@ export function BillingView() {
       </div>
 
       {/* Top Stat Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card 1: Current Plan */}
-        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-2xl border border-border bg-card p-5  flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground">Gói tài khoản hiện tại</span>
-            <div className="size-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-              <ZapIcon className="size-4" />
-            </div>
+            <ZapIcon className="size-4 text-muted-foreground" />
           </div>
           <div>
             <div className="flex items-baseline gap-2">
               <h3 className="text-2xl font-bold tracking-tight text-foreground">
                 {currentPlan}
               </h3>
-              <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/30 bg-emerald-500/5">
+              <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
                 Đang kích hoạt
               </Badge>
             </div>
@@ -117,12 +115,10 @@ export function BillingView() {
         </div>
 
         {/* Card 2: AI Credits */}
-        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-2xl border border-border bg-card p-5  flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground">AI Chat Credits khả dụng</span>
-            <div className="size-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
-              <CoinsIcon className="size-4" />
-            </div>
+            <CoinsIcon className="size-4 text-muted-foreground" />
           </div>
           <div>
             <div className="flex items-baseline gap-1">
@@ -145,12 +141,10 @@ export function BillingView() {
         </div>
 
         {/* Card 3: Domain Quota */}
-        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-xs flex flex-col justify-between">
+        <div className="rounded-2xl border border-border bg-card p-5  flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground">Hạn mức Websites kết nối</span>
-            <div className="size-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
-              <GlobeIcon className="size-4" />
-            </div>
+            <GlobeIcon className="size-4 text-muted-foreground" />
           </div>
           <div>
             <div className="flex items-baseline gap-1">
@@ -161,7 +155,7 @@ export function BillingView() {
             </div>
             <div className="w-full bg-muted/60 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div
-                className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                className="bg-primary h-full rounded-full transition-all duration-500"
                 style={{ width: `${domainUsagePercent}%` }}
               />
             </div>
@@ -194,7 +188,7 @@ export function BillingView() {
       </div>
 
       {/* Transaction History Section */}
-      <div className="space-y-4 pt-4 border-t border-border/60">
+      <div className="space-y-4 pt-4 border-t border-border">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold tracking-tight text-foreground">

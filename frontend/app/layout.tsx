@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ReplyEase AI — Autonomous Customer Support & Instant Checkout",
   description:
-    "ReplyEase AI empowers e-commerce brands to deploy 24/7 conversational customer service, automate inventory checks, and close orders instantly with automated checkout.",
+    "ReplyEase AI powers e-commerce brands to deploy 24/7 conversational customer service, automate inventory checks, and close orders instantly with automated checkout.",
 };
 
 export default function RootLayout({
@@ -28,10 +28,11 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="vi"
+      suppressHydrationWarning
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,5 +1,7 @@
 "use client";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -103,7 +105,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
 
   const sidebarContent = (
     <aside
-      className={`h-screen sticky top-0 flex flex-col justify-between border-r border-border/60 bg-card/90 backdrop-blur-md transition-all duration-300 z-40 ${
+      className={`h-screen sticky top-0 flex flex-col justify-between border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-200 z-40 ${
         isCollapsed ? "w-18" : "w-64"
       }`}
     >
@@ -113,20 +115,20 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
         <div className="flex items-center justify-between pb-2">
           {!isCollapsed ? (
             <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="size-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+              <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-xs">
                 <SparklesIcon className="size-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold tracking-tight text-foreground">
-                  ReplyEase <span className="text-primary font-normal">AI</span>
+                <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">
+                  ReplyEase <span className="text-primary font-bold">AI</span>
                 </span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">
-                  v1.0 Pro
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  Bán hàng & CSKH tự động
                 </span>
               </div>
             </Link>
           ) : (
-            <div className="mx-auto size-8 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+            <div className="mx-auto size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-xs">
               <SparklesIcon className="size-4" />
             </div>
           )}
@@ -136,7 +138,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
             variant="ghost"
             size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="size-7 text-muted-foreground hover:text-foreground hidden sm:flex"
+            className="size-7 text-muted-foreground hover:text-sidebar-foreground hidden sm:flex"
             title={isCollapsed ? "Mở rộng sidebar" : "Thu nhỏ sidebar"}
           >
             {isCollapsed ? (
@@ -152,7 +154,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="size-7 text-muted-foreground hover:text-foreground sm:hidden"
+              className="size-7 text-muted-foreground hover:text-sidebar-foreground sm:hidden"
             >
               <XIcon className="size-4" />
             </Button>
@@ -171,10 +173,10 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                   item.isActive
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "bg-sidebar-accent text-sidebar-foreground font-semibold shadow-2xs"
+                    : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                 } ${isCollapsed ? "justify-center px-2" : ""}`}
                 title={isCollapsed ? item.label : undefined}
               >
@@ -191,14 +193,14 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
       </div>
 
       {/* Bottom User Profile Section */}
-      <div className="p-3 border-t border-border/60 bg-muted/20">
+      <div className="p-3 border-t border-sidebar-border bg-sidebar">
         <div
           className={`flex items-center gap-3 ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="size-8 rounded-full bg-primary/20 text-primary font-semibold text-xs flex items-center justify-center shrink-0 border border-primary/30">
+            <div className="size-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center shrink-0 border border-primary/20">
               {user?.fullname
                 ? user.fullname.slice(0, 2).toUpperCase()
                 : "RE"}
@@ -206,7 +208,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
 
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-foreground truncate">
+                <span className="text-xs font-semibold text-sidebar-foreground truncate">
                   {user?.fullname || "Người dùng"}
                 </span>
                 <span className="text-[11px] text-muted-foreground truncate">
@@ -216,16 +218,23 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
             )}
           </div>
 
-          {!isCollapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="size-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-              title="Đăng xuất"
-            >
-              <LogOutIcon className="size-3.5" />
-            </Button>
+          {!isCollapsed ? (
+            <div className="flex items-center gap-1 shrink-0">
+              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="size-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                title="Đăng xuất"
+              >
+                <LogOutIcon className="size-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-2 flex justify-center">
+              <ThemeToggle />
+            </div>
           )}
         </div>
       </div>
@@ -243,7 +252,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 sm:hidden">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/40"
             onClick={onClose}
           />
           <div className="relative z-50 h-full w-64 animate-in slide-in-from-left duration-200">

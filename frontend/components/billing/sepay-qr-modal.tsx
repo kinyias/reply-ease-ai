@@ -72,7 +72,7 @@ export function SepayQrModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden border border-border/80 bg-background sm:rounded-2xl shadow-2xl">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden border border-border/80 bg-background sm:rounded-2xl shadow-lg">
         {status === "SUCCESS" ? (
           /* ================= SUCCESS STATE ================= */
           <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
@@ -247,7 +247,7 @@ export function SepayQrModal({
                       </button>
                     </div>
                     <p className="mt-1.5 text-[11px] text-muted-foreground leading-tight">
-                      ⚠️ Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống đối soát và nâng cấp tài khoản tự động.
+                      Lưu ý: Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống đối soát và nâng cấp tài khoản tự động.
                     </p>
                   </div>
                 </div>
