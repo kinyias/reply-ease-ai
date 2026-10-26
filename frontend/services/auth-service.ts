@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api-client"
+import { clearAuthCookies } from "@/lib/cookies"
 import {
   GenerateOtpRequest,
   GenerateOtpResponse,
@@ -62,5 +63,12 @@ export const authService = {
   async getMe(): Promise<User> {
     const response = await apiClient.get<User>("/auth/me")
     return response.data
+  },
+
+  /**
+   * Log out and clear authentication cookies
+   */
+  logout(): void {
+    clearAuthCookies()
   },
 }

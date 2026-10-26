@@ -1,23 +1,39 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Globe, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BotIcon,
+  Code2Icon,
+  Globe,
+  GraduationCapIcon,
+  Loader2,
+  PackageIcon,
+  Settings2Icon,
+} from "lucide-react";
 
 import domainService from "@/services/domain-service";
+import { DomainGeneralSettings } from "@/components/settings/domain-general-settings";
 import { ChatbotCustomizer } from "@/components/settings/chatbot-customizer";
 import { BotTraining } from "@/components/settings/bot-training";
+import { ProductCatalog } from "@/components/settings/product-catalog";
+import { CodeSnippet } from "@/components/settings/code-snippet";
 import { Button } from "@/components/ui/button";
 
 interface DomainSettingsViewProps {
   domainIdentifier: string;
 }
 
+type SettingsTab = "general" | "customizer" | "training" | "products" | "embed";
+
 export function DomainSettingsView({
   domainIdentifier,
 }: DomainSettingsViewProps) {
-  // Try fetching domains list to find matching domain by ID or Name
+  const [activeTab, setActiveTab] = useState<SettingsTab>("customizer");
+
+  // Fetch domains list to find matching domain by ID or Name
   const {
     data: domains,
     isLoading,
@@ -35,7 +51,7 @@ export function DomainSettingsView({
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <Loader2 className="size-8 animate-spin text-brand-accent" />
+        <Loader2 className="size-8 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">
           Đang tải cấu hình domain & chatbot...
         </p>
@@ -43,40 +59,137 @@ export function DomainSettingsView({
     );
   }
 
-  // If domains exist but specific one not found, fallback to first domain or the identifier
+  // Fallback to first domain or identifier if not loaded yet
   const domain = currentDomain || domains?.[0];
   const targetId = domain?.id || domainIdentifier;
   const targetName = domain?.name || domainIdentifier;
 
+  const TABS = [
+    {
+      id: "customizer" as const,
+      label: "Giao diện Chatbot",
+      icon: BotIcon,
+      description: "Câu chào, avatar, màu sắc",
+    },
+    {
+      id: "training" as const,
+      label: "Huấn luyện AI",
+      icon: GraduationCapIcon,
+      description: "HelpDesk FAQ & Câu hỏi lọc lead",
+    },
+    {
+      id: "products" as const,
+      label: "Sản phẩm & Dịch vụ",
+      icon: PackageIcon,
+      description: "Kho hàng, bảng giá & VietQR",
+    },
+    {
+      id: "embed" as const,
+      label: "Mã nhúng Widget",
+      icon: Code2Icon,
+      description: "Iframe & script nhúng website",
+    },
+    {
+      id: "general" as const,
+      label: "Cài đặt chung",
+      icon: Settings2Icon,
+      description: "Đổi tên domain & Xóa domain",
+    },
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Navigation breadcrumb */}
-      <div className="flex items-center justify-between">
+      {/* Navigation breadcrumb & domain status */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border/60">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
               <ArrowLeft className="size-3.5" />
-              <span>Quay lại Dashboard</span>
+              <span>Dashboard</span>
             </Button>
           </Link>
           <span className="text-muted-foreground">/</span>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Globe className="size-3.5" />
-            <span className="font-semibold text-foreground">{targetName}</span>
+          <div className="flex items-center gap-2 text-xs">
+            <Globe className="size-3.5 text-primary" />
+            <span className="font-semibold text-foreground text-sm">{targetName}</span>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveTab("embed")}
+            className="text-xs gap-1.5 h-8 font-medium"
+          >
+            <Code2Icon className="size-3.5 text-primary" />
+            Lấy mã nhúng
+          </Button>
         </div>
       </div>
 
-      {/* Chatbot Customizer component */}
-      <ChatbotCustomizer
-        domainId={targetId}
-        domainName={targetName}
-        initialData={domain?.chat_bot}
-      />
+      {/* Tabs navigation pill bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-1.5 bg-muted/40 rounded-2xl border border-border/60">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
 
-      {/* Bot Training & Knowledge Base (HelpDesk FAQ & Filter Questions) */}
-      <div className="pt-6">
-        <BotTraining domainId={targetId} />
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all ${
+                isActive
+                  ? "bg-background text-foreground shadow-xs border border-border/80 font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+              }`}
+            >
+              <div
+                className={`p-1.5 rounded-lg shrink-0 ${
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Icon className="size-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-medium truncate">{tab.label}</span>
+                <span className="text-[10px] text-muted-foreground hidden xl:inline-block truncate">
+                  {tab.description}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab Panels */}
+      <div className="pt-2">
+        {activeTab === "customizer" && (
+          <ChatbotCustomizer
+            domainId={targetId}
+            domainName={targetName}
+            initialData={domain?.chat_bot}
+          />
+        )}
+
+        {activeTab === "training" && (
+          <BotTraining domainId={targetId} />
+        )}
+
+        {activeTab === "products" && (
+          <ProductCatalog domainId={targetId} />
+        )}
+
+        {activeTab === "embed" && (
+          <CodeSnippet domainId={targetId} domainName={targetName} />
+        )}
+
+        {activeTab === "general" && domain && (
+          <DomainGeneralSettings domain={domain} />
+        )}
       </div>
     </div>
   );
