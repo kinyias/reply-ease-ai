@@ -1,0 +1,2762 @@
+{
+ "url": "http://localhost:3000",
+ "at": "2026-10-26T04:15:45.094Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 9,
+   "filled": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0.9,
+    1,
+    1
+   ],
+   "motion": {
+    "elements": 43,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 43,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 7861,
+     "screens": 8.7,
+     "words": 1205,
+     "img": 2,
+     "video": 0,
+     "canvas": 0,
+     "svg": 12,
+     "sections": 10,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 5,
+     "uiAbuse": false,
+     "realPictures": 2,
+     "videoCount": 0,
+     "uiPictures": 5,
+     "pictureSamples": [
+      "image?url=%2Fimages%2Fstore-boutique.jpg&w=1920&",
+      "image?url=%2Fimages%2Ffulfillment-station.jpg&w="
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "chars": 20,
+     "lines": 2,
+     "size": 48,
+     "vw": 3.3,
+     "font": "Be Vietnam Pro",
+     "weight": 600,
+     "tracking": -0.025,
+     "leading": 1.12,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.27,
+     "top": 220,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "lines": 2,
+     "size": 48,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [
+     {
+      "text": "Smart conversations,",
+      "words": 2,
+      "chars": 20,
+      "lines": 2,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.27,
+      "top": 220,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "instant checkout.",
+      "words": 2,
+      "chars": 17,
+      "lines": 2,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "right",
+      "position": "right",
+      "widthRatio": 0.19,
+      "top": 315,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Live Verification",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 938,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "4-Step Activation Workflow",
+      "words": 3,
+      "chars": 26,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 2111,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Real-World Operations Across Brands",
+      "words": 4,
+      "chars": 35,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 2839,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Deep Architecture",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 3635,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "240ms",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.49,
+      "top": 4523,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Average Latency per RAG Query",
+      "words": 5,
+      "chars": 29,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.49,
+      "top": 4579,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "+38%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.1,
+      "top": 4599,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.1,
+      "top": 4599,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.8%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.1,
+      "top": 4599,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Transparent Pricing",
+      "words": 2,
+      "chars": 19,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.53,
+      "top": 5267,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Frequently Asked Questions",
+      "words": 3,
+      "chars": 26,
+      "lines": 2,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.27,
+      "top": 6215,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Automate Conversational Sales with ReplyEase AI",
+      "words": 6,
+      "chars": 47,
+      "lines": 2,
+      "size": 36,
+      "vw": 2.5,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.38,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.49,
+      "top": 6982,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "ReplyEase AI",
+      "words": 2,
+      "chars": 12,
+      "lines": 1,
+      "size": 48,
+      "vw": 3.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.52,
+      "top": 7733,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 15,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "ui-monospace",
+       "share": 0.01,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      18,
+      20,
+      24,
+      30,
+      36,
+      48
+     ],
+     "sizeCount": 9,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 16,
+      "leading": 1.63,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.2
+     },
+     "measureChars": 88,
+     "max": {
+      "size": 48,
+      "vw": 3.3,
+      "font": "Be Vietnam Pro",
+      "text": "Smart conversations,"
+     },
+     "monoShare": 0.01,
+     "monoProseShare": 0,
+     "monoFamilies": [
+      "ui-monospace"
+     ],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 0,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#f8f9fb",
+       "top": 826,
+       "hsl": {
+        "h": 220,
+        "s": 0.27,
+        "l": 0.98
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#475569",
+       "share": 0.38
+      },
+      {
+       "color": "#0f172a",
+       "share": 0.29
+      },
+      {
+       "color": "#64748b",
+       "share": 0.19
+      },
+      {
+       "color": "#1e293b",
+       "share": 0.04
+      },
+      {
+       "color": "#334155",
+       "share": 0.02
+      }
+     ],
+     "button": {
+      "bg": "#c2410c",
+      "hsl": {
+       "h": 17,
+       "s": 0.88,
+       "l": 0.4
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 8,
+     "inHero": 3,
+     "radius": 8,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Start Free Trial",
+      "Start 14-day free trial",
+      "Explore live simulation"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 25,
+     "boxRadius": 14,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 14,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 216
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 1194
+      },
+      {
+       "count": 5,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 1118
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 3887
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 9,
+     "fixed": true,
+     "height": 80,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "be vietnam pro fallback"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 7861,
+    "margins": {
+     "left": 104,
+     "right": 104
+    },
+    "sections": [
+     {
+      "sel": "section.relative.pt-10",
+      "tag": "section",
+      "top": 80,
+      "height": 746,
+      "words": 132,
+      "media": 0,
+      "middle": 126,
+      "heading": {
+       "text": "Smart conversations,",
+       "size": 48,
+       "tag": "h1"
+      },
+      "left": 104,
+      "right": 104,
+      "textLeft": 104,
+      "textRight": 104,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#showcase.py-20.md:py-28",
+      "tag": "section",
+      "top": 826,
+      "height": 1173,
+      "words": 288,
+      "media": 0,
+      "middle": 60,
+      "heading": {
+       "text": "Live Verification",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 104,
+      "textLeft": 104,
+      "textRight": 124,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#how-it-works.py-20.md:py-28",
+      "tag": "section",
+      "top": 1999,
+      "height": 744,
+      "words": 120,
+      "media": 0,
+      "middle": 47,
+      "heading": {
+       "text": "4-Step Activation Workflow",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 139,
+      "textLeft": 104,
+      "textRight": 139,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-20.md:py-24",
+      "tag": "section",
+      "top": 2743,
+      "height": 780,
+      "words": 83,
+      "media": 2,
+      "middle": 32,
+      "heading": {
+       "text": "Real-World Operations Across Brands",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 104,
+      "textLeft": 104,
+      "textRight": 241,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#features.py-20.md:py-28",
+      "tag": "section",
+      "top": 3523,
+      "height": 888,
+      "words": 186,
+      "media": 0,
+      "middle": 60,
+      "heading": {
+       "text": "Deep Architecture",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 104,
+      "textLeft": 104,
+      "textRight": 104,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#stats.py-20.md:py-28",
+      "tag": "section",
+      "top": 4411,
+      "height": 744,
+      "words": 67,
+      "media": 0,
+      "middle": 76,
+      "heading": {
+       "text": "240ms",
+       "size": 48,
+       "tag": "div"
+      },
+      "left": 104,
+      "right": 132,
+      "textLeft": 104,
+      "textRight": 132,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#pricing.py-20.md:py-28",
+      "tag": "section",
+      "top": 5155,
+      "height": 948,
+      "words": 103,
+      "media": 0,
+      "middle": 116,
+      "heading": {
+       "text": "Transparent Pricing",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 167,
+      "textLeft": 104,
+      "textRight": 167,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#faq.py-20.md:py-28",
+      "tag": "section",
+      "top": 6103,
+      "height": 726,
+      "words": 323,
+      "media": 0,
+      "middle": 115,
+      "heading": {
+       "text": "Frequently Asked Questions",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 212,
+      "textLeft": 104,
+      "textRight": 212,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-24.md:py-32",
+      "tag": "section",
+      "top": 6829,
+      "height": 592,
+      "words": 89,
+      "media": 0,
+      "middle": 149,
+      "heading": {
+       "text": "Automate Conversational Sales with ReplyEase AI",
+       "size": 36,
+       "tag": "h2"
+      },
+      "left": 104,
+      "right": 146,
+      "textLeft": 104,
+      "textRight": 146,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.bg-[#f8f9fb].pt-14",
+      "tag": "footer",
+      "top": 7421,
+      "height": 440,
+      "words": 78,
+      "media": 0,
+      "middle": 134,
+      "heading": {
+       "text": "ReplyEase AI",
+       "size": 48,
+       "tag": "div"
+      },
+      "left": 104,
+      "right": 167,
+      "textLeft": 104,
+      "textRight": 167,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Smart conversations,",
+      "size": 48,
+      "top": 220,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 104,
+      "n": 23
+     },
+     {
+      "x": 1052,
+      "n": 3
+     },
+     {
+      "x": 736,
+      "n": 1
+     },
+     {
+      "x": 861,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 28,
+    "bodySize": 14,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0.27,
+    "voidBox": {
+     "x": 0,
+     "y": 660,
+     "w": 1440,
+     "h": 240
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 11,
+   "filled": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "motion": {
+    "elements": 43,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 43,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 11262,
+     "screens": 11,
+     "words": 1170,
+     "img": 2,
+     "video": 0,
+     "canvas": 0,
+     "svg": 12,
+     "sections": 10,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 5,
+     "uiAbuse": false,
+     "realPictures": 2,
+     "videoCount": 0,
+     "uiPictures": 5,
+     "pictureSamples": [
+      "image?url=%2Fimages%2Fstore-boutique.jpg&w=1920&",
+      "image?url=%2Fimages%2Ffulfillment-station.jpg&w="
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "chars": 20,
+     "lines": 1,
+     "size": 36,
+     "vw": 4.7,
+     "font": "Be Vietnam Pro",
+     "weight": 600,
+     "tracking": -0.025,
+     "leading": 1.12,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.94,
+     "top": 144,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "lines": 1,
+     "size": 36,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [
+     {
+      "text": "Smart conversations,",
+      "words": 2,
+      "chars": 20,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 144,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "instant checkout.",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 36,
+      "vw": 4.7,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 1022,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Live Verification",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 1406,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "4-Step Activation Workflow",
+      "words": 3,
+      "chars": 26,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 3326,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Real-World Operations Across Brands",
+      "words": 4,
+      "chars": 35,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 4370,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Deep Architecture",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 5189,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "240ms",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 48,
+      "vw": 6.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 6816,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Average Latency per RAG Query",
+      "words": 5,
+      "chars": 29,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 6872,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "+38%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.29,
+      "top": 7004,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.29,
+      "top": 7004,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.8%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.29,
+      "top": 7004,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Transparent Pricing",
+      "words": 2,
+      "chars": 19,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 7672,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Frequently Asked Questions",
+      "words": 3,
+      "chars": 26,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 8916,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Automate Conversational Sales with ReplyEase AI",
+      "words": 6,
+      "chars": 47,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.38,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.94,
+      "top": 9798,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "ReplyEase AI",
+      "words": 2,
+      "chars": 12,
+      "lines": 1,
+      "size": 48,
+      "vw": 6.3,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.85,
+      "top": 10950,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 15,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "ui-monospace",
+       "share": 0.01,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      18,
+      20,
+      24,
+      30,
+      36,
+      48
+     ],
+     "sizeCount": 9,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 16,
+      "leading": 1.63,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.2
+     },
+     "measureChars": 84,
+     "max": {
+      "size": 48,
+      "vw": 6.3,
+      "font": "Be Vietnam Pro",
+      "text": "240ms"
+     },
+     "monoShare": 0.01,
+     "monoProseShare": 0,
+     "monoFamilies": [
+      "ui-monospace"
+     ],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 0,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#f8f9fb",
+       "top": 412,
+       "hsl": {
+        "h": 220,
+        "s": 0.27,
+        "l": 0.98
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#475569",
+       "share": 0.38
+      },
+      {
+       "color": "#0f172a",
+       "share": 0.27
+      },
+      {
+       "color": "#64748b",
+       "share": 0.2
+      },
+      {
+       "color": "#1e293b",
+       "share": 0.04
+      },
+      {
+       "color": "#334155",
+       "share": 0.02
+      }
+     ],
+     "button": {
+      "bg": "#c2410c",
+      "hsl": {
+       "h": 17,
+       "s": 0.88,
+       "l": 0.4
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 8,
+     "inHero": 3,
+     "radius": 8,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Start Free Trial",
+      "Start 14-day free trial",
+      "Explore live simulation"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 28,
+     "boxRadius": 14,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 14,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 484
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 1662
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 3,
+     "fixed": true,
+     "height": 80,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "be vietnam pro fallback"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 11262,
+    "margins": {
+     "left": 24,
+     "right": 30
+    },
+    "sections": [
+     {
+      "sel": "section.relative.pt-10",
+      "tag": "section",
+      "top": 80,
+      "height": 1214,
+      "words": 132,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Smart conversations,",
+       "size": 36,
+       "tag": "h1"
+      },
+      "left": 24,
+      "right": 163,
+      "textLeft": 24,
+      "textRight": 163,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#showcase.py-20.md:py-28",
+      "tag": "section",
+      "top": 1294,
+      "height": 1920,
+      "words": 288,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Live Verification",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 44,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#how-it-works.py-20.md:py-28",
+      "tag": "section",
+      "top": 3214,
+      "height": 1060,
+      "words": 120,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "4-Step Activation Workflow",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 73,
+      "textLeft": 24,
+      "textRight": 73,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-20.md:py-24",
+      "tag": "section",
+      "top": 4274,
+      "height": 803,
+      "words": 83,
+      "media": 2,
+      "middle": 0,
+      "heading": {
+       "text": "Real-World Operations Across Brands",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 30,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#features.py-20.md:py-28",
+      "tag": "section",
+      "top": 5077,
+      "height": 1627,
+      "words": 186,
+      "media": 0,
+      "middle": 32,
+      "heading": {
+       "text": "Deep Architecture",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 52,
+      "textLeft": 24,
+      "textRight": 52,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#stats.py-20.md:py-28",
+      "tag": "section",
+      "top": 6704,
+      "height": 856,
+      "words": 67,
+      "media": 0,
+      "middle": 13,
+      "heading": {
+       "text": "240ms",
+       "size": 48,
+       "tag": "div"
+      },
+      "left": 24,
+      "right": 61,
+      "textLeft": 24,
+      "textRight": 61,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#pricing.py-20.md:py-28",
+      "tag": "section",
+      "top": 7560,
+      "height": 1244,
+      "words": 71,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Transparent Pricing",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 224,
+      "textLeft": 24,
+      "textRight": 224,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#faq.py-20.md:py-28",
+      "tag": "section",
+      "top": 8804,
+      "height": 866,
+      "words": 323,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Frequently Asked Questions",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 72,
+      "textLeft": 24,
+      "textRight": 72,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-24.md:py-32",
+      "tag": "section",
+      "top": 9670,
+      "height": 801,
+      "words": 89,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Automate Conversational Sales with ReplyEase AI",
+       "size": 30,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 33,
+      "textLeft": 24,
+      "textRight": 33,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.bg-[#f8f9fb].pt-14",
+      "tag": "footer",
+      "top": 10471,
+      "height": 791,
+      "words": 78,
+      "media": 0,
+      "middle": 48,
+      "heading": {
+       "text": "ReplyEase AI",
+       "size": 48,
+       "tag": "div"
+      },
+      "left": 24,
+      "right": 147,
+      "textLeft": 24,
+      "textRight": 147,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Smart conversations,",
+      "size": 36,
+      "top": 144,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 24,
+      "n": 27
+     },
+     {
+      "x": 44,
+      "n": 1
+     },
+     {
+      "x": 400,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 29,
+    "bodySize": 14,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.99,
+    1,
+    0.99,
+    1,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    1,
+    0.99,
+    0.99
+   ],
+   "motion": {
+    "elements": 30,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 30,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 13785,
+     "screens": 16.3,
+     "words": 1168,
+     "img": 2,
+     "video": 0,
+     "canvas": 0,
+     "svg": 12,
+     "sections": 10,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 5,
+     "uiAbuse": false,
+     "realPictures": 2,
+     "videoCount": 0,
+     "uiPictures": 5,
+     "pictureSamples": [
+      "image?url=%2Fimages%2Fstore-boutique.jpg&w=1920&",
+      "image?url=%2Fimages%2Ffulfillment-station.jpg&w="
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "chars": 20,
+     "lines": 1,
+     "size": 30,
+     "vw": 7.7,
+     "font": "Be Vietnam Pro",
+     "weight": 600,
+     "tracking": -0.025,
+     "leading": 1.12,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.88,
+     "top": 120,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Smart conversations,",
+     "words": 2,
+     "lines": 1,
+     "size": 30,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [
+     {
+      "text": "Smart conversations,",
+      "words": 2,
+      "chars": 20,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 120,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "instant checkout.",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.12,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 1251,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Live Verification",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 1564,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "4-Step Activation Workflow",
+      "words": 3,
+      "chars": 26,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 3865,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Real-World Operations Across Brands",
+      "words": 4,
+      "chars": 35,
+      "lines": 2,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 5547,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Deep Architecture",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 6871,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "240ms",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 36,
+      "vw": 9.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.11,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 8607,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Average Latency per RAG Query",
+      "words": 5,
+      "chars": 29,
+      "lines": 2,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 8655,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "+38%",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.25,
+      "top": 8841,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.25,
+      "top": 8841,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "99.8%",
+      "words": 1,
+      "chars": 5,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.25,
+      "top": 8841,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Transparent Pricing",
+      "words": 2,
+      "chars": 19,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 9505,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "490,000 VND / month",
+      "words": 4,
+      "chars": 19,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.33,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.75,
+      "top": 9739,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "1,490,000 VND / month",
+      "words": 4,
+      "chars": 21,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.33,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.75,
+      "top": 10035,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "3,990,000 VND / month",
+      "words": 4,
+      "chars": 21,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": 0,
+      "leading": 1.33,
+      "upper": true,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.75,
+      "top": 10331,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Frequently Asked Questions",
+      "words": 3,
+      "chars": 26,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 10707,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Automate Conversational Sales with ReplyEase AI",
+      "words": 6,
+      "chars": 47,
+      "lines": 2,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.38,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.88,
+      "top": 11787,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "ReplyEase AI",
+      "words": 2,
+      "chars": 12,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Be Vietnam Pro",
+      "weight": 600,
+      "tracking": -0.025,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.71,
+      "top": 13485,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 18,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "ui-monospace",
+       "share": 0.01,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      18,
+      20,
+      24,
+      30,
+      36
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 16,
+      "leading": 1.63,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.2
+     },
+     "measureChars": 37,
+     "max": {
+      "size": 36,
+      "vw": 9.2,
+      "font": "Be Vietnam Pro",
+      "text": "240ms"
+     },
+     "monoShare": 0.01,
+     "monoProseShare": 0,
+     "monoFamilies": [
+      "ui-monospace"
+     ],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.01,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 0,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      },
+      {
+       "color": "#f8f9fb",
+       "top": 533,
+       "hsl": {
+        "h": 220,
+        "s": 0.27,
+        "l": 0.98
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#475569",
+       "share": 0.38
+      },
+      {
+       "color": "#0f172a",
+       "share": 0.27
+      },
+      {
+       "color": "#64748b",
+       "share": 0.2
+      },
+      {
+       "color": "#1e293b",
+       "share": 0.04
+      },
+      {
+       "color": "#334155",
+       "share": 0.02
+      }
+     ],
+     "button": {
+      "bg": "#c2410c",
+      "hsl": {
+       "h": 17,
+       "s": 0.88,
+       "l": 0.4
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 8,
+     "inHero": 3,
+     "radius": 8,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Start Free Trial",
+      "Start 14-day free trial",
+      "Explore live simulation"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 35,
+     "boxRadius": 14,
+     "squareMedia": 0,
+     "roundedMedia": 2,
+     "mediaRadius": 14,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 605
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 1886
+      },
+      {
+       "count": 5,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 2917
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 7533
+      },
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 9683
+      },
+      {
+       "count": 6,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 10869
+      }
+     ]
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 2,
+     "fixed": true,
+     "height": 80,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "be vietnam pro fallback"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 13785,
+    "margins": {
+     "left": 24,
+     "right": 24
+    },
+    "sections": [
+     {
+      "sel": "section.relative.pt-10",
+      "tag": "section",
+      "top": 80,
+      "height": 1404,
+      "words": 132,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Smart conversations,",
+       "size": 30,
+       "tag": "h1"
+      },
+      "left": 24,
+      "right": 45,
+      "textLeft": 24,
+      "textRight": 45,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#showcase.py-20.md:py-28",
+      "tag": "section",
+      "top": 1484,
+      "height": 2301,
+      "words": 288,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Live Verification",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 27,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#how-it-works.py-20.md:py-28",
+      "tag": "section",
+      "top": 3785,
+      "height": 1682,
+      "words": 120,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "4-Step Activation Workflow",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 34,
+      "textLeft": 24,
+      "textRight": 34,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-20.md:py-24",
+      "tag": "section",
+      "top": 5467,
+      "height": 1323,
+      "words": 83,
+      "media": 2,
+      "middle": 0,
+      "heading": {
+       "text": "Real-World Operations Across Brands",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 28,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#features.py-20.md:py-28",
+      "tag": "section",
+      "top": 6791,
+      "height": 1737,
+      "words": 186,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Deep Architecture",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 27,
+      "textLeft": 24,
+      "textRight": 27,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#stats.py-20.md:py-28",
+      "tag": "section",
+      "top": 8527,
+      "height": 898,
+      "words": 67,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "240ms",
+       "size": 36,
+       "tag": "div"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 24,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#pricing.py-20.md:py-28",
+      "tag": "section",
+      "top": 9425,
+      "height": 1202,
+      "words": 71,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Transparent Pricing",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 39,
+      "textLeft": 24,
+      "textRight": 39,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#faq.py-20.md:py-28",
+      "tag": "section",
+      "top": 10627,
+      "height": 1064,
+      "words": 286,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Frequently Asked Questions",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 33,
+      "textLeft": 24,
+      "textRight": 33,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.py-24.md:py-32",
+      "tag": "section",
+      "top": 11691,
+      "height": 992,
+      "words": 89,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Automate Conversational Sales with ReplyEase AI",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 55,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer.bg-[#f8f9fb].pt-14",
+      "tag": "footer",
+      "top": 12683,
+      "height": 1102,
+      "words": 78,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 24,
+      "right": 38,
+      "textLeft": 24,
+      "textRight": 38,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Smart conversations,",
+      "size": 30,
+      "top": 120,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 24,
+      "n": 28
+     },
+     {
+      "x": 44,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 29,
+    "bodySize": 14,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "card-rows",
+   "width": 1440,
+   "message": "4 rows of identical boxed cards.",
+   "fix": "Vary the composition; not every section is a card grid.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\desktop-fold.jpg",
+   "pages": [
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\desktop-page-01.jpg",
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\desktop-page-02.jpg",
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\desktop-page-03.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\tablet-fold.jpg",
+   "pages": [
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\tablet-page-01.jpg",
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\tablet-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\mobile-fold.jpg",
+   "pages": [
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\mobile-page-01.jpg",
+    "D:\\Workspace\\rag\\reply-ease-ai\\frontend\\.taste-skill\\inspect\\mobile-page-02.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

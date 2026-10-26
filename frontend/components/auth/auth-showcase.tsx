@@ -23,15 +23,15 @@ export function AuthShowcase() {
       {/* Main Feature Engine */}
       <div className="my-auto w-full max-w-xl xl:max-w-2xl mx-auto space-y-7 py-6">
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#f25f22]/20 bg-[#f25f22]/10 px-3 py-1 text-[11px] font-medium text-[#ea580c]">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#f25f22]/20 bg-[#f25f22]/10 px-3 py-1 text-[11px] font-medium text-[#c2410c]">
             <Zap className="size-3" />
-            <span>Tự động hóa toàn trình: Tư vấn & Chốt đơn VietQR</span>
+            <span>End-to-End Automation: Consultation & Instant VietQR Checkout</span>
           </div>
           <h2 className="font-semibold text-3xl tracking-tight text-[#0f172a] sm:text-4xl leading-tight">
-            Trợ lý AI trực website, hiểu sản phẩm và tự đối soát đơn hàng.
+            AI website assistant that understands your catalog and settles orders autonomously.
           </h2>
           <p className="text-sm leading-relaxed text-[#64748b]">
-            Không còn bỏ lỡ khách hàng lúc nửa đêm. ReplyEase AI học trực tiếp tài liệu doanh nghiệp và kích hoạt đơn hàng SePay VietQR tức thì.
+            Never miss midnight buyers again. ReplyEase AI indexes your company documents and triggers automated SePay VietQR orders instantly.
           </p>
         </div>
 
@@ -43,7 +43,7 @@ export function AuthShowcase() {
               <div className="flex size-6 items-center justify-center rounded bg-[#f1f5f9] text-[#64748b]">
                 <Globe className="size-3.5" />
               </div>
-              <span className="font-medium text-[#0f172a]">tracy-store.vn</span>
+              <span className="font-medium text-[#0f172a]">tracy-store.com</span>
               <span className="rounded bg-[#f8fafc] border border-[#e2e8f0] px-1.5 py-0.5 font-mono text-[10px] text-[#64748b]">
                 Widget ID #8841
               </span>
@@ -59,11 +59,11 @@ export function AuthShowcase() {
             {/* Customer Message */}
             <div className="rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
               <div className="flex items-center justify-between text-[11px] text-[#64748b] mb-1">
-                <span>Khách hàng (Khách vãng lai #492)</span>
+                <span>Customer (Visitor #492)</span>
                 <span className="font-mono text-[10px] text-[#94a3b8]">14:22:04</span>
               </div>
               <p className="text-[#1e293b] text-[13px]">
-                “Shop ơi, áo Blazer len màu be size L còn không? Giao hỏa tốc TP.HCM mất bao lâu?”
+                &ldquo;Hi! Do you have the beige wool blazer in size L? How fast can it be delivered within the city?&rdquo;
               </p>
             </div>
 
@@ -71,25 +71,25 @@ export function AuthShowcase() {
             <div className="space-y-1.5 pl-2.5 border-l-2 border-[#cbd5e1] text-[11px] font-mono text-[#475569]">
               <div className="flex items-center gap-1.5 text-[#059669]">
                 <Check className="size-3" />
-                <span>RAG search: Khớp 3 mục trong catalogue-thu-dong.pdf (0.94)</span>
+                <span>RAG search: Matched 3 items in autumn-winter-catalog.pdf (0.94)</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[#ea580c]">
+              <div className="flex items-center gap-1.5 text-[#c2410c]">
                 <CornerDownRight className="size-3" />
-                <span>Kiểm tra kho: Size L còn 2 chiếc · Tạo SePay VietQR 650.000đ</span>
+                <span>Inventory checked: 2 left in size L · Generated SePay VietQR 650,000 VND</span>
               </div>
             </div>
 
             {/* Bot Outbound Reply */}
             <div className="rounded-lg border border-[#e2e8f0] bg-white p-3 space-y-2 shadow-2xs">
               <div className="flex items-center justify-between text-[11px] text-[#64748b]">
-                <div className="flex items-center gap-1.5 text-[#ea580c] font-medium">
+                <div className="flex items-center gap-1.5 text-[#c2410c] font-medium">
                   <Bot className="size-3.5" />
                   <span>ReplyEase AI Assistant</span>
                 </div>
                 <span className="font-mono text-[10px] text-[#94a3b8]">14:22:05 (240ms)</span>
               </div>
               <p className="text-[#334155] text-[13px] leading-relaxed">
-                Dạ mẫu <strong className="text-[#0f172a]">Blazer len be size L</strong> hiện còn đúng 2 chiếc ạ! Đơn TP.HCM bên em giao hỏa tốc nhận trong 2 giờ. Em tạo sẵn mã thanh toán VietQR để giữ hàng cho mình ngay nhé!
+                Yes! We currently have exactly 2 <strong className="text-[#0f172a]">beige wool blazers in size L</strong> in stock. Express city delivery arrives within 2 hours. I have generated a VietQR code below so you can secure your reservation right away!
               </p>
 
               {/* VietQR SePay Snippet */}
@@ -98,16 +98,16 @@ export function AuthShowcase() {
                   <div className="flex size-5 items-center justify-center rounded bg-[#10b981]/15 text-[#10b981]">
                     <CheckCircle2 className="size-3.5" />
                   </div>
-                  <span className="text-[#9a3412] font-medium">VietQR SePay tự động</span>
+                  <span className="text-[#9a3412] font-medium">Automated SePay VietQR</span>
                 </div>
-                <span className="font-mono text-[#c2410c] font-semibold">650.000 đ</span>
+                <span className="font-mono text-[#c2410c] font-semibold">650,000 VND</span>
               </div>
             </div>
           </div>
 
           {/* Footer of Inspector */}
           <div className="flex items-center justify-between border-t border-[#f1f5f9] pt-2.5 text-[11px] text-[#64748b]">
-            <span>Đơn hàng tự động lưu vào CRM & trừ tồn kho</span>
+            <span>Order automatically synced to CRM & inventory deducted</span>
             <span className="font-mono text-[#0f172a] font-medium">Zero human overhead</span>
           </div>
         </div>
@@ -116,15 +116,15 @@ export function AuthShowcase() {
         <div className="grid grid-cols-3 gap-3 w-full">
           <div className="rounded-lg border border-[#e2e8f0] bg-white p-3 shadow-xs">
             <div className="font-semibold text-lg text-[#0f172a] font-mono">10 Credits</div>
-            <div className="text-[11px] text-[#64748b]">Tặng sẵn ngay khi kích hoạt</div>
+            <div className="text-[11px] text-[#64748b]">Included on activation</div>
           </div>
           <div className="rounded-lg border border-[#e2e8f0] bg-white p-3 shadow-xs">
-            <div className="font-semibold text-lg text-[#0f172a] font-mono">1 Dòng mã</div>
-            <div className="text-[11px] text-[#64748b]">Nhúng website trong 2 phút</div>
+            <div className="font-semibold text-lg text-[#0f172a] font-mono">1 Code Line</div>
+            <div className="text-[11px] text-[#64748b]">Embed in 2 minutes</div>
           </div>
           <div className="rounded-lg border border-[#e2e8f0] bg-white p-3 shadow-xs">
             <div className="font-semibold text-lg text-[#059669] font-mono">+38%</div>
-            <div className="text-[11px] text-[#64748b]">Tăng chuyển đổi khách đêm</div>
+            <div className="text-[11px] text-[#64748b]">Midnight conversion lift</div>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function AuthShowcase() {
       <div className="flex items-center justify-between border-t border-[#e2e8f0] pt-5 text-xs text-[#64748b] w-full max-w-xl xl:max-w-2xl mx-auto">
         <div className="flex items-center gap-2">
           <Shield className="size-4 text-[#10b981]" />
-          <span>Mã hóa bảo mật chuẩn ngân hàng · Xác thực OTP 2 lớp</span>
+          <span>Bank-grade encryption · Two-factor OTP authentication</span>
         </div>
         <span className="font-mono text-[#94a3b8]">ReplyEase v1.0</span>
       </div>

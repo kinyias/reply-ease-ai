@@ -92,7 +92,7 @@ async def create_and_send_otp(db: AsyncSession, email: str) -> str:
     print(f"🔑 [DEV OTP] Code for {email}: {otp_code}")
     print(f"==========================================\n")
 
-    subject = f"{otp_code} là mã xác thực đăng ký tài khoản Reply-Ease AI"
+    subject = f"{otp_code} is your ReplyEase AI verification code"
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -113,16 +113,16 @@ async def create_and_send_otp(db: AsyncSession, email: str) -> str:
     <body>
       <div class="card">
         <div class="header">
-          <h2 class="title">Reply-Ease AI</h2>
-          <span class="badge">Xác thực đăng ký tài khoản</span>
+          <h2 class="title">ReplyEase AI</h2>
+          <span class="badge">Account Registration Verification</span>
         </div>
-        <p class="desc">Xin chào,<br>Bạn vừa yêu cầu đăng ký tài khoản trên nền tảng <strong>Reply-Ease AI</strong>. Hãy sử dụng mã OTP dưới đây để hoàn tất quá trình xác thực:</p>
+        <p class="desc">Hello,<br>You requested to register an account on <strong>ReplyEase AI</strong>. Please use the verification code below to complete your registration:</p>
         <div class="code-box">
           <div class="code">{otp_code}</div>
         </div>
-        <p class="desc">Mã xác thực này có hiệu lực trong <strong>10 phút</strong>. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+        <p class="desc">This code is valid for <strong>10 minutes</strong>. If you did not make this request, please safely ignore this email.</p>
         <div class="footer">
-          &copy; 2026 Reply-Ease AI. All rights reserved.
+          &copy; 2026 ReplyEase AI. All rights reserved.
         </div>
       </div>
     </body>
@@ -133,7 +133,7 @@ async def create_and_send_otp(db: AsyncSession, email: str) -> str:
         to_email=email,
         subject=subject,
         html_content=html_content,
-        text_content=f"Mã OTP xác thực đăng ký Reply-Ease AI của bạn là: {otp_code}. Mã có hiệu lực trong 10 phút.",
+        text_content=f"Your ReplyEase AI verification code is: {otp_code}. Valid for 10 minutes.",
     )
 
     return otp_code

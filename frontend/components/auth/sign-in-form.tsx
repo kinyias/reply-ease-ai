@@ -47,8 +47,8 @@ export function SignInForm() {
   const signInMutation = useSignIn({
     onSuccess: (data) => {
       login(data.tokens, data.user)
-      toast.success("Đăng nhập thành công!", {
-        description: `Chào mừng ${data.user.fullname || "bạn"} trở lại với ReplyEase AI.`,
+      toast.success("Signed in successfully!", {
+        description: `Welcome back, ${data.user.fullname || "there"} to ReplyEase AI.`,
       })
       router.push("/dashboard")
     },
@@ -62,17 +62,17 @@ export function SignInForm() {
   }
 
   const errorMessage = signInMutation.isError
-    ? getApiErrorMessage(signInMutation.error, "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.")
+    ? getApiErrorMessage(signInMutation.error, "Sign in failed. Please verify your credentials.")
     : null
 
   return (
     <div className="space-y-6">
       <div className="space-y-1.5 text-left">
         <h1 className="font-semibold text-2xl tracking-tight text-[#0f172a]">
-          Đăng nhập vào ReplyEase AI
+          Sign in to ReplyEase AI
         </h1>
         <p className="text-sm text-[#64748b]">
-          Quản lý chatbot, kiểm tra tin nhắn và xem báo cáo tương tác thời gian thực.
+          Manage your chatbots, track orders, and view real-time conversation analytics.
         </p>
       </div>
 
@@ -89,7 +89,7 @@ export function SignInForm() {
         {/* Email Field */}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-medium text-[#334155]">
-            Email tài khoản
+            Account email
           </Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
@@ -98,7 +98,7 @@ export function SignInForm() {
               type="email"
               autoComplete="email"
               placeholder="name@company.com"
-              className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+              className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                 errors.email ? "border-red-500 focus-visible:ring-red-500/20" : ""
               }`}
               disabled={signInMutation.isPending}
@@ -114,13 +114,13 @@ export function SignInForm() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-xs font-medium text-[#334155]">
-              Mật khẩu
+              Password
             </Label>
             <Link
               href="/auth/forgot-password"
               className="text-xs text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline"
             >
-              Quên mật khẩu?
+              Forgot password?
             </Link>
           </div>
           <div className="relative">
@@ -130,7 +130,7 @@ export function SignInForm() {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="••••••••"
-              className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+              className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                 errors.password ? "border-red-500 focus-visible:ring-red-500/20" : ""
               }`}
               disabled={signInMutation.isPending}
@@ -141,7 +141,7 @@ export function SignInForm() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors focus:outline-none cursor-pointer"
               tabIndex={-1}
-              aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
                 <EyeOff className="size-4" />
@@ -162,13 +162,13 @@ export function SignInForm() {
             checked={Boolean(rememberMe)}
             onCheckedChange={(checked) => setValue("rememberMe", Boolean(checked))}
             disabled={signInMutation.isPending}
-            className="border-[#cbd5e1] data-checked:bg-[#f25f22] data-checked:border-[#f25f22]"
+            className="border-[#cbd5e1] data-checked:bg-[#c2410c] data-checked:border-[#c2410c]"
           />
           <Label
             htmlFor="rememberMe"
             className="text-xs font-normal text-[#64748b] cursor-pointer select-none"
           >
-            Duy trì đăng nhập trên thiết bị này
+            Remember me on this device
           </Label>
         </div>
 
@@ -176,16 +176,16 @@ export function SignInForm() {
         <Button
           type="submit"
           disabled={signInMutation.isPending}
-          className="w-full h-10 mt-2 font-medium bg-[#f25f22] hover:bg-[#dc4f14] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
+          className="w-full h-10 mt-2 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
         >
           {signInMutation.isPending ? (
             <>
               <Loader2 className="size-4 animate-spin mr-2" />
-              <span>Đang kiểm tra thông tin...</span>
+              <span>Verifying credentials...</span>
             </>
           ) : (
             <>
-              <span>Đăng nhập</span>
+              <span>Sign In</span>
               <ArrowRight className="size-4 ml-1.5" />
             </>
           )}
@@ -195,12 +195,12 @@ export function SignInForm() {
       {/* Switch to Sign Up */}
       <div className="border-t border-[#f1f5f9] pt-4 text-center">
         <p className="text-xs text-[#64748b]">
-          Chưa có tài khoản ReplyEase AI?{" "}
+          Don&apos;t have an account yet?{" "}
           <Link
             href="/auth/sign-up"
-            className="font-medium text-[#f25f22] hover:text-[#dc4f14] transition-colors underline-offset-4 hover:underline"
+            className="font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors underline-offset-4 hover:underline"
           >
-            Tạo tài khoản mới miễn phí
+            Create an account for free
           </Link>
         </p>
       </div>

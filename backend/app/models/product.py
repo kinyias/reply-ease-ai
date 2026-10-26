@@ -12,7 +12,7 @@ class Product(BaseModel):
     __tablename__ = "products"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    price: Mapped[int] = mapped_column(Integer, nullable=False)  # Giá VND
+    price: Mapped[int] = mapped_column(Integer, nullable=False)  # Price in VND
     image: Mapped[str] = mapped_column(String(500), nullable=False)
 
     domain_id: Mapped[Optional[uuid.UUID]] = mapped_column(

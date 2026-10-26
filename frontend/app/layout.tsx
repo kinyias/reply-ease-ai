@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ReplyEase AI — Nền tảng tự động hóa CSKH & Chốt đơn thông minh",
+  title: "ReplyEase AI — Autonomous Customer Support & Instant Checkout",
   description:
-    "ReplyEase AI giúp doanh nghiệp triển khai trợ lý AI hỗ trợ khách hàng đa kênh, tích hợp thanh toán SePay tự động và tối ưu tỷ lệ chuyển đổi.",
+    "ReplyEase AI empowers e-commerce brands to deploy 24/7 conversational customer service, automate inventory checks, and close orders instantly with automated checkout.",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="vi"
+      lang="en"
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col font-sans">

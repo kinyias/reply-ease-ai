@@ -241,3 +241,19 @@
     @apply font-sans;
   }
 }
+@keyframes tasteEnter {
+  from { opacity: 0.1; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.taste-enter {
+  animation: tasteEnter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taste-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

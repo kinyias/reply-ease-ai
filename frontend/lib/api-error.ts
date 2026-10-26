@@ -2,7 +2,7 @@ import { AxiosError } from "axios"
 
 export function getApiErrorMessage(
   error: unknown,
-  fallback = "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau."
+  fallback = "An unexpected error occurred. Please try again later."
 ): string {
   if (error instanceof AxiosError) {
     const detail = error.response?.data?.detail
@@ -20,7 +20,7 @@ export function getApiErrorMessage(
     }
     if (error.message) {
       if (error.code === "ERR_NETWORK") {
-        return "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng."
+        return "Unable to connect to the server. Please check your internet connection."
       }
       return error.message
     }

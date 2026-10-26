@@ -46,13 +46,13 @@ async def generate_otp(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email này đã được đăng ký tài khoản. Vui lòng đăng nhập.",
+            detail="This email is already registered. Please sign in.",
         )
 
     await create_and_send_otp(db, req.email)
     return {
         "status": 200,
-        "message": "Mã xác thực OTP đã được gửi đến email của bạn.",
+        "message": "Verification OTP code has been sent to your email.",
     }
 
 
@@ -71,7 +71,7 @@ async def verify_and_register(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email này đã được đăng ký.",
+            detail="This email is already registered.",
         )
 
     # Check OTP
@@ -90,7 +90,7 @@ async def verify_and_register(
     if not otp_record or otp_record.expires_at < now:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mã OTP không chính xác hoặc đã hết hạn.",
+            detail="Invalid or expired OTP code.",
         )
 
     # Create new User
@@ -123,7 +123,7 @@ async def verify_and_register(
 
     return {
         "status": 201,
-        "message": "Đăng ký tài khoản thành công!",
+        "message": "Account registered successfully!",
         "tokens": {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -158,7 +158,7 @@ async def login(
     if not user or not verify_password(req.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email hoặc mật khẩu không chính xác.",
+            detail="Incorrect email or password.",
         )
 
     access_token = create_access_token(user.id)
@@ -166,7 +166,7 @@ async def login(
 
     return {
         "status": 200,
-        "message": "Đăng nhập thành công!",
+        "message": "Signed in successfully!",
         "tokens": {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -202,7 +202,7 @@ async def refresh_token(
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token không hợp lệ hoặc đã hết hạn.",
+            detail="Invalid or expired refresh token.",
         )
 
     user_id_str = payload.get("sub")
@@ -218,7 +218,7 @@ async def refresh_token(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Người dùng không tồn tại.",
+            detail="User not found.",
         )
 
     new_access_token = create_access_token(user.id)
@@ -254,7 +254,7 @@ async def change_password(
     if not verify_password(req.current_password, current_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mật khẩu hiện tại không đúng.",
+            detail="Incorrect current password.",
         )
 
     current_user.hashed_password = get_password_hash(req.new_password)
@@ -262,5 +262,5 @@ async def change_password(
 
     return {
         "status": 200,
-        "message": "Đổi mật khẩu thành công!",
+        "message": "Password changed successfully!",
     }

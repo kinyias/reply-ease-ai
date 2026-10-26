@@ -22,7 +22,7 @@ export default function AuthLayout({
             href="/"
             className="text-xs text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline"
           >
-            ← Về trang chủ
+            ← Back to Home
           </Link>
         </div>
 
@@ -33,16 +33,16 @@ export default function AuthLayout({
 
         {/* Bottom Legal / Help Footer */}
         <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#94a3b8] border-t border-[#f1f5f9] pt-6 w-full max-w-xl mx-auto">
-          <span>ReplyEase AI · Nền tảng tự động hóa CSKH & Chốt đơn</span>
+          <span>ReplyEase AI · Autonomous Customer Support & Instant Checkout</span>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-[#475569] transition-colors">
-              Chính sách
+              Privacy
             </Link>
             <Link href="/terms" className="hover:text-[#475569] transition-colors">
-              Điều khoản
+              Terms
             </Link>
             <Link href="/contact" className="hover:text-[#475569] transition-colors">
-              Hỗ trợ kỹ thuật
+              Support
             </Link>
           </div>
         </footer>

@@ -123,8 +123,8 @@ export function SignUpForm() {
   // React Query Mutations
   const generateOtpMutation = useGenerateOtp({
     onSuccess: (data) => {
-      toast.success("Mã OTP đã được gửi!", {
-        description: data.message || "Vui lòng kiểm tra hộp thư đến của bạn.",
+      toast.success("OTP Code Sent!", {
+        description: data.message || "Please check your email inbox.",
       })
       setStep(3)
       setResendCountdown(60)
@@ -134,8 +134,8 @@ export function SignUpForm() {
   const verifyAndRegisterMutation = useVerifyAndRegister({
     onSuccess: (data) => {
       login(data.tokens, data.user)
-      toast.success("Đăng ký thành công!", {
-        description: `Chào mừng ${data.user.fullname} (${data.user.type}) đến với ReplyEase AI.`,
+      toast.success("Account Created Successfully!", {
+        description: `Welcome ${data.user.fullname} (${data.user.type}) to ReplyEase AI.`,
       })
       router.push("/dashboard")
     },
@@ -159,7 +159,7 @@ export function SignUpForm() {
   // Submit Step 3: Verify OTP & finalize registration
   const onStep3Submit = (values: VerifyOtpFormValues) => {
     if (!stepData) {
-      toast.error("Thiếu thông tin đăng ký. Vui lòng nhập lại.")
+      toast.error("Registration information missing. Please re-enter.")
       setStep(2)
       return
     }
@@ -185,8 +185,8 @@ export function SignUpForm() {
       {
         onSuccess: () => {
           setResendCountdown(60)
-          toast.success("Đã gửi lại mã OTP", {
-            description: `Mã xác thực mới đã được gửi tới ${stepData.email}`,
+          toast.success("OTP Code Resent", {
+            description: `A new verification code has been sent to ${stepData.email}`,
           })
         },
       }
@@ -195,11 +195,11 @@ export function SignUpForm() {
 
   const errorMessage =
     step === 2 && generateOtpMutation.isError
-      ? getApiErrorMessage(generateOtpMutation.error, "Không thể gửi mã OTP. Vui lòng thử lại.")
+      ? getApiErrorMessage(generateOtpMutation.error, "Could not send OTP code. Please try again.")
       : step === 3 && verifyAndRegisterMutation.isError
       ? getApiErrorMessage(
           verifyAndRegisterMutation.error,
-          "Mã OTP không chính xác hoặc đã hết hạn."
+          "Invalid or expired OTP code."
         )
       : null
 
@@ -213,14 +213,14 @@ export function SignUpForm() {
             <span
               className={`flex size-6 items-center justify-center rounded-full text-[11px] font-mono transition-colors ${
                 step === 1
-                  ? "bg-[#f25f22] text-white font-bold"
+                  ? "bg-[#c2410c] text-white font-bold"
                   : "bg-emerald-100 text-emerald-700"
               }`}
             >
               {step > 1 ? <Check className="size-3.5" /> : "1"}
             </span>
             <span className={step === 1 ? "text-[#0f172a] font-semibold" : "text-[#64748b]"}>
-              Vai trò
+              Role
             </span>
           </div>
 
@@ -231,7 +231,7 @@ export function SignUpForm() {
             <span
               className={`flex size-6 items-center justify-center rounded-full text-[11px] font-mono transition-colors ${
                 step === 2
-                  ? "bg-[#f25f22] text-white font-bold"
+                  ? "bg-[#c2410c] text-white font-bold"
                   : step > 2
                   ? "bg-emerald-100 text-emerald-700"
                   : "bg-[#f1f5f9] text-[#94a3b8]"
@@ -240,7 +240,7 @@ export function SignUpForm() {
               {step > 2 ? <Check className="size-3.5" /> : "2"}
             </span>
             <span className={step === 2 ? "text-[#0f172a] font-semibold" : "text-[#64748b]"}>
-              Tài khoản
+              Account
             </span>
           </div>
 
@@ -251,14 +251,14 @@ export function SignUpForm() {
             <span
               className={`flex size-6 items-center justify-center rounded-full text-[11px] font-mono transition-colors ${
                 step === 3
-                  ? "bg-[#f25f22] text-white font-bold"
+                  ? "bg-[#c2410c] text-white font-bold"
                   : "bg-[#f1f5f9] text-[#94a3b8]"
               }`}
             >
               3
             </span>
             <span className={step === 3 ? "text-[#0f172a] font-semibold" : "text-[#64748b]"}>
-              Xác thực
+              Verify
             </span>
           </div>
         </div>
@@ -268,17 +268,17 @@ export function SignUpForm() {
       <div className="space-y-1.5 text-left">
         <h1 className="font-semibold text-2xl tracking-tight text-[#0f172a]">
           {step === 1
-            ? "Bạn sử dụng ReplyEase AI với vai trò nào?"
+            ? "How will you use ReplyEase AI?"
             : step === 2
-            ? "Thông tin tài khoản"
-            : "Xác thực email đăng ký"}
+            ? "Account Details"
+            : "Verify Your Email"}
         </h1>
         <p className="text-sm text-[#64748b]">
           {step === 1
-            ? "Chọn vai trò phù hợp để chúng tôi cá nhân hóa cấu hình và tính năng hỗ trợ tốt nhất."
+            ? "Choose your primary role so we can personalize your agent setup and capabilities."
             : step === 2
-            ? "Khởi tạo thông tin đăng nhập và nhận ngay 10 credits AI dùng thử gói Standard."
-            : `Nhập mã xác thực 6 chữ số vừa được gửi đến ${stepData?.email || "email của bạn"}.`}
+            ? "Set up your login credentials and receive 10 free trial credits on the Standard plan."
+            : `Enter the 6-digit verification code sent to ${stepData?.email || "your email"}.`}
         </p>
       </div>
 
@@ -301,14 +301,14 @@ export function SignUpForm() {
               onClick={() => setSelectedType("owner")}
               className={`relative flex items-start gap-3.5 rounded-xl border p-4 cursor-pointer transition-all ${
                 selectedType === "owner"
-                  ? "border-[#f25f22] bg-[#fffaf8] shadow-xs ring-1 ring-[#f25f22]/30"
+                  ? "border-[#c2410c] bg-[#fffaf8] shadow-xs ring-1 ring-[#c2410c]/30"
                   : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:bg-[#fafafa]"
               }`}
             >
               <div
                 className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
                   selectedType === "owner"
-                    ? "bg-[#f25f22]/15 text-[#ea580c]"
+                    ? "bg-[#c2410c]/15 text-[#c2410c]"
                     : "bg-[#f1f5f9] text-[#64748b]"
                 }`}
               >
@@ -318,14 +318,14 @@ export function SignUpForm() {
               <div className="space-y-1 flex-1 pr-6">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm text-[#0f172a]">
-                    Chủ doanh nghiệp / Bán hàng
+                    Business Owner / E-commerce
                   </span>
-                  <span className="rounded bg-[#f25f22]/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[#c2410c]">
+                  <span className="rounded bg-[#c2410c]/10 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[#c2410c]">
                     owner
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed text-[#64748b]">
-                  Cài đặt chatbot CSKH tự động, chốt đơn hàng và gửi link thanh toán VietQR SePay trên website.
+                  Deploy 24/7 autonomous support chatbots, close midnight orders, and automate invoice payments.
                 </p>
               </div>
 
@@ -334,7 +334,7 @@ export function SignUpForm() {
                 <div
                   className={`size-4 rounded-full border flex items-center justify-center transition-colors ${
                     selectedType === "owner"
-                      ? "border-[#f25f22] bg-[#f25f22]"
+                      ? "border-[#c2410c] bg-[#c2410c]"
                       : "border-[#cbd5e1] bg-white"
                   }`}
                 >
@@ -350,14 +350,14 @@ export function SignUpForm() {
               onClick={() => setSelectedType("student")}
               className={`relative flex items-start gap-3.5 rounded-xl border p-4 cursor-pointer transition-all ${
                 selectedType === "student"
-                  ? "border-[#f25f22] bg-[#fffaf8] shadow-xs ring-1 ring-[#f25f22]/30"
+                  ? "border-[#c2410c] bg-[#fffaf8] shadow-xs ring-1 ring-[#c2410c]/30"
                   : "border-[#e2e8f0] bg-white hover:border-[#cbd5e1] hover:bg-[#fafafa]"
               }`}
             >
               <div
                 className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
                   selectedType === "student"
-                    ? "bg-[#f25f22]/15 text-[#ea580c]"
+                    ? "bg-[#c2410c]/15 text-[#c2410c]"
                     : "bg-[#f1f5f9] text-[#64748b]"
                 }`}
               >
@@ -367,14 +367,14 @@ export function SignUpForm() {
               <div className="space-y-1 flex-1 pr-6">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm text-[#0f172a]">
-                    Học sinh / Sinh viên / Nghiên cứu
+                    Student / Researcher / Developer
                   </span>
                   <span className="rounded bg-[#f1f5f9] border border-[#e2e8f0] px-1.5 py-0.5 font-mono text-[9px] font-medium text-[#64748b]">
                     student
                   </span>
                 </div>
                 <p className="text-xs leading-relaxed text-[#64748b]">
-                  Tìm hiểu công nghệ AI Agent, thử nghiệm RAG trên tài liệu PDF/Docs và học cách nhúng chatbot.
+                  Explore AI agent architectures, benchmark RAG on PDF/document corpora, and test widget embeddings.
                 </p>
               </div>
 
@@ -383,7 +383,7 @@ export function SignUpForm() {
                 <div
                   className={`size-4 rounded-full border flex items-center justify-center transition-colors ${
                     selectedType === "student"
-                      ? "border-[#f25f22] bg-[#f25f22]"
+                      ? "border-[#c2410c] bg-[#c2410c]"
                       : "border-[#cbd5e1] bg-white"
                   }`}
                 >
@@ -398,9 +398,9 @@ export function SignUpForm() {
           <Button
             type="button"
             onClick={handleProceedFromType}
-            className="w-full h-10 mt-2 font-medium bg-[#f25f22] hover:bg-[#dc4f14] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
+            className="w-full h-10 mt-2 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
           >
-            <span>Tiếp tục điền thông tin</span>
+            <span>Continue to Account Details</span>
             <ArrowRight className="size-4 ml-1.5" />
           </Button>
         </div>
@@ -412,27 +412,27 @@ export function SignUpForm() {
           {/* Selected Role Badge */}
           <div className="flex items-center justify-between rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-[#64748b]">Vai trò:</span>
+              <span className="text-[#64748b]">Role:</span>
               <span className="font-semibold text-[#0f172a] capitalize">
-                {selectedType === "owner" ? "Chủ doanh nghiệp / Bán hàng" : "Học sinh / Sinh viên"}
+                {selectedType === "owner" ? "Business Owner / Seller" : "Student / Learner"}
               </span>
-              <span className="rounded bg-[#f25f22]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#c2410c]">
+              <span className="rounded bg-[#ea580c]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#c2410c]">
                 {selectedType}
               </span>
             </div>
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="text-xs font-medium text-[#f25f22] hover:underline cursor-pointer"
+              className="text-xs font-medium text-[#c2410c] hover:underline cursor-pointer"
             >
-              Đổi vai trò
+              Change role
             </button>
           </div>
 
           {/* Full Name */}
           <div className="space-y-1.5">
             <Label htmlFor="fullname" className="text-xs font-medium text-[#334155]">
-              Họ và tên
+              Full Name
             </Label>
             <div className="relative">
               <User className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
@@ -440,8 +440,8 @@ export function SignUpForm() {
                 id="fullname"
                 type="text"
                 autoComplete="name"
-                placeholder="Nguyễn Văn A"
-                className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+                placeholder="Alex Morgan"
+                className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.fullname ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
                 disabled={generateOtpMutation.isPending}
@@ -465,7 +465,7 @@ export function SignUpForm() {
                 type="email"
                 autoComplete="email"
                 placeholder="name@example.com"
-                className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+                className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.email ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
                 disabled={generateOtpMutation.isPending}
@@ -480,7 +480,7 @@ export function SignUpForm() {
           {/* Password */}
           <div className="space-y-1.5">
             <Label htmlFor="password" className="text-xs font-medium text-[#334155]">
-              Mật khẩu (8 - 64 ký tự)
+              Password (8 - 64 characters)
             </Label>
             <div className="relative">
               <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
@@ -488,8 +488,8 @@ export function SignUpForm() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Tối thiểu 8 ký tự"
-                className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+                placeholder="At least 8 characters"
+                className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.password ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
                 disabled={generateOtpMutation.isPending}
@@ -500,7 +500,7 @@ export function SignUpForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors focus:outline-none cursor-pointer"
                 tabIndex={-1}
-                aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="size-4" />
@@ -521,14 +521,14 @@ export function SignUpForm() {
                     : "text-[#cbd5e1]"
                 }`}
               />
-              <span>Tối thiểu 8 ký tự an toàn</span>
+              <span>Minimum 8 characters</span>
             </div>
           </div>
 
           {/* Confirm Password */}
           <div className="space-y-1.5">
             <Label htmlFor="confirmPassword" className="text-xs font-medium text-[#334155]">
-              Xác nhận mật khẩu
+              Confirm Password
             </Label>
             <div className="relative">
               <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
@@ -536,8 +536,8 @@ export function SignUpForm() {
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Nhập lại mật khẩu phía trên"
-                className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#f25f22] focus-visible:ring-2 focus-visible:ring-[#f25f22]/20 shadow-2xs ${
+                placeholder="Re-enter password"
+                className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.confirmPassword ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
                 disabled={generateOtpMutation.isPending}
@@ -548,7 +548,7 @@ export function SignUpForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0f172a] transition-colors focus:outline-none cursor-pointer"
                 tabIndex={-1}
-                aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="size-4" />
@@ -574,27 +574,27 @@ export function SignUpForm() {
                   })
                 }
                 disabled={generateOtpMutation.isPending}
-                className="mt-0.5 border-[#cbd5e1] data-checked:bg-[#f25f22] data-checked:border-[#f25f22]"
+                className="mt-0.5 border-[#cbd5e1] data-checked:bg-[#c2410c] data-checked:border-[#c2410c]"
               />
               <Label
                 htmlFor="agreeToTerms"
                 className="text-xs font-normal text-[#64748b] leading-normal cursor-pointer select-none"
               >
-                Tôi đồng ý với{" "}
+                I agree to the{" "}
                 <Link
                   href="/terms"
                   target="_blank"
                   className="font-medium text-[#0f172a] hover:underline"
                 >
-                  Điều khoản dịch vụ
+                  Terms of Service
                 </Link>{" "}
-                và{" "}
+                and{" "}
                 <Link
                   href="/privacy"
                   target="_blank"
                   className="font-medium text-[#0f172a] hover:underline"
                 >
-                  Chính sách bảo mật
+                  Privacy Policy
                 </Link>
                 .
               </Label>
@@ -611,16 +611,16 @@ export function SignUpForm() {
             <Button
               type="submit"
               disabled={generateOtpMutation.isPending}
-              className="w-full h-10 mt-2 font-medium bg-[#f25f22] hover:bg-[#dc4f14] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
+              className="w-full h-10 mt-2 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
             >
               {generateOtpMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  <span>Đang gửi mã xác thực...</span>
+                  <span>Sending verification code...</span>
                 </>
               ) : (
                 <>
-                  <span>Tiếp tục xác thực email</span>
+                  <span>Continue to Email Verification</span>
                   <ArrowRight className="size-4 ml-1.5" />
                 </>
               )}
@@ -634,7 +634,7 @@ export function SignUpForm() {
               className="w-full h-9 text-xs text-[#64748b] hover:text-[#0f172a]"
             >
               <ArrowLeft className="size-3.5 mr-1" />
-              <span>Quay lại chọn vai trò</span>
+              <span>Back to role selection</span>
             </Button>
           </div>
         </form>
@@ -646,9 +646,9 @@ export function SignUpForm() {
           {/* Email badge with Change button */}
           <div className="flex items-center justify-between rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3 text-xs">
             <div className="flex items-center gap-2">
-              <Mail className="size-4 text-[#ea580c]" />
+              <Mail className="size-4 text-[#c2410c]" />
               <div>
-                <span className="text-[#64748b]">Gửi đến: </span>
+                <span className="text-[#64748b]">Sent to: </span>
                 <span className="font-semibold text-[#0f172a] font-mono">
                   {stepData?.email}
                 </span>
@@ -660,14 +660,14 @@ export function SignUpForm() {
               className="inline-flex items-center gap-1 text-xs font-medium text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline cursor-pointer"
             >
               <ArrowLeft className="size-3" />
-              <span>Đổi email</span>
+              <span>Change email</span>
             </button>
           </div>
 
           {/* 6-Digit OTP Input */}
           <div className="space-y-2">
             <Label htmlFor="otp" className="text-xs font-medium text-[#334155]">
-              Mã xác thực 6 chữ số
+              6-Digit Verification Code
             </Label>
             <div className="flex justify-center py-2">
               <InputOTP
@@ -679,12 +679,12 @@ export function SignUpForm() {
                 disabled={verifyAndRegisterMutation.isPending}
               >
                 <InputOTPGroup className="gap-2">
-                  <InputOTPSlot index={0} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
-                  <InputOTPSlot index={1} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
-                  <InputOTPSlot index={2} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
-                  <InputOTPSlot index={3} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
-                  <InputOTPSlot index={4} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
-                  <InputOTPSlot index={5} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#f25f22] data-[active=true]:ring-2 data-[active=true]:ring-[#f25f22]/20" />
+                  <InputOTPSlot index={0} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
+                  <InputOTPSlot index={1} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
+                  <InputOTPSlot index={2} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
+                  <InputOTPSlot index={3} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
+                  <InputOTPSlot index={4} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
+                  <InputOTPSlot index={5} className="size-11 sm:size-12 rounded-lg border border-[#cbd5e1] bg-white text-base font-mono font-semibold text-[#0f172a] shadow-2xs data-[active=true]:border-[#c2410c] data-[active=true]:ring-2 data-[active=true]:ring-[#c2410c]/20" />
                 </InputOTPGroup>
               </InputOTP>
             </div>
@@ -697,7 +697,7 @@ export function SignUpForm() {
 
           {/* Resend OTP Section */}
           <div className="flex items-center justify-between text-xs text-[#64748b] border-y border-[#e2e8f0] py-3">
-            <span>Không nhận được mã?</span>
+            <span>Didn&apos;t receive the code?</span>
             <button
               type="button"
               onClick={handleResendOtp}
@@ -705,20 +705,20 @@ export function SignUpForm() {
               className={`inline-flex items-center gap-1.5 font-medium transition-colors ${
                 resendCountdown > 0 || generateOtpMutation.isPending
                   ? "text-[#94a3b8] cursor-not-allowed"
-                  : "text-[#f25f22] hover:text-[#dc4f14] cursor-pointer"
+                  : "text-[#c2410c] hover:text-[#9a3412] cursor-pointer"
               }`}
             >
               {generateOtpMutation.isPending ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  <span>Đang gửi lại...</span>
+                  <span>Resending...</span>
                 </>
               ) : resendCountdown > 0 ? (
-                <span>Gửi lại sau ({resendCountdown}s)</span>
+                <span>Resend in ({resendCountdown}s)</span>
               ) : (
                 <>
                   <RotateCw className="size-3.5" />
-                  <span>Gửi lại mã OTP</span>
+                  <span>Resend OTP code</span>
                 </>
               )}
             </button>
@@ -731,17 +731,17 @@ export function SignUpForm() {
               disabled={
                 verifyAndRegisterMutation.isPending || otpValue.length !== 6
               }
-              className="w-full h-10 font-medium bg-[#f25f22] hover:bg-[#dc4f14] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
+              className="w-full h-10 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
             >
               {verifyAndRegisterMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  <span>Đang kích hoạt tài khoản...</span>
+                  <span>Activating account...</span>
                 </>
               ) : (
                 <>
                   <KeyRound className="size-4 mr-1.5" />
-                  <span>Xác thực & Hoàn tất</span>
+                  <span>Verify & Complete</span>
                 </>
               )}
             </Button>
@@ -753,7 +753,7 @@ export function SignUpForm() {
               disabled={verifyAndRegisterMutation.isPending}
               className="w-full h-9 text-xs text-[#64748b] hover:text-[#0f172a]"
             >
-              Quay lại chỉnh sửa thông tin
+              Back to edit account details
             </Button>
           </div>
         </form>
@@ -762,12 +762,12 @@ export function SignUpForm() {
       {/* Switch to Sign In */}
       <div className="border-t border-[#f1f5f9] pt-4 text-center">
         <p className="text-xs text-[#64748b]">
-          Đã có tài khoản ReplyEase AI?{" "}
+          Already have an account?{" "}
           <Link
             href="/auth/sign-in"
-            className="font-medium text-[#f25f22] hover:text-[#dc4f14] transition-colors underline-offset-4 hover:underline"
+            className="font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors underline-offset-4 hover:underline"
           >
-            Đăng nhập ngay
+            Sign in now
           </Link>
         </p>
       </div>

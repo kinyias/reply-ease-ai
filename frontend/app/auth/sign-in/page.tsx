@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import { SignInForm } from "@/components/auth/sign-in-form"
 
 export const metadata: Metadata = {
-  title: "Đăng nhập — ReplyEase AI",
-  description: "Đăng nhập vào bảng điều khiển trợ lý AI của doanh nghiệp bạn trên ReplyEase AI.",
+  title: "Sign In — ReplyEase AI",
+  description: "Sign in to manage your AI customer support agents and view real-time conversation analytics.",
 }
 
 export default function SignInPage() {
