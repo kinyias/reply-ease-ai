@@ -1,0 +1,266 @@
+import uuid
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+    get_password_hash,
+    verify_password,
+)
+from app.models.billing import Billings
+from app.models.enums import Plans
+from app.models.otp import OTPVerification
+from app.models.user import User
+from app.schemas.auth import (
+    ChangePasswordRequest,
+    GenerateOTPRequest,
+    LoginRequest,
+    RefreshTokenRequest,
+    TokenResponse,
+    VerifyOTPRequest,
+)
+from app.schemas.user import UserResponse
+from app.services.email_service import create_and_send_otp
+
+router = APIRouter()
+
+
+@router.post(
+    "/register/generate-otp",
+    status_code=status.HTTP_200_OK,
+    summary="Generate and send OTP code for registration",
+)
+async def generate_otp(
+    req: GenerateOTPRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    # Check if email is already registered
+    existing_user = await db.scalar(select(User).where(User.email == req.email))
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email này đã được đăng ký tài khoản. Vui lòng đăng nhập.",
+        )
+
+    await create_and_send_otp(db, req.email)
+    return {
+        "status": 200,
+        "message": "Mã xác thực OTP đã được gửi đến email của bạn.",
+    }
+
+
+@router.post(
+    "/register/verify",
+    status_code=status.HTTP_201_CREATED,
+    response_model=dict,
+    summary="Verify OTP and complete user registration",
+)
+async def verify_and_register(
+    req: VerifyOTPRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    # Check if user already exists
+    existing_user = await db.scalar(select(User).where(User.email == req.email))
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email này đã được đăng ký.",
+        )
+
+    # Check OTP
+    stmt = (
+        select(OTPVerification)
+        .where(
+            OTPVerification.email == req.email,
+            OTPVerification.otp_code == req.otp,
+        )
+        .order_by(OTPVerification.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    otp_record = result.scalar_one_or_none()
+
+    now = datetime.now(timezone.utc)
+    if not otp_record or otp_record.expires_at < now:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã OTP không chính xác hoặc đã hết hạn.",
+        )
+
+    # Create new User
+    new_user = User(
+        fullname=req.fullname,
+        email=req.email,
+        hashed_password=get_password_hash(req.password),
+        type=req.type,
+    )
+    db.add(new_user)
+    await db.flush()  # populate new_user.id
+
+    # Create Default Billings Subscription (STANDARD with 10 credits)
+    subscription = Billings(
+        user_id=new_user.id,
+        plan=Plans.STANDARD,
+        credits=10,
+    )
+    db.add(subscription)
+
+    # Delete used OTP
+    await db.execute(delete(OTPVerification).where(OTPVerification.email == req.email))
+
+    await db.commit()
+    await db.refresh(new_user)
+
+    # Generate Tokens
+    access_token = create_access_token(new_user.id)
+    refresh_token = create_refresh_token(new_user.id)
+
+    return {
+        "status": 201,
+        "message": "Đăng ký tài khoản thành công!",
+        "tokens": {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+        },
+        "user": {
+            "id": str(new_user.id),
+            "fullname": new_user.fullname,
+            "email": new_user.email,
+            "type": new_user.type,
+        },
+    }
+
+
+@router.post(
+    "/login",
+    response_model=dict,
+    summary="Login with email and password",
+)
+async def login(
+    req: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(User)
+        .where(User.email == req.email)
+        .options(selectinload(User.subscription), selectinload(User.domains))
+    )
+    result = await db.execute(stmt)
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(req.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email hoặc mật khẩu không chính xác.",
+        )
+
+    access_token = create_access_token(user.id)
+    refresh_token = create_refresh_token(user.id)
+
+    return {
+        "status": 200,
+        "message": "Đăng nhập thành công!",
+        "tokens": {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer",
+        },
+        "user": {
+            "id": str(user.id),
+            "fullname": user.fullname,
+            "email": user.email,
+            "type": user.type,
+            "subscription": {
+                "plan": user.subscription.plan if user.subscription else Plans.STANDARD,
+                "credits": user.subscription.credits if user.subscription else 0,
+            },
+            "domains": [
+                {"id": str(d.id), "name": d.name, "icon": d.icon}
+                for d in user.domains
+            ],
+        },
+    }
+
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    summary="Get a new access token using refresh token",
+)
+async def refresh_token(
+    req: RefreshTokenRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    payload = decode_token(req.refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token không hợp lệ hoặc đã hết hạn.",
+        )
+
+    user_id_str = payload.get("sub")
+    try:
+        user_uuid = uuid.UUID(user_id_str)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid user ID format in refresh token",
+        )
+
+    user = await db.scalar(select(User).where(User.id == user_uuid))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Người dùng không tồn tại.",
+        )
+
+    new_access_token = create_access_token(user.id)
+    new_refresh_token = create_refresh_token(user.id)
+
+    return TokenResponse(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token,
+        token_type="bearer",
+    )
+
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="Get current user profile & subscription",
+)
+async def get_me(
+    current_user: User = Depends(get_current_user),
+):
+    return current_user
+
+
+@router.post(
+    "/change-password",
+    summary="Change user password",
+)
+async def change_password(
+    req: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(req.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mật khẩu hiện tại không đúng.",
+        )
+
+    current_user.hashed_password = get_password_hash(req.new_password)
+    await db.commit()
+
+    return {
+        "status": 200,
+        "message": "Đổi mật khẩu thành công!",
+    }

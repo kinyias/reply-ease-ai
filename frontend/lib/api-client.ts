@@ -1,4 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios"
+import {
+  COOKIE_KEYS,
+  clearAuthCookies,
+  getCookie,
+  setAuthCookies,
+} from "./cookies"
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"
@@ -11,11 +17,11 @@ export const apiClient = axios.create({
   timeout: 30000,
 })
 
-// Request Interceptor: Attach Access Token
+// Request Interceptor: Attach Access Token from cookies
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token")
+      const token = getCookie(COOKIE_KEYS.ACCESS_TOKEN)
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`
       }
@@ -41,7 +47,7 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true
 
       if (typeof window !== "undefined") {
-        const refreshToken = localStorage.getItem("refresh_token")
+        const refreshToken = getCookie(COOKIE_KEYS.REFRESH_TOKEN)
         if (refreshToken) {
           try {
             const refreshResponse = await axios.post(
@@ -52,25 +58,25 @@ apiClient.interceptors.response.use(
             const { access_token, refresh_token: newRefreshToken } =
               refreshResponse.data
 
-            localStorage.setItem("access_token", access_token)
-            if (newRefreshToken) {
-              localStorage.setItem("refresh_token", newRefreshToken)
-            }
+            setAuthCookies({
+              access_token,
+              refresh_token: newRefreshToken || refreshToken,
+            })
 
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${access_token}`
             }
 
             return apiClient(originalRequest)
-          } catch (refreshError) {
-            // Refresh token expired or invalid -> logout user
-            localStorage.removeItem("access_token")
-            localStorage.removeItem("refresh_token")
+          } catch {
+            // Refresh token expired or invalid -> logout user and clear cookies
+            clearAuthCookies()
             if (
               !window.location.pathname.startsWith("/auth") &&
               !window.location.pathname.startsWith("/portal") &&
               !window.location.pathname.startsWith("/chatbot")
             ) {
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
               window.location.href = "/auth/sign-in"
             }
           }
