@@ -7,6 +7,7 @@ import { ArrowLeft, Globe, Loader2 } from "lucide-react";
 
 import domainService from "@/services/domain-service";
 import { ChatbotCustomizer } from "@/components/settings/chatbot-customizer";
+import { BotTraining } from "@/components/settings/bot-training";
 import { Button } from "@/components/ui/button";
 
 interface DomainSettingsViewProps {
@@ -72,6 +73,11 @@ export function DomainSettingsView({
         domainName={targetName}
         initialData={domain?.chat_bot}
       />
+
+      {/* Bot Training & Knowledge Base (HelpDesk FAQ & Filter Questions) */}
+      <div className="pt-6">
+        <BotTraining domainId={targetId} />
+      </div>
     </div>
   );
 }

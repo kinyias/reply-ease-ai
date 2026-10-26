@@ -18,6 +18,16 @@ from app.services.email_service import (
     generate_otp_code,
     send_email,
 )
+from app.services.training_service import (
+    create_filter_question,
+    create_helpdesk_faq,
+    delete_filter_question,
+    delete_helpdesk_faq,
+    get_filter_questions,
+    get_helpdesk_faqs,
+    update_filter_question,
+    update_helpdesk_faq,
+)
 
 __all__ = [
     "generate_otp_code",
@@ -35,4 +45,12 @@ __all__ = [
     "update_domain",
     "delete_domain",
     "update_chatbot_settings",
+    "get_helpdesk_faqs",
+    "create_helpdesk_faq",
+    "update_helpdesk_faq",
+    "delete_helpdesk_faq",
+    "get_filter_questions",
+    "create_filter_question",
+    "update_filter_question",
+    "delete_filter_question",
 ]
