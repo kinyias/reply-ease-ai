@@ -63,6 +63,15 @@ __all__ = [
     "PortalOrderResponse",
     "PortalOrderStatusResponse",
     "PortalSimulatePaymentRequest",
+    "CreatePaymentRequest",
+    "PaymentResponse",
+    "PaymentStatusResponse",
+    "PaymentTransactionItem",
+    "TransactionListResponse",
+    "SepayMerchantConfigRequest",
+    "SepayMerchantConfigResponse",
+    "SepayWebhookPayload",
+    "SimulatePaymentRequest",
 ]
 
 from app.schemas.conversation import (
@@ -89,4 +98,16 @@ from app.schemas.portal import (
     PortalProductItem,
     PortalSimulatePaymentRequest,
     PortalSubmitAnswersRequest,
+)
+
+from app.schemas.payment import (
+    CreatePaymentRequest,
+    PaymentResponse,
+    PaymentStatusResponse,
+    PaymentTransactionItem,
+    TransactionListResponse,
+    SepayMerchantConfigRequest,
+    SepayMerchantConfigResponse,
+    SepayWebhookPayload,
+    SimulatePaymentRequest,
 )

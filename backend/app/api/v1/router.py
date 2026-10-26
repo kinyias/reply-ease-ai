@@ -8,6 +8,7 @@ from app.api.v1.endpoints import (
     training,
     websocket,
     portal,
+    payments,
 )
 
 api_router = APIRouter()
@@ -35,7 +36,9 @@ api_router.include_router(websocket.router, tags=["WebSocket"])
 
 # Customer Portal (Appointments, Booking & Product Checkout)
 api_router.include_router(portal.router, prefix="/portal", tags=["Customer Portal"])
-# api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
+
+# SePay Payments, VietQR Subscriptions & Merchant Integration
+api_router.include_router(payments.router, prefix="/payments", tags=["Payments & SePay"])
 # api_router.include_router(marketing.router, prefix="/marketing", tags=["marketing"])
 # api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 # api_router.include_router(uploads.router, prefix="/uploads", tags=["uploads"])

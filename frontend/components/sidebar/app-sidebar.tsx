@@ -12,6 +12,7 @@ import {
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
   SettingsIcon,
+  ShieldCheckIcon,
   SparklesIcon,
   XIcon,
 } from "lucide-react";
@@ -81,6 +82,12 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
       href: "/billing",
       icon: CreditCardIcon,
       isActive: pathname.startsWith("/billing"),
+    },
+    {
+      label: "Tích hợp SePay Shop",
+      href: "/integration",
+      icon: ShieldCheckIcon,
+      isActive: pathname.startsWith("/integration"),
     },
   ];
 
