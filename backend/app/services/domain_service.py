@@ -270,3 +270,23 @@ async def update_chatbot_settings(
     await db.commit()
     await db.refresh(chatbot)
     return chatbot
+
+
+async def get_chatbot_by_domain_id(
+    db: AsyncSession,
+    domain_id: uuid.UUID,
+    user: User,
+) -> ChatBot:
+    """Retrieve chatbot settings for a specific domain owned by user."""
+    domain = await get_domain_by_id(db, domain_id, user)
+    stmt = select(ChatBot).where(ChatBot.domain_id == domain.id)
+    result = await db.execute(stmt)
+    chatbot = result.scalar_one_or_none()
+
+    if not chatbot:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Chatbot for domain '{domain_id}' not found.",
+        )
+    return chatbot
+
