@@ -1,6 +1,7 @@
 import logging
 import re
 import uuid
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -8,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
+from app.core.websocket_manager import websocket_manager
 from app.models.chat_message import ChatMessage
 from app.models.chatbot import ChatBot
 from app.models.chatroom import ChatRoom
@@ -418,6 +420,30 @@ async def process_ai_chat(
             chat_room_id=chatroom.id,
         )
         db.add(user_chat_msg)
+        await db.commit()
+
+        # Broadcast live user message to Dashboard Messenger via WebSocket
+        try:
+            await websocket_manager.broadcast_to_room(
+                str(chatroom.id),
+                {
+                    "type": "new_message",
+                    "room_id": str(chatroom.id),
+                    "message": {
+                        "id": str(user_chat_msg.id),
+                        "message": user_chat_msg.message,
+                        "role": "user",
+                        "seen": False,
+                        "chat_room_id": str(chatroom.id),
+                        "created_at": user_chat_msg.created_at.isoformat()
+                        if user_chat_msg.created_at
+                        else datetime.now(timezone.utc).isoformat(),
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+        except Exception as ws_err:
+            logger.warning(f"Failed to broadcast live user message via WS: {ws_err}")
 
         # Notify domain owner via email if not already notified
         if not chatroom.mailed and domain.user and domain.user.email:
@@ -429,10 +455,10 @@ async def process_ai_chat(
                     last_message=user_msg_clean,
                 )
                 chatroom.mailed = True
+                await db.commit()
             except Exception as e:
                 logger.error(f"Failed to send live chat alert email: {e}")
 
-        await db.commit()
         return {
             "role": "assistant",
             "message": "Phòng chat đang kết nối trực tiếp với nhân viên tư vấn. Chuyên viên sẽ trả lời bạn trong giây lát!",
@@ -576,6 +602,60 @@ async def process_ai_chat(
         db.add(assistant_msg_obj)
 
     await db.commit()
+
+    if chatroom:
+        try:
+            # Broadcast user message
+            await websocket_manager.broadcast_to_room(
+                str(chatroom.id),
+                {
+                    "type": "new_message",
+                    "room_id": str(chatroom.id),
+                    "message": {
+                        "id": str(user_msg_obj.id),
+                        "message": user_msg_obj.message,
+                        "role": "user",
+                        "seen": True,
+                        "chat_room_id": str(chatroom.id),
+                        "created_at": user_msg_obj.created_at.isoformat()
+                        if user_msg_obj.created_at
+                        else datetime.now(timezone.utc).isoformat(),
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+            # Broadcast assistant message
+            await websocket_manager.broadcast_to_room(
+                str(chatroom.id),
+                {
+                    "type": "new_message",
+                    "room_id": str(chatroom.id),
+                    "message": {
+                        "id": str(assistant_msg_obj.id),
+                        "message": clean_message,
+                        "role": "assistant",
+                        "seen": True,
+                        "chat_room_id": str(chatroom.id),
+                        "created_at": assistant_msg_obj.created_at.isoformat()
+                        if assistant_msg_obj.created_at
+                        else datetime.now(timezone.utc).isoformat(),
+                        "link": detected_link,
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+            if has_realtime:
+                await websocket_manager.broadcast_to_room(
+                    str(chatroom.id),
+                    {
+                        "type": "live_mode_toggled",
+                        "room_id": str(chatroom.id),
+                        "live": True,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+        except Exception as ws_err:
+            logger.warning(f"Failed to broadcast chat messages via WS: {ws_err}")
 
     return {
         "role": "assistant",

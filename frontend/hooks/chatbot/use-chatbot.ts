@@ -135,6 +135,88 @@ export function useChatbot() {
     };
   }, [domainId]);
 
+  // 2b. Real-time WebSocket synchronization with Dashboard Messenger
+  const socketRef = useRef<WebSocket | null>(null);
+  const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!chatroomId) {
+      if (socketRef.current) {
+        socketRef.current.close();
+        socketRef.current = null;
+      }
+      return;
+    }
+
+    let wsUrl: string;
+    if (process.env.NEXT_PUBLIC_WS_URL) {
+      wsUrl = `${process.env.NEXT_PUBLIC_WS_URL}/ws/chat/${chatroomId}`;
+    } else if (typeof window !== "undefined") {
+      const isHttps = window.location.protocol === "https:";
+      const wsProto = isHttps ? "wss:" : "ws:";
+      const host = window.location.hostname || "localhost";
+      wsUrl = `${wsProto}//${host}:8000/ws/chat/${chatroomId}`;
+    } else {
+      wsUrl = `ws://localhost:8000/ws/chat/${chatroomId}`;
+    }
+
+    let socket: WebSocket;
+    try {
+      socket = new WebSocket(wsUrl);
+      socketRef.current = socket;
+    } catch {
+      return;
+    }
+
+    socket.onopen = () => {
+      if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+      heartbeatTimerRef.current = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: "ping" }));
+        }
+      }, 25000);
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === "new_message" && payload.message) {
+          const incomingMsg = payload.message;
+          // Assistant / owner reply received from Dashboard
+          if (incomingMsg.role === "assistant") {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === incomingMsg.id)) {
+                return prev;
+              }
+              const newMsgItem: MessageItem = {
+                id: incomingMsg.id,
+                role: "assistant",
+                message: incomingMsg.message,
+                created_at: incomingMsg.created_at || new Date().toISOString(),
+                link: incomingMsg.link,
+              };
+              return [...prev, newMsgItem];
+            });
+          }
+        } else if (payload.type === "live_mode_toggled" && typeof payload.live === "boolean") {
+          setIsLive(payload.live);
+        }
+      } catch {
+        // ignore parse error
+      }
+    };
+
+    socket.onclose = () => {
+      if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+    };
+
+    return () => {
+      if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
+      socket.close();
+      socketRef.current = null;
+    };
+  }, [chatroomId]);
+
   const setDefaultWelcomeMessage = (cfg: ChatbotConfig) => {
     setMessages([
       {
@@ -229,6 +311,10 @@ export function useChatbot() {
   // 4. Reset chat conversation
   const resetChat = useCallback(() => {
     if (!domainId) return;
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
     const sessionKey = `replyease_session_${domainId}`;
     localStorage.removeItem(sessionKey);
     setChatroomId(null);

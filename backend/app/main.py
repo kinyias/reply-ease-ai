@@ -45,6 +45,10 @@ app.mount(
 # Register API v1 routes
 app.include_router(api_router, prefix="/api/v1")
 
+# Register direct WebSocket routes (ws://host:port/ws/chat/{room_id})
+from app.api.v1.endpoints.websocket import router as websocket_router
+app.include_router(websocket_router)
+
 
 @app.get("/", tags=["Health Check"])
 async def root():
