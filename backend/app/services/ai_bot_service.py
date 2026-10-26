@@ -1,0 +1,590 @@
+import logging
+import re
+import uuid
+from typing import Any, Dict, List, Optional, Tuple
+from fastapi import HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.core.config import settings
+from app.models.chat_message import ChatMessage
+from app.models.chatbot import ChatBot
+from app.models.chatroom import ChatRoom
+from app.models.customer import Customer
+from app.models.customer_response import CustomerResponses
+from app.models.domain import Domain
+from app.models.enums import Role
+from app.models.filter_question import FilterQuestions
+from app.models.helpdesk import HelpDesk
+from app.models.product import Product
+from app.services import vector_service
+from app.services.email_service import send_live_chat_alert
+from app.services.gemini_service import generate_content_with_fallback
+
+logger = logging.getLogger(__name__)
+
+# Regular expression to extract email addresses
+EMAIL_REGEX = re.compile(
+    r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+)
+
+# Regular expressions for Portal links
+PORTAL_LINK_REGEX = re.compile(r"/portal/[a-zA-Z0-9_-]+/(?:appointment|payment)/[a-zA-Z0-9_-]+")
+
+
+def extract_email(text: str) -> Optional[str]:
+    """Extract the first valid email address from text using regex."""
+    if not text:
+        return None
+    match = EMAIL_REGEX.search(text)
+    return match.group(0).lower() if match else None
+
+
+async def get_or_create_customer_and_room(
+    db: AsyncSession,
+    domain: Domain,
+    email: Optional[str] = None,
+    chatroom_id: Optional[uuid.UUID] = None,
+) -> Tuple[Optional[Customer], Optional[ChatRoom]]:
+    """
+    Find or create Customer and ChatRoom.
+    If an email is detected, ensures Customer is created, filter questions are cloned
+    into CustomerResponses, and a ChatRoom is linked.
+    """
+    customer: Optional[Customer] = None
+    chatroom: Optional[ChatRoom] = None
+
+    # 1. If chatroom_id is provided, try loading it
+    if chatroom_id:
+        room_stmt = (
+            select(ChatRoom)
+            .options(
+                selectinload(ChatRoom.customer).selectinload(Customer.questions),
+                selectinload(ChatRoom.messages),
+            )
+            .where(ChatRoom.id == chatroom_id)
+        )
+        room_res = await db.execute(room_stmt)
+        chatroom = room_res.scalar_one_or_none()
+        if chatroom and chatroom.customer:
+            customer = chatroom.customer
+
+    # 2. If email is provided, find or create Customer
+    if email:
+        clean_email = email.strip().lower()
+        cust_stmt = (
+            select(Customer)
+            .options(
+                selectinload(Customer.questions),
+                selectinload(Customer.chat_rooms),
+            )
+            .where(Customer.email == clean_email, Customer.domain_id == domain.id)
+        )
+        cust_res = await db.execute(cust_stmt)
+        existing_cust = cust_res.scalar_one_or_none()
+
+        if existing_cust:
+            customer = existing_cust
+        else:
+            # Create new customer
+            customer = Customer(
+                id=uuid.uuid4(),
+                email=clean_email,
+                domain_id=domain.id,
+            )
+            db.add(customer)
+            await db.flush()
+
+        # Clone filter questions into CustomerResponses if not already cloned
+        existing_res = await db.execute(
+            select(CustomerResponses).where(CustomerResponses.customer_id == customer.id)
+        )
+        existing_q_texts = {q.question.strip() for q in existing_res.scalars().all()}
+
+        fq_stmt = (
+            select(FilterQuestions)
+            .where(FilterQuestions.domain_id == domain.id)
+            .order_by(FilterQuestions.created_at.asc())
+        )
+        fq_res = await db.execute(fq_stmt)
+        domain_fqs = fq_res.scalars().all()
+
+        for fq in domain_fqs:
+            if fq.question.strip() not in existing_q_texts:
+                new_resp = CustomerResponses(
+                    id=uuid.uuid4(),
+                    question=fq.question.strip(),
+                    answered=None,
+                    customer_id=customer.id,
+                )
+                db.add(new_resp)
+        await db.flush()
+
+        # Ensure customer has a ChatRoom
+        if not chatroom:
+            room_res = await db.execute(
+                select(ChatRoom).where(ChatRoom.customer_id == customer.id).limit(1)
+            )
+            existing_room = room_res.scalar_one_or_none()
+            if existing_room:
+                chatroom = existing_room
+            else:
+                chatroom = ChatRoom(
+                    id=uuid.uuid4(),
+                    customer_id=customer.id,
+                    live=False,
+                    mailed=False,
+                )
+                db.add(chatroom)
+                await db.flush()
+        elif chatroom and not chatroom.customer_id:
+            # Associate existing room with customer
+            chatroom.customer_id = customer.id
+            await db.flush()
+
+    return customer, chatroom
+
+
+async def check_and_update_filter_answer(
+    db: AsyncSession,
+    customer: Optional[Customer],
+    chat_history: List[Dict[str, str]],
+    new_message: str,
+) -> bool:
+    """
+    If the previous assistant message contained the (complete) keyword,
+    the user's new message is considered the answer to the first unanswered
+    filter question.
+    """
+    if not customer or not chat_history:
+        return False
+
+    # Check the last assistant message
+    last_assistant_msg = None
+    for entry in reversed(chat_history):
+        if entry.get("role") in ["assistant", "bot"]:
+            last_assistant_msg = entry.get("content") or entry.get("message") or ""
+            break
+
+    if not last_assistant_msg or "(complete)" not in last_assistant_msg.lower():
+        return False
+
+    # Find first unanswered response
+    stmt = (
+        select(CustomerResponses)
+        .where(
+            CustomerResponses.customer_id == customer.id,
+            CustomerResponses.answered.is_(None),
+        )
+        .order_by(CustomerResponses.created_at.asc())
+    )
+    result = await db.execute(stmt)
+    unanswered_resp = result.scalars().first()
+
+    if unanswered_resp:
+        unanswered_resp.answered = new_message.strip()
+        await db.flush()
+        logger.info(
+            f"Updated answer for filter question '{unanswered_resp.question}' for customer {customer.email}"
+        )
+        return True
+
+    return False
+
+
+async def build_knowledge_context(
+    db: AsyncSession,
+    domain: Domain,
+    query: str,
+) -> str:
+    """
+    Assemble RAG context from Pinecone and fallback to local DB HelpDesk & Products.
+    """
+    context_chunks: List[str] = []
+
+    # 1. Query Pinecone vector DB
+    try:
+        pinecone_matches = await vector_service.query_knowledge(
+            domain_id=domain.id,
+            query=query,
+            top_k=3,
+        )
+        if pinecone_matches:
+            rag_snippets = [f"- {m['text']}" for m in pinecone_matches if m.get("text")]
+            if rag_snippets:
+                context_chunks.append("THÔNG TIN TRUY XUẤT TỪ CƠ SỞ TRI THỨC (RAG):\n" + "\n".join(rag_snippets))
+    except Exception as exc:
+        logger.warning(f"Error querying vector service: {exc}")
+
+    # 2. Retrieve domain HelpDesk FAQs
+    hd_stmt = select(HelpDesk).where(HelpDesk.domain_id == domain.id).limit(10)
+    hd_res = await db.execute(hd_stmt)
+    faqs = hd_res.scalars().all()
+    if faqs:
+        faq_texts = [f"Q: {f.question}\nA: {f.answer}" for f in faqs]
+        context_chunks.append("CÂU HỎI THƯỜNG GẶP (HELPDESK FAQ):\n" + "\n\n".join(faq_texts))
+
+    # 3. Retrieve domain Products
+    prod_stmt = select(Product).where(Product.domain_id == domain.id).limit(10)
+    prod_res = await db.execute(prod_stmt)
+    products = prod_res.scalars().all()
+    if products:
+        prod_texts = [f"- {p.name}: {p.price:,} VND (Ảnh: {p.image})" for p in products]
+        context_chunks.append("DANH MỤC SẢN PHẨM & DỊCH VỤ CỦA CHÚNG TÔI:\n" + "\n".join(prod_texts))
+
+    return "\n\n".join(context_chunks)
+
+
+def build_system_prompt(
+    domain: Domain,
+    customer: Optional[Customer],
+    unanswered_questions: List[str],
+    knowledge_context: str,
+    customer_id_str: str,
+) -> str:
+    """
+    Construct the master System Prompt for Gemini 1.5 Flash.
+    """
+    bot_welcome = (
+        domain.chat_bot.welcome_message
+        if domain.chat_bot and domain.chat_bot.welcome_message
+        else "Xin chào! Tôi có thể giúp gì cho bạn?"
+    )
+
+    unanswered_block = (
+        "\n".join([f"- {q}" for q in unanswered_questions])
+        if unanswered_questions
+        else "Không còn câu hỏi sàng lọc nào chưa trả lời."
+    )
+
+    has_email = customer is not None and bool(customer.email)
+
+    prompt = f"""Bạn là Trợ lý Bán Hàng & Chăm Sóc Khách Hàng AI thông minh, đại diện chính thức cho website/doanh nghiệp: "{domain.name}".
+
+MỤC TIÊU CỐT LÕI:
+- Tư vấn nhiệt tình, thân thiện, trung thực, chuyên nghiệp, súc tích.
+- Giải đáp thắc mắc dựa trên cơ sở tri thức đã cung cấp. Tuyệt đối không bịa đặt thông tin không có trong tài liệu.
+- Định hướng chốt sales, thu thập thông tin khách hàng tiềm năng, hướng dẫn đặt lịch hẹn hoặc thanh toán mua hàng.
+
+THÔNG TIN TRÍ THỨC & DỮ LIỆU DOANH NGHIỆP:
+{knowledge_context if knowledge_context.strip() else "Doanh nghiệp hiện chưa có thêm tài liệu mở rộng."}
+
+TRẠNG THÁI KHÁCH HÀNG HIỆN TẠI:
+- Khách đã cung cấp Email chưa: {"ĐÃ CÓ (" + customer.email + ")" if has_email else "CHƯA CÓ EMAIL"}
+- Danh sách câu hỏi sàng lọc lead cần hỏi (Filter Questions):
+{unanswered_block}
+
+QUY TẮC BẮT BUỘC (TUÂN THỦ 100%):
+
+1. QUY TẮC XIN EMAIL:
+{"- Khách hàng đã cung cấp email, bạn KHÔNG cần hỏi lại email nữa." if has_email else "- Khách hàng CHƯA cung cấp email. Hãy trả lời ngắn gọn thắc mắc hiện tại của khách, đồng thời khéo léo và lịch sự xin địa chỉ email của khách (ví dụ: 'Để em gửi bảng báo giá chi tiết và ưu đãi riêng, anh/chị cho em xin địa chỉ email nhé!') để tiếp tục tư vấn chuyên sâu."}
+
+2. QUY TẮC CÂU HỎI SÀNG LỌC VÀ TỪ KHÓA `(complete)`:
+- Khi khách hàng đã cung cấp email VÀ còn câu hỏi sàng lọc chưa trả lời ở trên:
+  Hãy chọn câu hỏi sàng lọc tiếp theo và hỏi khách một cách tự nhiên trong cuộc trò chuyện.
+  BẮT BUỘC: Khi bạn hỏi câu hỏi từ danh sách sàng lọc này, hãy gắn chính xác từ khóa `(complete)` ở cuối câu trả lời của bạn.
+  Ví dụ: "Anh/chị đang có ngân sách dự kiến khoảng bao nhiêu cho dự án này ạ? (complete)"
+
+3. QUY TẮC YÊU CẦU NGƯỜI THẬT VÀ TỪ KHÓA `(realtime)`:
+- Nếu khách hàng bày tỏ sự thất vọng, tức giận, quấy rối, hỏi những nội dung không thuộc phạm vi chuyên môn/sản phẩm của {domain.name}, HOẶC khách hàng yêu cầu trực tiếp nói chuyện với nhân viên tư vấn/người thật/quản lý:
+  Hãy phản hồi thật lịch sự, thông báo bạn đang chuyển tiếp cuộc trò chuyện cho nhân viên trực tiếp.
+  BẮT BUỘC: Gắn chính xác từ khóa `(realtime)` ở cuối câu trả lời của bạn để hệ thống tự động kích hoạt chế độ Live Chat và gửi thông báo khẩn cấp tới chủ website.
+
+4. QUY TẮC ĐƯỜNG DẪN PORTAL:
+- Khi khách hàng muốn ĐẶT LỊCH HẸN / TƯ VẤN TRỰC TIẾP:
+  Cung cấp đường dẫn: /portal/{domain.id}/appointment/{customer_id_str}
+  (Ví dụ: "Anh/chị có thể đặt lịch hẹn tư vấn thuận tiện tại: /portal/{domain.id}/appointment/{customer_id_str}")
+- Khi khách hàng muốn MUA HÀNG / THANH TOÁN SẢN PHẨM:
+  Cung cấp đường dẫn: /portal/{domain.id}/payment/{customer_id_str}
+  (Ví dụ: "Anh/chị có thể xem giỏ hàng và thanh toán VietQR tại: /portal/{domain.id}/payment/{customer_id_str}")
+
+HÃY TRẢ LỜI BẰNG TIẾNG VIỆT TỰ NHIÊN, LỊCH SỰ, RÕ RÀNG VÀ CHUYÊN NGHIỆP!"""
+
+    return prompt
+
+
+def simulate_ai_response(
+    domain: Domain,
+    customer: Optional[Customer],
+    message: str,
+    unanswered_questions: List[str],
+) -> str:
+    """
+    Intelligent offline/fallback AI response generator adhering strictly to the state machine.
+    Used if all Gemini models are exhausted or API key is not configured.
+    """
+    msg_lower = message.lower()
+    has_email = customer is not None and bool(customer.email)
+    cust_id = str(customer.id) if customer else "anonymous"
+
+    # 1. Escalation / human support
+    if any(k in msg_lower for k in ["người thật", "nhân viên", "tư vấn viên", "gặp trực tiếp", "khiếu nại", "quản lý", "human", "agent"]):
+        return (
+            f"Dạ, em hiểu rồi ạ! Em xin phép chuyển tiếp cuộc trò chuyện sang chế độ hỗ trợ trực tiếp. "
+            f"Chuyên viên của {domain.name} sẽ vào phản hồi ngay trong ít phút nhé ạ! (realtime)"
+        )
+
+    # 2. Appointment booking request
+    if any(k in msg_lower for k in ["đặt lịch", "hẹn", "booking", "cuộc hẹn", "lịch tư vấn"]):
+        link = f"/portal/{domain.id}/appointment/{cust_id}"
+        return (
+            f"Dạ tuyệt vời ạ! Anh/chị có thể lựa chọn khung giờ thuận tiện nhất để chuyên viên bên em tư vấn 1-1 tại đây: "
+            f"{link} . Bên em rất mong được phục vụ anh/chị!"
+        )
+
+    # 3. Product purchasing / payment request
+    if any(k in msg_lower for k in ["mua hàng", "thanh toán", "chuyển khoản", "vietqr", "order", "giỏ hàng", "mua ngay"]):
+        link = f"/portal/{domain.id}/payment/{cust_id}"
+        return (
+            f"Dạ vâng! Anh/chị có thể kiểm tra danh mục sản phẩm và quét mã VietQR tự động tại đây nhé: "
+            f"{link} . Cảm ơn anh/chị đã tin tưởng {domain.name}!"
+        )
+
+    # 4. If no email yet
+    if not has_email:
+        return (
+            f"Chào anh/chị! Em là trợ lý AI của {domain.name}. Em rất vui được hỗ trợ giải đáp mọi thông tin cho mình. "
+            f"Để em tiện gửi tài liệu chi tiết và ưu đãi riêng đến mình, anh/chị vui lòng cho em xin địa chỉ email được không ạ?"
+        )
+
+    # 5. If has email and has unanswered questions
+    if unanswered_questions:
+        next_q = unanswered_questions[0]
+        return (
+            f"Cảm ơn anh/chị đã chia sẻ thông tin ạ! Để bên em tư vấn giải pháp chính xác và tối ưu nhất cho mình, "
+            f"{next_q} (complete)"
+        )
+
+    # 6. Default friendly response
+    return (
+        f"Dạ, {domain.name} luôn sẵn sàng hỗ trợ anh/chị. Anh/chị cần xem thêm về danh mục sản phẩm, bảng giá hay đặt lịch tư vấn trực tiếp thì nhắn em nhé ạ!"
+    )
+
+
+async def process_ai_chat(
+    db: AsyncSession,
+    domain_id: uuid.UUID,
+    message: str,
+    chat_history: Optional[List[Dict[str, str]]] = None,
+    customer_email: Optional[str] = None,
+    chatroom_id: Optional[uuid.UUID] = None,
+) -> Dict[str, Any]:
+    """
+    Main State Machine and RAG-powered chatbot processor.
+    """
+    history = chat_history or []
+    user_msg_clean = message.strip()
+
+    # 1. Fetch domain with related chatbot and user
+    stmt = (
+        select(Domain)
+        .options(
+            selectinload(Domain.chat_bot),
+            selectinload(Domain.user),
+        )
+        .where(Domain.id == domain_id)
+    )
+    result = await db.execute(stmt)
+    domain = result.scalar_one_or_none()
+
+    if not domain:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Domain with ID '{domain_id}' not found.",
+        )
+
+    # 2. Extract email from message if present, or use provided customer_email
+    extracted_email = extract_email(user_msg_clean) or customer_email
+    if extracted_email:
+        extracted_email = extracted_email.strip().lower()
+
+    # 3. Get or create Customer & ChatRoom
+    customer, chatroom = await get_or_create_customer_and_room(
+        db=db,
+        domain=domain,
+        email=extracted_email,
+        chatroom_id=chatroom_id,
+    )
+
+    # 4. Check if Room is in LIVE mode
+    if chatroom and chatroom.live:
+        # Save user message to database
+        user_chat_msg = ChatMessage(
+            id=uuid.uuid4(),
+            message=user_msg_clean,
+            role=Role.user,
+            seen=False,
+            chat_room_id=chatroom.id,
+        )
+        db.add(user_chat_msg)
+
+        # Notify domain owner via email if not already notified
+        if not chatroom.mailed and domain.user and domain.user.email:
+            try:
+                await send_live_chat_alert(
+                    owner_email=domain.user.email,
+                    domain_name=domain.name,
+                    customer_email=customer.email if customer else None,
+                    last_message=user_msg_clean,
+                )
+                chatroom.mailed = True
+            except Exception as e:
+                logger.error(f"Failed to send live chat alert email: {e}")
+
+        await db.commit()
+        return {
+            "role": "assistant",
+            "message": "Phòng chat đang kết nối trực tiếp với nhân viên tư vấn. Chuyên viên sẽ trả lời bạn trong giây lát!",
+            "live": True,
+            "customer_id": str(customer.id) if customer else None,
+            "chatroom_id": str(chatroom.id),
+            "link": None,
+            "has_complete": False,
+            "has_realtime": True,
+        }
+
+    # 5. If previous message asked a filter question with (complete), update answer
+    if customer:
+        await check_and_update_filter_answer(
+            db=db,
+            customer=customer,
+            chat_history=history,
+            new_message=user_msg_clean,
+        )
+
+    # 6. Gather unanswered filter questions
+    unanswered_questions: List[str] = []
+    if customer:
+        resp_stmt = (
+            select(CustomerResponses)
+            .where(
+                CustomerResponses.customer_id == customer.id,
+                CustomerResponses.answered.is_(None),
+            )
+            .order_by(CustomerResponses.created_at.asc())
+        )
+        resp_res = await db.execute(resp_stmt)
+        unanswered_questions = [r.question for r in resp_res.scalars().all()]
+    else:
+        # If no customer yet, read from domain's filter questions
+        fq_stmt = (
+            select(FilterQuestions)
+            .where(FilterQuestions.domain_id == domain.id)
+            .order_by(FilterQuestions.created_at.asc())
+        )
+        fq_res = await db.execute(fq_stmt)
+        unanswered_questions = [fq.question for fq in fq_res.scalars().all()]
+
+    # 7. Build RAG knowledge context
+    knowledge_context = await build_knowledge_context(db, domain, user_msg_clean)
+
+    # 8. Prepare System Prompt & Chat Contents
+    customer_id_str = str(customer.id) if customer else "lead"
+    system_prompt = build_system_prompt(
+        domain=domain,
+        customer=customer,
+        unanswered_questions=unanswered_questions,
+        knowledge_context=knowledge_context,
+        customer_id_str=customer_id_str,
+    )
+
+    # 9. Format messages for Gemini
+    formatted_contents = []
+    for item in history[-6:]:  # Keep recent 6 messages for context
+        role = item.get("role")
+        content = item.get("content") or item.get("message") or ""
+        if role in ["user", "human"]:
+            formatted_contents.append({"role": "user", "parts": [content]})
+        elif role in ["assistant", "bot", "model"]:
+            formatted_contents.append({"role": "model", "parts": [content]})
+
+    formatted_contents.append({"role": "user", "parts": [user_msg_clean]})
+
+    # 10. Call Gemini with Fallbacks
+    raw_response_text = ""
+    try:
+        if settings.GEMINI_API_KEY and "your-gemini-api-key" not in settings.GEMINI_API_KEY.lower():
+            response = await generate_content_with_fallback(
+                contents=formatted_contents,
+                system_instruction=system_prompt,
+                generation_config={"temperature": 0.5, "max_output_tokens": 1024},
+            )
+            raw_response_text = response.text.strip()
+    except Exception as exc:
+        logger.warning(f"Gemini generation failed ({exc}). Using intelligent state-machine fallback.")
+
+    if not raw_response_text:
+        raw_response_text = simulate_ai_response(
+            domain=domain,
+            customer=customer,
+            message=user_msg_clean,
+            unanswered_questions=unanswered_questions,
+        )
+
+    # 11. Post-process AI response keywords
+    has_realtime = "(realtime)" in raw_response_text.lower()
+    has_complete = "(complete)" in raw_response_text.lower()
+
+    # Detect Portal links
+    detected_link: Optional[str] = None
+    link_match = PORTAL_LINK_REGEX.search(raw_response_text)
+    if link_match:
+        detected_link = link_match.group(0)
+
+    # If (realtime) triggered, switch ChatRoom to LIVE mode
+    is_live = False
+    if has_realtime:
+        is_live = True
+        if chatroom:
+            chatroom.live = True
+            if not chatroom.mailed and domain.user and domain.user.email:
+                try:
+                    await send_live_chat_alert(
+                        owner_email=domain.user.email,
+                        domain_name=domain.name,
+                        customer_email=customer.email if customer else None,
+                        last_message=user_msg_clean,
+                    )
+                    chatroom.mailed = True
+                except Exception as mail_err:
+                    logger.error(f"Failed to send live alert email: {mail_err}")
+
+    # Clean technical tags for user presentation
+    clean_message = raw_response_text
+    clean_message = re.sub(r"\(realtime\)", "", clean_message, flags=re.IGNORECASE).strip()
+    clean_message = re.sub(r"\(complete\)", "", clean_message, flags=re.IGNORECASE).strip()
+
+    # 12. Save messages to DB if chatroom exists
+    if chatroom:
+        user_msg_obj = ChatMessage(
+            id=uuid.uuid4(),
+            message=user_msg_clean,
+            role=Role.user,
+            seen=True,
+            chat_room_id=chatroom.id,
+        )
+        assistant_msg_obj = ChatMessage(
+            id=uuid.uuid4(),
+            # Save raw or clean message (we keep raw keyword for complete/realtime tracking in history)
+            message=raw_response_text,
+            role=Role.assistant,
+            seen=True,
+            chat_room_id=chatroom.id,
+        )
+        db.add(user_msg_obj)
+        db.add(assistant_msg_obj)
+
+    await db.commit()
+
+    return {
+        "role": "assistant",
+        "message": clean_message,
+        "raw_message": raw_response_text,
+        "live": is_live,
+        "customer_id": str(customer.id) if customer else None,
+        "chatroom_id": str(chatroom.id) if chatroom else None,
+        "link": detected_link,
+        "has_complete": has_complete,
+        "has_realtime": has_realtime,
+    }

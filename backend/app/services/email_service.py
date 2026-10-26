@@ -137,3 +137,63 @@ async def create_and_send_otp(db: AsyncSession, email: str) -> str:
     )
 
     return otp_code
+
+
+async def send_live_chat_alert(
+    owner_email: str,
+    domain_name: str,
+    customer_email: Optional[str],
+    last_message: str,
+) -> bool:
+    """Send an alert to the domain owner that a customer requires live human support."""
+    subject = f"🚨 [Live Chat Alert] Customer requested support on {domain_name}"
+    customer_label = customer_email or "Khách truy cập ẩn danh (Chưa cung cấp email)"
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff8f0; padding: 20px; }}
+        .card {{ max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 28px; border: 1px solid #ffd4aa; box-shadow: 0 4px 14px rgba(255, 122, 0, 0.08); }}
+        .header {{ margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 16px; }}
+        .badge {{ background: #ff4d4f; color: #fff; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 12px; text-transform: uppercase; }}
+        .title {{ color: #1f1f1f; font-size: 20px; font-weight: 700; margin: 12px 0 4px 0; }}
+        .meta {{ color: #666; font-size: 13px; }}
+        .bubble {{ background: #fdf5ec; border-left: 4px solid #ff7a00; border-radius: 4px; padding: 12px 16px; margin: 20px 0; font-size: 14px; color: #333; }}
+        .btn {{ display: inline-block; background: #ff7a00; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-top: 10px; }}
+        .footer {{ font-size: 12px; color: #999; margin-top: 24px; text-align: center; }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <span class="badge">Can thiệp Trực tiếp (Live Mode)</span>
+          <h2 class="title">Khách hàng cần bạn hỗ trợ!</h2>
+          <div class="meta">Domain: <strong>{domain_name}</strong> &bull; Khách: <strong>{customer_label}</strong></div>
+        </div>
+        <p style="font-size: 14px; color: #555;">Một khách hàng trên website vừa gửi yêu cầu hỗ trợ mà Trợ lý AI đã chuyển tiếp sang chế độ Người thật tư vấn:</p>
+        <div class="bubble">
+          <strong>Nội dung tin nhắn:</strong><br>
+          &ldquo;{last_message}&rdquo;
+        </div>
+        <p style="font-size: 13px; color: #666;">Vui lòng truy cập trang Quản lý Hội thoại (Conversations) để trả lời trực tiếp cho khách hàng trong thời gian sớm nhất.</p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="{settings.FRONTEND_URL}/conversation" class="btn" style="color: #ffffff;">Mở Live Messenger</a>
+        </div>
+        <div class="footer">
+          &copy; 2026 ReplyEase AI &bull; Smart Sales Chatbot Platform
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    return await send_email(
+        to_email=owner_email,
+        subject=subject,
+        html_content=html_content,
+        text_content=f"[Live Alert] Customer ({customer_label}) on {domain_name} needs human assistance:\n\n{last_message}\n\nPlease check your ReplyEase dashboard.",
+    )
+

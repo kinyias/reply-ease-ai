@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, domains, products, training
+from app.api.v1.endpoints import auth, chatbot, domains, products, training
 
 api_router = APIRouter()
 
@@ -14,7 +14,9 @@ api_router.include_router(training.router, prefix="/domains", tags=["Bot Trainin
 
 # Domain Products & Services Management
 api_router.include_router(products.router, prefix="/domains", tags=["Products"])
-# api_router.include_router(chatbot.router, prefix="/chatbot", tags=["chatbot"])
+
+# Public Chatbot & AI Sales Engine
+api_router.include_router(chatbot.router, prefix="/chatbot", tags=["Chatbot Public API"])
 # api_router.include_router(conversations.router, prefix="/conversations", tags=["conversations"])
 # api_router.include_router(portal.router, prefix="/portal", tags=["portal"])
 # api_router.include_router(payments.router, prefix="/payments", tags=["payments"])

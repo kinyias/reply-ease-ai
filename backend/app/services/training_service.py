@@ -13,6 +13,7 @@ from app.schemas.training import (
     HelpDeskCreateRequest,
     HelpDeskUpdateRequest,
 )
+from app.services import vector_service
 from app.services.domain_service import get_domain_by_id
 
 
@@ -55,6 +56,18 @@ async def create_helpdesk_faq(
     db.add(faq)
     await db.commit()
     await db.refresh(faq)
+
+    # Sync RAG knowledge to Pinecone
+    try:
+        await vector_service.upsert_knowledge(
+            domain_id=domain_id,
+            record_id=faq.id,
+            text=f"Câu hỏi: {faq.question}\nTrả lời: {faq.answer}",
+            metadata={"type": "helpdesk", "question": faq.question},
+        )
+    except Exception:
+        pass
+
     return faq
 
 
@@ -87,6 +100,18 @@ async def update_helpdesk_faq(
 
     await db.commit()
     await db.refresh(faq)
+
+    # Sync updated FAQ knowledge to Pinecone
+    try:
+        await vector_service.upsert_knowledge(
+            domain_id=domain_id,
+            record_id=faq.id,
+            text=f"Câu hỏi: {faq.question}\nTrả lời: {faq.answer}",
+            metadata={"type": "helpdesk", "question": faq.question},
+        )
+    except Exception:
+        pass
+
     return faq
 
 
@@ -110,6 +135,13 @@ async def delete_helpdesk_faq(
 
     await db.delete(faq)
     await db.commit()
+
+    # Delete vector from Pinecone
+    try:
+        await vector_service.delete_knowledge(domain_id=domain_id, record_id=faq_id)
+    except Exception:
+        pass
+
     return True
 
 

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.product import ProductCreateRequest, ProductUpdateRequest
+from app.services import vector_service
 from app.services.domain_service import get_domain_by_id
 
 
@@ -65,6 +66,18 @@ async def create_product(
     db.add(product)
     await db.commit()
     await db.refresh(product)
+
+    # Sync product to Pinecone vector DB
+    try:
+        await vector_service.upsert_knowledge(
+            domain_id=domain_id,
+            record_id=product.id,
+            text=f"Sản phẩm: {product.name}. Giá: {product.price:,} VND. Hình ảnh: {product.image}",
+            metadata={"type": "product", "name": product.name, "price": product.price},
+        )
+    except Exception:
+        pass
+
     return product
 
 
@@ -87,6 +100,18 @@ async def update_product(
 
     await db.commit()
     await db.refresh(product)
+
+    # Sync updated product to Pinecone vector DB
+    try:
+        await vector_service.upsert_knowledge(
+            domain_id=domain_id,
+            record_id=product.id,
+            text=f"Sản phẩm: {product.name}. Giá: {product.price:,} VND. Hình ảnh: {product.image}",
+            metadata={"type": "product", "name": product.name, "price": product.price},
+        )
+    except Exception:
+        pass
+
     return product
 
 
@@ -97,4 +122,11 @@ async def delete_product(
     product = await get_product_by_id(db, domain_id, product_id, user)
     await db.delete(product)
     await db.commit()
+
+    # Delete vector from Pinecone
+    try:
+        await vector_service.delete_knowledge(domain_id=domain_id, record_id=product_id)
+    except Exception:
+        pass
+
     return True
