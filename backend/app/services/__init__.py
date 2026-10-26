@@ -18,6 +18,13 @@ from app.services.email_service import (
     generate_otp_code,
     send_email,
 )
+from app.services.gemini_service import (
+    GeminiAllModelsFailedError,
+    GeminiServiceError,
+    generate_content_with_fallback,
+    generate_content_with_fallback_sync,
+    init_gemini,
+)
 from app.services.training_service import (
     create_filter_question,
     create_helpdesk_faq,
@@ -30,6 +37,11 @@ from app.services.training_service import (
 )
 
 __all__ = [
+    "init_gemini",
+    "generate_content_with_fallback",
+    "generate_content_with_fallback_sync",
+    "GeminiServiceError",
+    "GeminiAllModelsFailedError",
     "generate_otp_code",
     "send_email",
     "create_and_send_otp",

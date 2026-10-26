@@ -39,7 +39,44 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 
-    # OpenAI
+    # Google Gemini & Pinecone Vector DB (RAG)
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_FALLBACK_MODELS: Union[str, List[str]] = (
+        "gemini-3.1-flash-lite,gemini-3.5-flash-lite,gemini-2.5-flash,gemini-3-flash,gemini-3.6-flash"
+    )
+    GEMINI_EMBEDDING_MODEL: str = "models/embedding-001"
+    PINECONE_API_KEY: str = ""
+    PINECONE_INDEX_NAME: str = "reply-ease-ai"
+    PINECONE_ENVIRONMENT: str = "us-east-1"
+
+    @field_validator("GEMINI_FALLBACK_MODELS", mode="after")
+    @classmethod
+    def assemble_gemini_fallback_models(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            return [model.strip() for model in v.split(",") if model.strip()]
+        return v
+
+    @property
+    def gemini_models_with_fallback(self) -> List[str]:
+        """
+        Returns the list of Gemini models to try in order:
+        primary GEMINI_MODEL first, followed by GEMINI_FALLBACK_MODELS without duplicates.
+        """
+        models: List[str] = []
+        if self.GEMINI_MODEL and self.GEMINI_MODEL.strip():
+            models.append(self.GEMINI_MODEL.strip())
+        fallbacks = (
+            self.GEMINI_FALLBACK_MODELS
+            if isinstance(self.GEMINI_FALLBACK_MODELS, list)
+            else [m.strip() for m in self.GEMINI_FALLBACK_MODELS.split(",") if m.strip()]
+        )
+        for m in fallbacks:
+            if m not in models:
+                models.append(m)
+        return models
+
+    # OpenAI (Optional Fallback)
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-3.5-turbo"
 
