@@ -230,6 +230,14 @@ async def delete_domain(
     domain = await get_domain_by_id(db, domain_id, user)
     await db.delete(domain)
     await db.commit()
+
+    # Clean up Pinecone namespace for this domain
+    try:
+        from app.services import vector_service
+        await vector_service.delete_namespace(domain_id)
+    except Exception:
+        pass
+
     return True
 
 

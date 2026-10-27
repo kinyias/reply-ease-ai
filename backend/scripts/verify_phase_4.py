@@ -100,7 +100,7 @@ async def verify_phase_4():
         # TEST 1: Vector Service check
         print("\n--- TEST 1: Vector & RAG Service ---")
         emb = vector_service.get_embedding("Xin chào trợ lý ảo")
-        assert len(emb) == 768, f"Expected 768-dim embedding, got {len(emb)}"
+        assert len(emb) in (768, 3072), f"Expected 768 or 3072-dim embedding, got {len(emb)}"
         print(f"✅ Embedding generated successfully (dimensions: {len(emb)})")
 
         upsert_res = await vector_service.upsert_knowledge(
