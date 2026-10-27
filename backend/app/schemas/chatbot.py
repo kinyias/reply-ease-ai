@@ -50,6 +50,7 @@ class ChatbotMessageResponse(BaseModel):
     link: Optional[str] = None
     has_complete: bool = False
     has_realtime: bool = False
+    credits_remaining: Optional[int] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

@@ -36,7 +36,7 @@ async def test_sepay_payments_and_webhook_lifecycle():
                 id=uuid.uuid4(),
                 user_id=user_id,
                 plan=Plans.STANDARD,
-                credits=10,
+                credits=100,
             )
             session.add_all([test_user, initial_billing])
             await session.commit()
@@ -110,13 +110,13 @@ async def test_sepay_payments_and_webhook_lifecycle():
         assert status_res2.json()["status"] == "SUCCESS"
         assert status_res2.json()["sepay_transaction_id"] == "MBFT2026102601"
 
-        # 6. Verify User's billing was upgraded to PRO and +50 credits
+        # 6. Verify User's billing was upgraded to PRO and +500 credits
         async with AsyncSessionLocal() as session:
             bill_stmt = select(Billings).where(Billings.user_id == user_id)
             bill_res = await session.execute(bill_stmt)
             updated_billing = bill_res.scalar_one()
             assert updated_billing.plan == Plans.PRO
-            assert updated_billing.credits == 60  # 10 initial + 50 from PRO
+            assert updated_billing.credits == 600  # 100 initial + 500 from PRO
 
         # 7. Test Idempotency (calling webhook again with same ref returns success without double-crediting)
         webhook_res2 = await ac.post(
@@ -134,7 +134,7 @@ async def test_sepay_payments_and_webhook_lifecycle():
             bill_stmt = select(Billings).where(Billings.user_id == user_id)
             bill_res = await session.execute(bill_stmt)
             updated_billing2 = bill_res.scalar_one()
-            assert updated_billing2.credits == 60  # Still 60, not double-credited
+            assert updated_billing2.credits == 600  # Still 600, not double-credited
 
         # 8. Test Simulate Payment endpoint for ULTIMATE
         create_ult = await ac.post(
@@ -158,7 +158,7 @@ async def test_sepay_payments_and_webhook_lifecycle():
             bill_res = await session.execute(bill_stmt)
             ult_billing = bill_res.scalar_one()
             assert ult_billing.plan == Plans.ULTIMATE
-            assert ult_billing.credits == 560  # 60 + 500
+            assert ult_billing.credits == 5600  # 600 + 5000
 
         # 9. Test Transactions List endpoint
         tx_res = await ac.get(

@@ -277,7 +277,7 @@ export function SignUpForm() {
           {step === 1
             ? "Choose your primary role so we can personalize your agent setup and capabilities."
             : step === 2
-            ? "Set up your login credentials and receive 10 free trial credits on the Standard plan."
+            ? "Set up your login credentials and receive 100 free trial credits on the Standard plan."
             : `Enter the 6-digit verification code sent to ${stepData?.email || "your email"}.`}
         </p>
       </div>

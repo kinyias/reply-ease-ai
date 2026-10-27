@@ -17,7 +17,7 @@ class Billings(BaseModel):
         default=Plans.STANDARD,
         nullable=False,
     )
-    credits: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
+    credits: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,

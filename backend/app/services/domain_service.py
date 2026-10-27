@@ -28,7 +28,7 @@ PLAN_DOMAIN_LIMITS: dict[Plans, int] = {
 
 async def get_user_billing_plan(db: AsyncSession, user: User) -> Tuple[Plans, int]:
     """Retrieve the user's active billing plan and credits.
-    Falls back to STANDARD (10 credits) if not yet provisioned.
+    Falls back to STANDARD (100 credits) if not yet provisioned.
     """
     if user.subscription:
         return user.subscription.plan, user.subscription.credits
@@ -40,7 +40,7 @@ async def get_user_billing_plan(db: AsyncSession, user: User) -> Tuple[Plans, in
     if billing:
         return billing.plan, billing.credits
 
-    return Plans.STANDARD, 10
+    return Plans.STANDARD, 100
 
 
 async def count_user_domains(db: AsyncSession, user_id: uuid.UUID) -> int:

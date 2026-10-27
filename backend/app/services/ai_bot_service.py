@@ -10,13 +10,14 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.websocket_manager import websocket_manager
+from app.models.billing import Billings
 from app.models.chat_message import ChatMessage
 from app.models.chatbot import ChatBot
 from app.models.chatroom import ChatRoom
 from app.models.customer import Customer
 from app.models.customer_response import CustomerResponses
 from app.models.domain import Domain
-from app.models.enums import Role
+from app.models.enums import Plans, Role
 from app.models.filter_question import FilterQuestions
 from app.models.helpdesk import HelpDesk
 from app.models.product import Product
@@ -442,6 +443,22 @@ async def process_ai_chat(
             detail=f"Domain with ID '{domain_id}' not found.",
         )
 
+    # Fetch domain owner's billing subscription to check & deduct credits
+    owner_billing: Optional[Billings] = None
+    if domain.user_id:
+        bill_stmt = select(Billings).where(Billings.user_id == domain.user_id)
+        bill_res = await db.execute(bill_stmt)
+        owner_billing = bill_res.scalar_one_or_none()
+        if not owner_billing:
+            owner_billing = Billings(
+                id=uuid.uuid4(),
+                plan=Plans.STANDARD,
+                credits=100,
+                user_id=domain.user_id,
+            )
+            db.add(owner_billing)
+            await db.flush()
+
     # 2. Extract email from message if present, or use provided customer_email
     extracted_email = extract_email(user_msg_clean) or customer_email
     if extracted_email:
@@ -516,6 +533,121 @@ async def process_ai_chat(
             "link": None,
             "has_complete": False,
             "has_realtime": True,
+            "credits_remaining": owner_billing.credits if owner_billing else None,
+        }
+
+    # 4.5. Check if domain owner has exhausted AI chat credits
+    if owner_billing and owner_billing.credits <= 0:
+        logger.warning(
+            f"Domain '{domain.name}' (owner={domain.user_id}) has 0 AI chat credits remaining. Switching to live takeover."
+        )
+        if chatroom:
+            chatroom.live = True
+            chatroom.updated_at = datetime.now(timezone.utc)
+
+        credits_exhausted_reply = (
+            f"Dạ hiện tại trợ lý AI của {domain.name} tạm thời hết lượt phản hồi tự động. "
+            f"Em xin phép chuyển tiếp cuộc trò chuyện sang chuyên viên tư vấn trực tiếp hỗ trợ mình ngay nhé ạ! (realtime)"
+        )
+        clean_exhausted_reply = re.sub(r"\(realtime\)", "", credits_exhausted_reply, flags=re.IGNORECASE).strip()
+
+        user_msg_obj = None
+        assistant_msg_obj = None
+        if chatroom:
+            user_msg_obj = ChatMessage(
+                id=uuid.uuid4(),
+                message=user_msg_clean,
+                role=Role.user,
+                seen=True,
+                chat_room_id=chatroom.id,
+            )
+            assistant_msg_obj = ChatMessage(
+                id=uuid.uuid4(),
+                message=clean_exhausted_reply,
+                role=Role.assistant,
+                seen=True,
+                chat_room_id=chatroom.id,
+            )
+            db.add(user_msg_obj)
+            db.add(assistant_msg_obj)
+
+            if not chatroom.mailed and domain.user and domain.user.email:
+                try:
+                    await send_live_chat_alert(
+                        owner_email=domain.user.email,
+                        domain_name=domain.name,
+                        customer_email=customer.email if customer else None,
+                        last_message=f"[HẾT CREDITS] {user_msg_clean}",
+                    )
+                    chatroom.mailed = True
+                except Exception as mail_err:
+                    logger.error(f"Failed to send credit alert email: {mail_err}")
+
+        await db.commit()
+
+        if chatroom and user_msg_obj and assistant_msg_obj:
+            try:
+                await websocket_manager.broadcast_to_room(
+                    str(chatroom.id),
+                    {
+                        "type": "new_message",
+                        "room_id": str(chatroom.id),
+                        "message": {
+                            "id": str(user_msg_obj.id),
+                            "message": user_msg_obj.message,
+                            "role": "user",
+                            "seen": True,
+                            "chat_room_id": str(chatroom.id),
+                            "created_at": user_msg_obj.created_at.isoformat()
+                            if user_msg_obj.created_at
+                            else datetime.now(timezone.utc).isoformat(),
+                        },
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+                await websocket_manager.broadcast_to_room(
+                    str(chatroom.id),
+                    {
+                        "type": "new_message",
+                        "room_id": str(chatroom.id),
+                        "message": {
+                            "id": str(assistant_msg_obj.id),
+                            "message": clean_exhausted_reply,
+                            "role": "assistant",
+                            "seen": True,
+                            "chat_room_id": str(chatroom.id),
+                            "created_at": assistant_msg_obj.created_at.isoformat()
+                            if assistant_msg_obj.created_at
+                            else datetime.now(timezone.utc).isoformat(),
+                            "link": None,
+                        },
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+                await websocket_manager.broadcast_to_room(
+                    str(chatroom.id),
+                    {
+                        "type": "live_mode_toggled",
+                        "room_id": str(chatroom.id),
+                        "live": True,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+            except Exception as ws_err:
+                logger.warning(f"Failed to broadcast exhausted message: {ws_err}")
+
+        return {
+            "id": str(assistant_msg_obj.id) if assistant_msg_obj else None,
+            "role": "assistant",
+            "message": clean_exhausted_reply,
+            "raw_message": credits_exhausted_reply,
+            "live": True,
+            "customer_id": str(customer.id) if customer else None,
+            "chatroom_id": str(chatroom.id) if chatroom else None,
+            "link": None,
+            "has_complete": False,
+            "has_realtime": True,
+            "credits_remaining": 0,
         }
 
     # 5. If previous message asked a filter question with (complete), update answer
@@ -652,6 +784,15 @@ async def process_ai_chat(
         db.add(assistant_msg_obj)
         chatroom.updated_at = datetime.now(timezone.utc)
 
+    # 12. Deduct 1 AI Chat credit from domain owner's subscription
+    if owner_billing and owner_billing.credits > 0:
+        owner_billing.credits = max(0, owner_billing.credits - 1)
+        db.add(owner_billing)
+        logger.info(
+            f"Deducted 1 AI chat credit from owner {domain.user_id} of domain '{domain.name}'. "
+            f"Remaining credits: {owner_billing.credits}"
+        )
+
     await db.commit()
 
     if chatroom and user_msg_obj and assistant_msg_obj:
@@ -719,4 +860,5 @@ async def process_ai_chat(
         "link": detected_link,
         "has_complete": has_complete,
         "has_realtime": has_realtime,
+        "credits_remaining": owner_billing.credits if owner_billing else None,
     }

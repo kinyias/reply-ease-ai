@@ -124,6 +124,7 @@ async def send_chatbot_message(
         link=result.get("link"),
         has_complete=result.get("has_complete", False),
         has_realtime=result.get("has_realtime", False),
+        credits_remaining=result.get("credits_remaining"),
     )
 
 

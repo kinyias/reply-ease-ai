@@ -103,11 +103,11 @@ async def verify_and_register(
     db.add(new_user)
     await db.flush()  # populate new_user.id
 
-    # Create Default Billings Subscription (STANDARD with 10 credits)
+    # Create Default Billings Subscription (STANDARD with 100 credits)
     subscription = Billings(
         user_id=new_user.id,
         plan=Plans.STANDARD,
-        credits=10,
+        credits=100,
     )
     db.add(subscription)
 

@@ -43,9 +43,9 @@ PLAN_PRICING = {
 }
 
 PLAN_CREDITS = {
-    Plans.STANDARD: 10,
-    Plans.PRO: 50,
-    Plans.ULTIMATE: 500,
+    Plans.STANDARD: 100,
+    Plans.PRO: 500,
+    Plans.ULTIMATE: 5000,
 }
 
 
