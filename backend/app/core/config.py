@@ -99,5 +99,22 @@ class Settings(BaseSettings):
     BACKEND_URL: str = "http://localhost:8000"
     STATIC_DIR: str = "static"
 
+    # Cloudinary & File Upload Service
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+    CLOUDINARY_URL: str = ""
+    MAX_UPLOAD_SIZE_MB: int = 2
+    ALLOWED_IMAGE_TYPES: Union[str, List[str]] = (
+        "image/jpeg,image/png,image/jpg,image/webp,image/gif"
+    )
+
+    @field_validator("ALLOWED_IMAGE_TYPES", mode="after")
+    @classmethod
+    def assemble_allowed_image_types(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            return [t.strip().lower() for t in v.split(",") if t.strip()]
+        return [t.lower() for t in v]
+
 
 settings = Settings()

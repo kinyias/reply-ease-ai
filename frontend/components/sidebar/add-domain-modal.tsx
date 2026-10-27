@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/dialog";
 import { useDomainManagement } from "@/hooks/sidebar/use-domain-management";
 import { createDomainSchema, CreateDomainFormValues } from "@/schemas/domain";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import uploadService from "@/services/upload-service";
 
 interface AddDomainModalProps {
   isOpen: boolean;
@@ -57,6 +59,8 @@ export function AddDomainModal({
 }: AddDomainModalProps) {
   const router = useRouter();
   const { quota, createDomain, isCreating } = useDomainManagement();
+  const [selectedIconFile, setSelectedIconFile] = React.useState<File | null>(null);
+  const [isUploadingIcon, setIsUploadingIcon] = React.useState(false);
 
   const {
     register,
@@ -78,7 +82,15 @@ export function AddDomainModal({
 
   const onSubmit = async (values: CreateDomainFormValues) => {
     try {
-      const created = await createDomain(values);
+      let iconUrl = values.icon;
+      if (selectedIconFile) {
+        setIsUploadingIcon(true);
+        const res = await uploadService.uploadImage(selectedIconFile);
+        iconUrl = res.url;
+      }
+
+      const created = await createDomain({ ...values, icon: iconUrl });
+      setSelectedIconFile(null);
       reset();
       onOpenChange(false);
       if (onSuccess) {
@@ -88,6 +100,8 @@ export function AddDomainModal({
       }
     } catch {
       // Error handled by hook toast
+    } finally {
+      setIsUploadingIcon(false);
     }
   };
 
@@ -170,55 +184,22 @@ export function AddDomainModal({
               )}
             </div>
 
-            {/* Icon picker */}
+            {/* Icon picker with Cloudinary upload */}
             <div className="space-y-1.5">
-              <Label htmlFor="domain-icon" className="text-xs font-medium">
-                Icon đại diện website <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="domain-icon"
+              <ImageUploader
+                value={watchedIcon}
+                onChange={(url) => setValue("icon", url, { shouldValidate: true })}
+                onFileSelect={setSelectedIconFile}
+                isSaving={isCreating || isUploadingIcon}
+                label="Icon đại diện website"
+                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                aspectRatio="square"
+                previewHeight="h-28"
+                presets={PRESET_ICONS}
                 placeholder="https://cuahang.vn/logo.png"
-                {...register("icon")}
               />
               {errors.icon && (
                 <p className="text-xs text-destructive">{errors.icon.message}</p>
-              )}
-
-              {/* Quick Preset Icons */}
-              <div className="pt-2">
-                <span className="text-[11px] text-muted-foreground block mb-1.5">
-                  Chọn nhanh icon mẫu:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRESET_ICONS.map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => setValue("icon", preset.url, { shouldValidate: true })}
-                      className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-muted/40 hover:bg-muted text-foreground transition-colors"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Live Preview */}
-              {watchedIcon && (
-                <div className="mt-2.5 flex items-center gap-3 p-2.5 rounded-lg border border-border/60 bg-muted/20">
-                  <div className="relative size-10 rounded-lg overflow-hidden border border-border/80 bg-background shrink-0">
-                    <Image
-                      src={watchedIcon}
-                      alt="Icon preview"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Ảnh icon sẽ hiển thị ở menu chuyển đổi và trên widget chatbot.
-                  </div>
-                </div>
               )}
             </div>
 
@@ -227,19 +208,19 @@ export function AddDomainModal({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isCreating}
+                disabled={isCreating || isUploadingIcon}
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
-                disabled={isCreating}
+                disabled={isCreating || isUploadingIcon}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-28"
               >
-                {isCreating ? (
+                {(isCreating || isUploadingIcon) ? (
                   <Loader2Icon className="size-4 animate-spin mr-1.5" />
                 ) : null}
-                Khởi tạo Domain
+                {isUploadingIcon ? "Đang tải ảnh..." : "Khởi tạo Domain"}
               </Button>
             </DialogFooter>
           </form>

@@ -135,3 +135,5 @@ from app.schemas.dashboard import (
     AppointmentsListResponse,
 )
 
+from app.schemas.upload import ImageUploadResponse
+

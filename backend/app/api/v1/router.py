@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     payments,
     marketing,
     dashboard,
+    uploads,
 )
 
 api_router = APIRouter()
@@ -47,5 +48,7 @@ api_router.include_router(marketing.router, prefix="/marketing", tags=["Email Ma
 
 # Dashboard Metrics, Analytics & Reporting
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
-# api_router.include_router(uploads.router, prefix="/uploads", tags=["uploads"])
+
+# File Upload Service (Cloudinary & Local)
+api_router.include_router(uploads.router, prefix="/uploads", tags=["File Uploads"])
 

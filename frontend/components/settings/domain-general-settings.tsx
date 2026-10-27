@@ -29,6 +29,8 @@ import {
 import domainService from "@/services/domain-service";
 import { updateDomainSchema, UpdateDomainFormValues } from "@/schemas/domain";
 import { Domain } from "@/types/domain";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import uploadService from "@/services/upload-service";
 
 interface DomainGeneralSettingsProps {
   domain: Domain;
@@ -59,6 +61,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [confirmNameInput, setConfirmNameInput] = React.useState("");
+  const [selectedIconFile, setSelectedIconFile] = React.useState<File | null>(null);
 
   const {
     register,
@@ -78,9 +81,16 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
 
   // Mutation to update domain
   const updateMutation = useMutation({
-    mutationFn: (values: UpdateDomainFormValues) =>
-      domainService.updateDomain(domain.id, values),
+    mutationFn: async (values: UpdateDomainFormValues) => {
+      let iconUrl = values.icon;
+      if (selectedIconFile) {
+        const uploadRes = await uploadService.uploadImage(selectedIconFile);
+        iconUrl = uploadRes.url;
+      }
+      return domainService.updateDomain(domain.id, { ...values, icon: iconUrl });
+    },
     onSuccess: (updated) => {
+      setSelectedIconFile(null);
       queryClient.invalidateQueries({ queryKey: ["domains"] });
       queryClient.invalidateQueries({ queryKey: ["domains", domain.id] });
       toast.success("Cập nhật thông tin Domain thành công!");
@@ -154,55 +164,22 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
               )}
             </div>
 
-            {/* Icon URL */}
+            {/* Icon picker with Cloudinary upload */}
             <div className="space-y-1.5 max-w-md">
-              <Label htmlFor="domain-icon" className="text-xs font-medium">
-                URL Icon đại diện
-              </Label>
-              <Input
-                id="domain-icon"
+              <ImageUploader
+                value={watchedIcon}
+                onChange={(url) => setValue("icon", url, { shouldDirty: true, shouldValidate: true })}
+                onFileSelect={setSelectedIconFile}
+                isSaving={updateMutation.isPending}
+                label="Icon đại diện website"
+                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                aspectRatio="square"
+                previewHeight="h-28"
+                presets={PRESET_ICONS}
                 placeholder="https://cuahang.vn/logo.png"
-                {...register("icon")}
               />
               {errors.icon && (
                 <p className="text-xs text-destructive">{errors.icon.message}</p>
-              )}
-
-              {/* Preset Icons */}
-              <div className="pt-2">
-                <span className="text-[11px] text-muted-foreground block mb-1.5">
-                  Chọn nhanh icon mẫu:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRESET_ICONS.map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => setValue("icon", preset.url, { shouldDirty: true })}
-                      className="px-2.5 py-1 text-xs rounded-md border border-border/80 bg-muted/40 hover:bg-muted text-foreground transition-colors"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Icon Preview */}
-              {watchedIcon && (
-                <div className="mt-3 flex items-center gap-3 p-3 rounded-xl border border-border/60 bg-muted/20">
-                  <div className="relative size-12 rounded-xl overflow-hidden border border-border/80 bg-background shrink-0 shadow-xs">
-                    <Image
-                      src={watchedIcon}
-                      alt="Icon preview"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Biểu tượng này đại diện cho domain trên thanh bên và tiêu đề chatbot widget.
-                  </div>
-                </div>
               )}
             </div>
 
@@ -210,7 +187,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
             <div className="pt-3">
               <Button
                 type="submit"
-                disabled={!isDirty || updateMutation.isPending}
+                disabled={(!isDirty && !selectedIconFile) || updateMutation.isPending}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 text-xs font-medium"
               >
                 {updateMutation.isPending ? (
@@ -218,7 +195,11 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
                 ) : (
                   <SaveIcon className="size-3.5" />
                 )}
-                <span>Lưu thay đổi Domain</span>
+                <span>
+                  {updateMutation.isPending
+                    ? "Đang lưu & tải ảnh lên Cloudinary..."
+                    : "Lưu thay đổi Domain"}
+                </span>
               </Button>
             </div>
           </form>

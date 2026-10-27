@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatbotPreview } from "./chatbot-preview";
+import { ImageUploader } from "@/components/ui/image-uploader";
 
 interface ChatbotCustomizerProps {
   domainId: string;
@@ -42,6 +43,8 @@ export function ChatbotCustomizer({
     isLoading,
     livePreview,
     onSubmit,
+    selectedAvatarFile,
+    setSelectedAvatarFile,
     setPresetWelcome,
     setPresetColor,
     setPresetAvatar,
@@ -177,18 +180,21 @@ export function ChatbotCustomizer({
             </div>
 
             <div className="pt-2">
-              <Label
-                htmlFor="custom_icon"
-                className="text-xs text-muted-foreground"
-              >
-                Hoặc dán URL avatar tùy chỉnh:
-              </Label>
-              <Input
-                id="custom_icon"
-                type="url"
+              <ImageUploader
+                value={currentAvatar}
+                onChange={(url) =>
+                  form.setValue("icon", url, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                onFileSelect={setSelectedAvatarFile}
+                isSaving={isSaving}
+                label="Avatar nhận diện Chatbot:"
+                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                aspectRatio="square"
+                previewHeight="h-28"
                 placeholder="https://cuahang.vn/bot-avatar.png"
-                className="mt-1"
-                {...register("icon")}
               />
               {errors.icon && (
                 <p className="text-xs text-destructive mt-1">

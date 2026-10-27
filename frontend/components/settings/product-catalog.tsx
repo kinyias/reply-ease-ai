@@ -28,6 +28,8 @@ import {
 import { useProducts } from "@/hooks/settings/use-products";
 import { productSchema, ProductFormValues } from "@/schemas/product";
 import { Product } from "@/types/product";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import uploadService from "@/services/upload-service";
 
 interface ProductCatalogProps {
   domainId: string;
@@ -68,6 +70,8 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [editingProduct, setEditingProduct] = React.useState<Product | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = React.useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = React.useState(false);
 
   const {
     register,
@@ -99,6 +103,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
 
   const handleOpenAdd = () => {
     setEditingProduct(null);
+    setSelectedImageFile(null);
     reset({
       name: "",
       price: 100000,
@@ -109,6 +114,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
 
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
+    setSelectedImageFile(null);
     reset({
       name: product.name,
       price: product.price,
@@ -119,18 +125,35 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
 
   const onSubmit = async (values: ProductFormValues) => {
     try {
+      let finalImageUrl = values.image;
+
+      // Only upload to Cloudinary upon saving if a new file was chosen
+      if (selectedImageFile) {
+        setIsUploadingImage(true);
+        const res = await uploadService.uploadImage(selectedImageFile);
+        finalImageUrl = res.url;
+      }
+
+      const payload = {
+        ...values,
+        image: finalImageUrl,
+      };
+
       if (editingProduct) {
         await updateProduct({
           productId: editingProduct.id,
-          payload: values,
+          payload,
         });
       } else {
-        await createProduct(values);
+        await createProduct(payload);
       }
+      setSelectedImageFile(null);
       setIsOpen(false);
       reset();
     } catch {
       // Error handled by mutation hook toast
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -328,50 +351,22 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               )}
             </div>
 
-            {/* URL Hình ảnh */}
+            {/* URL & Upload Hình ảnh */}
             <div className="space-y-1.5">
-              <Label htmlFor="image" className="text-xs font-medium">
-                URL Hình ảnh sản phẩm <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="image"
+              <ImageUploader
+                value={watchedImage}
+                onChange={(url) => setValue("image", url, { shouldValidate: true })}
+                onFileSelect={setSelectedImageFile}
+                isSaving={isUploadingImage || isCreating || isUpdating}
+                label="Hình ảnh sản phẩm / dịch vụ"
+                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                aspectRatio="video"
+                previewHeight="h-32"
+                presets={PRESET_IMAGES}
                 placeholder="https://cuahang.vn/product.jpg"
-                {...register("image")}
               />
               {errors.image && (
                 <p className="text-xs text-destructive">{errors.image.message}</p>
-              )}
-
-              {/* Preset images for fast testing */}
-              <div className="pt-2">
-                <span className="text-[11px] text-muted-foreground block mb-1.5">
-                  Gợi ý ảnh mẫu nhanh:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRESET_IMAGES.map((preset) => (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => setValue("image", preset.url, { shouldValidate: true })}
-                      className="px-2 py-1 text-xs rounded-md border border-border/80 bg-muted/40 hover:bg-muted text-foreground transition-colors"
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Live preview */}
-              {watchedImage && (
-                <div className="mt-3 relative h-28 w-full rounded-lg overflow-hidden border border-border/60 bg-muted/30">
-                  <Image
-                    src={watchedImage}
-                    alt="Xem trước ảnh"
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                </div>
               )}
             </div>
 
@@ -380,19 +375,23 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                 type="button"
                 variant="outline"
                 onClick={() => setIsOpen(false)}
-                disabled={isCreating || isUpdating}
+                disabled={isCreating || isUpdating || isUploadingImage}
               >
                 Hủy
               </Button>
               <Button
                 type="submit"
-                disabled={isCreating || isUpdating}
+                disabled={isCreating || isUpdating || isUploadingImage}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-24"
               >
-                {(isCreating || isUpdating) ? (
+                {(isCreating || isUpdating || isUploadingImage) ? (
                   <Loader2Icon className="size-4 animate-spin mr-1.5" />
                 ) : null}
-                {editingProduct ? "Lưu thay đổi" : "Thêm vào kho"}
+                {isUploadingImage
+                  ? "Đang tải ảnh lên Cloudinary..."
+                  : editingProduct
+                  ? "Lưu thay đổi"
+                  : "Thêm vào kho"}
               </Button>
             </DialogFooter>
           </form>

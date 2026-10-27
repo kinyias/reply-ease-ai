@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
 import domainService from "@/services/domain-service";
+import uploadService from "@/services/upload-service";
 import { ChatBot, UpdateChatBotInput } from "@/types/domain";
 import {
   updateChatBotSchema,
@@ -130,15 +131,24 @@ export function useChatbot({ domainId, initialData }: UseChatbotProps) {
     }
   }, [chatbot, form]);
 
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
+
   // Save mutation
   const mutation = useMutation({
-    mutationFn: (values: UpdateChatBotInput) =>
-      domainService.updateChatBot(domainId, values),
+    mutationFn: async (values: UpdateChatBotInput) => {
+      let iconUrl = values.icon;
+      if (selectedAvatarFile) {
+        const uploadRes = await uploadService.uploadImage(selectedAvatarFile);
+        iconUrl = uploadRes.url;
+      }
+      return domainService.updateChatBot(domainId, { ...values, icon: iconUrl });
+    },
     onSuccess: (updatedBot) => {
+      setSelectedAvatarFile(null);
       queryClient.setQueryData(["chatbot", domainId], updatedBot);
       queryClient.invalidateQueries({ queryKey: ["domains"] });
       queryClient.invalidateQueries({ queryKey: ["domain", domainId] });
-      toast.success("Chatbot settings saved successfully");
+      toast.success("Đã lưu cấu hình Chatbot thành công");
     },
     onError: (error: unknown) => {
       const axiosError = error as { response?: { data?: { detail?: string } } };
@@ -162,10 +172,12 @@ export function useChatbot({ domainId, initialData }: UseChatbotProps) {
   };
 
   const setPresetAvatar = (url: string) => {
+    setSelectedAvatarFile(null);
     form.setValue("icon", url, { shouldDirty: true });
   };
 
   const resetForm = () => {
+    setSelectedAvatarFile(null);
     if (chatbot) {
       form.reset({
         welcome_message: chatbot.welcome_message || "",
@@ -185,6 +197,8 @@ export function useChatbot({ domainId, initialData }: UseChatbotProps) {
     isSaving: mutation.isPending,
     livePreview,
     onSubmit,
+    selectedAvatarFile,
+    setSelectedAvatarFile,
     setPresetWelcome,
     setPresetColor,
     setPresetAvatar,
