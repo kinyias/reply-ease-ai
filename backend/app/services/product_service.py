@@ -12,17 +12,21 @@ from app.services.domain_service import get_domain_by_id
 
 
 async def get_products_by_domain(
-    db: AsyncSession, domain_id: uuid.UUID, user: User
+    db: AsyncSession,
+    domain_id: uuid.UUID,
+    user: User,
+    search: str | None = None,
 ) -> List[Product]:
     """Retrieve all products belonging to a domain owned by user."""
     # Ensure domain ownership
     await get_domain_by_id(db, domain_id, user)
 
-    stmt = (
-        select(Product)
-        .where(Product.domain_id == domain_id)
-        .order_by(Product.created_at.desc())
-    )
+    stmt = select(Product).where(Product.domain_id == domain_id)
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        stmt = stmt.where(Product.name.ilike(term))
+
+    stmt = stmt.order_by(Product.created_at.desc())
     result = await db.execute(stmt)
     return list(result.scalars().all())
 

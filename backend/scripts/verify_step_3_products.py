@@ -110,6 +110,15 @@ async def test_products():
         assert any(p["id"] == product_id for p in res.json())
         print("  [x] GET /products list includes updated product OK")
 
+        # Step E.2: GET /products with search filter
+        res_search_hit = await client.get(f"/api/v1/domains/{domain_id}/products?search=wireless", headers=headers)
+        assert res_search_hit.status_code == 200
+        assert any(p["id"] == product_id for p in res_search_hit.json())
+        res_search_miss = await client.get(f"/api/v1/domains/{domain_id}/products?search=NonExistent123456", headers=headers)
+        assert res_search_miss.status_code == 200
+        assert len(res_search_miss.json()) == 0
+        print("  [x] GET /products?search=... filtering works as expected OK")
+
         # Step F: DELETE /products/{product_id}
         res = await client.delete(f"/api/v1/domains/{domain_id}/products/{product_id}", headers=headers)
         assert res.status_code == 200, f"DELETE product failed: {res.text}"

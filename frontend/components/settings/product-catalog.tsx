@@ -12,6 +12,9 @@ import {
   TagIcon,
   Trash2Icon,
   ImageIcon,
+  SearchIcon,
+  XIcon,
+  ArrowUpDownIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,6 +57,9 @@ const PRESET_IMAGES = [
   },
 ];
 
+type PriceFilter = "all" | "under500" | "500to2m" | "over2m";
+type SortOption = "newest" | "oldest" | "priceAsc" | "priceDesc" | "nameAsc";
+
 export function ProductCatalog({ domainId }: ProductCatalogProps) {
   const {
     products,
@@ -65,6 +71,62 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
     deleteProduct,
     isDeleting,
   } = useProducts(domainId);
+
+  // Search, filter & sort state
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [priceFilter, setPriceFilter] = React.useState<PriceFilter>("all");
+  const [sortBy, setSortBy] = React.useState<SortOption>("newest");
+
+  // Filtered & sorted products list
+  const filteredProducts = React.useMemo(() => {
+    let result = [...products];
+
+    // Search query filter (matches name, price, or product id)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((p) => {
+        const nameMatch = p.name.toLowerCase().includes(q);
+        const idMatch = p.id.toLowerCase().includes(q);
+        const priceMatch = p.price.toString().includes(q);
+        return nameMatch || idMatch || priceMatch;
+      });
+    }
+
+    // Price range filter
+    if (priceFilter === "under500") {
+      result = result.filter((p) => p.price < 500000);
+    } else if (priceFilter === "500to2m") {
+      result = result.filter((p) => p.price >= 500000 && p.price <= 2000000);
+    } else if (priceFilter === "over2m") {
+      result = result.filter((p) => p.price > 2000000);
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === "priceAsc") return a.price - b.price;
+      if (sortBy === "priceDesc") return b.price - a.price;
+      if (sortBy === "nameAsc") return a.name.localeCompare(b.name, "vi");
+      if (sortBy === "oldest") {
+        return (
+          new Date(a.created_at || 0).getTime() -
+          new Date(b.created_at || 0).getTime()
+        );
+      }
+      // Default: newest
+      return (
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime()
+      );
+    });
+
+    return result;
+  }, [products, searchQuery, priceFilter, sortBy]);
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setPriceFilter("all");
+    setSortBy("newest");
+  };
 
   // Dialog state
   const [isOpen, setIsOpen] = React.useState(false);
@@ -193,6 +255,93 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
         </Button>
       </div>
 
+      {/* Search & Filter Toolbar */}
+      {!isLoading && products.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <SearchIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm sản phẩm theo tên, mã ID hoặc mức giá..."
+                className="pl-9 pr-9 h-9 text-xs sm:text-sm bg-background border-border/70 shadow-2xs focus-visible:ring-1 focus-visible:ring-primary"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm transition-colors cursor-pointer"
+                  title="Xóa từ khóa tìm kiếm"
+                >
+                  <XIcon className="size-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter & Sort Controls */}
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+              {/* Price Filter */}
+              <select
+                value={priceFilter}
+                onChange={(e) => setPriceFilter(e.target.value as PriceFilter)}
+                className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
+              >
+                <option value="all">Tất cả mức giá</option>
+                <option value="under500">Dưới 500.000 ₫</option>
+                <option value="500to2m">500.000 ₫ - 2.000.000 ₫</option>
+                <option value="over2m">Trên 2.000.000 ₫</option>
+              </select>
+
+              {/* Sort selector */}
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
+                >
+                  <option value="newest">Mới nhất</option>
+                  <option value="oldest">Cũ nhất</option>
+                  <option value="priceAsc">Giá: Thấp đến Cao</option>
+                  <option value="priceDesc">Giá: Cao đến Thấp</option>
+                  <option value="nameAsc">Tên: A → Z</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Filter summary */}
+          {(searchQuery || priceFilter !== "all") && (
+            <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg border border-border/40">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span>
+                  Tìm thấy <strong className="text-foreground">{filteredProducts.length}</strong> / {products.length} sản phẩm
+                </span>
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-foreground font-medium text-[11px]">
+                    Từ khóa: &quot;{searchQuery}&quot;
+                  </span>
+                )}
+                {priceFilter !== "all" && (
+                  <span className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-foreground font-medium text-[11px]">
+                    Mức giá: {priceFilter === "under500" ? "< 500k" : priceFilter === "500to2m" ? "500k - 2tr" : "> 2tr"}
+                  </span>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetFilters}
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                Đặt lại bộ lọc
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Loading state */}
       {isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-3">
@@ -201,7 +350,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty state (No products in domain) */}
       {!isLoading && products.length === 0 && (
         <Card className="border border-dashed border-border/80 bg-muted/20">
           <CardContent className="flex flex-col items-center justify-center py-14 text-center px-4">
@@ -222,10 +371,44 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
         </Card>
       )}
 
+      {/* Search Empty state */}
+      {!isLoading && products.length > 0 && filteredProducts.length === 0 && (
+        <Card className="border border-dashed border-border/80 bg-muted/20">
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center px-4">
+            <div className="size-12 rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
+              <SearchIcon className="size-6 stroke-[1.5]" />
+            </div>
+            <h4 className="text-base font-medium text-foreground">
+              Không tìm thấy sản phẩm phù hợp
+            </h4>
+            <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
+              Không có sản phẩm nào khớp với{" "}
+              {searchQuery ? (
+                <>
+                  từ khóa <strong className="text-foreground">&quot;{searchQuery}&quot;</strong>
+                </>
+              ) : (
+                "tiêu chí bộ lọc hiện tại"
+              )}
+              . Hãy thử kiểm tra lại chính tả hoặc đặt lại tìm kiếm.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetFilters}
+              className="gap-1.5 cursor-pointer"
+            >
+              <XIcon className="size-3.5" />
+              Đặt lại tìm kiếm
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Product Grid */}
-      {!isLoading && products.length > 0 && (
+      {!isLoading && filteredProducts.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.map((product) => {
+          {filteredProducts.map((product) => {
             const formattedItemPrice = new Intl.NumberFormat("vi-VN", {
               style: "currency",
               currency: "VND",

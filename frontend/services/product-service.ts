@@ -3,11 +3,16 @@ import { CreateProductInput, Product, UpdateProductInput } from "@/types/product
 
 export const productService = {
   /**
-   * Retrieve all products belonging to a domain.
+   * Retrieve all products belonging to a domain, with optional search term.
    */
-  async getProducts(domainId: string): Promise<Product[]> {
+  async getProducts(domainId: string, search?: string): Promise<Product[]> {
+    const params: Record<string, string> = {};
+    if (search && search.trim()) {
+      params.search = search.trim();
+    }
     const response = await apiClient.get<Product[]>(
-      `/domains/${domainId}/products`
+      `/domains/${domainId}/products`,
+      { params: Object.keys(params).length > 0 ? params : undefined }
     );
     return response.data;
   },

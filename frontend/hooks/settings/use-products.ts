@@ -3,9 +3,11 @@ import { toast } from "sonner";
 import { productService } from "@/services/product-service";
 import { CreateProductInput, UpdateProductInput } from "@/types/product";
 
-export function useProducts(domainId: string) {
+export function useProducts(domainId: string, search?: string) {
   const queryClient = useQueryClient();
-  const queryKey = ["domains", domainId, "products"];
+  const queryKey = search?.trim()
+    ? ["domains", domainId, "products", { search: search.trim() }]
+    : ["domains", domainId, "products"];
 
   // 1. Fetch products
   const {
@@ -15,7 +17,7 @@ export function useProducts(domainId: string) {
     refetch,
   } = useQuery({
     queryKey,
-    queryFn: () => productService.getProducts(domainId),
+    queryFn: () => productService.getProducts(domainId, search),
     enabled: Boolean(domainId),
   });
 
