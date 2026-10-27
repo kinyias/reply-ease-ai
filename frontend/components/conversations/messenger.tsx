@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useChatWindow } from "@/hooks/conversation/use-chat-window";
 import { ConversationRoomSummary } from "@/types/conversation";
+import { MessageSkeleton } from "./message-skeleton";
 
 interface MessengerProps {
   room: ConversationRoomSummary;
@@ -188,10 +189,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
       {/* 2. Messages List Area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
         {isLoadingMessages ? (
-          <div className="py-20 flex flex-col items-center justify-center space-y-2 text-muted-foreground">
-            <Loader2Icon className="size-6 animate-spin text-primary" />
-            <span className="text-xs">Đang tải lịch sử tin nhắn...</span>
-          </div>
+          <MessageSkeleton />
         ) : messages.length === 0 ? (
           <div className="py-16 text-center space-y-1 text-muted-foreground">
             <p className="text-sm font-medium">Chưa có tin nhắn trong phòng này</p>

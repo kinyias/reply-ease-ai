@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChatCard } from "@/components/conversations/chat-card";
 import { ConversationTabs } from "@/components/conversations/conversation-tabs";
 import { ConversationRoomSummary, ConversationTab } from "@/types/conversation";
@@ -153,16 +154,23 @@ export function ConversationMenu({
       {/* Room list content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-1.5 divide-y-0">
         {isLoading ? (
-          <div className="py-12 space-y-3">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="space-y-2 py-1">
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="p-3.5 rounded-lg border border-border/40 bg-muted/20 animate-pulse flex items-start gap-3"
+                className="p-3.5 rounded-xl border border-border/40 bg-card/40 flex items-start gap-3"
               >
-                <div className="size-10 rounded-full bg-muted/60 shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-muted/60 rounded w-2/3" />
-                  <div className="h-3 bg-muted/40 rounded w-5/6" />
+                <Skeleton className="size-10 rounded-full shrink-0" />
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <Skeleton className="h-3.5 w-32" />
+                    <Skeleton className="h-3 w-10 shrink-0" />
+                  </div>
+                  <Skeleton className="h-3 w-48" />
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <Skeleton className="h-3 w-20 rounded" />
+                    <Skeleton className="h-3 w-14 rounded-full" />
+                  </div>
                 </div>
               </div>
             ))}

@@ -4,6 +4,7 @@ import * as React from "react";
 import { ConversationMenu } from "@/components/conversations/conversation-menu";
 import { EmptyConversationState } from "@/components/conversations/empty-state";
 import { Messenger } from "@/components/conversations/messenger";
+import { MessengerSkeleton } from "@/components/conversations/message-skeleton";
 import { useConversation } from "@/hooks/conversation/use-conversation";
 
 export default function ConversationsPage() {
@@ -54,6 +55,8 @@ export default function ConversationsPage() {
             room={activeRoom}
             onRoomUpdated={refreshConversations}
           />
+        ) : isLoading ? (
+          <MessengerSkeleton />
         ) : (
           <EmptyConversationState />
         )}
