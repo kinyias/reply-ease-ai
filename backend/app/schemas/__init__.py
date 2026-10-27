@@ -126,3 +126,12 @@ from app.schemas.marketing import (
     CustomerQuestionAnswerBrief,
 )
 
+from app.schemas.dashboard import (
+    DashboardMetricsResponse,
+    PlanUsageResponse,
+    DashboardTransactionItem,
+    DashboardTransactionsResponse,
+    AppointmentItem,
+    AppointmentsListResponse,
+)
+

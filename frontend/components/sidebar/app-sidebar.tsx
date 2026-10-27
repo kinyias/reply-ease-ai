@@ -6,6 +6,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  CalendarIcon,
   CreditCardIcon,
   LayoutDashboardIcon,
   LogOutIcon,
@@ -66,6 +67,12 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
       href: "/conversations",
       icon: MessageSquareIcon,
       isActive: pathname.startsWith("/conversations"),
+    },
+    {
+      label: "Lịch hẹn",
+      href: "/appointment",
+      icon: CalendarIcon,
+      isActive: pathname.startsWith("/appointment"),
     },
     {
       label: "Cài đặt Domain & Bot",

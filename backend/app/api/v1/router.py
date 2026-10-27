@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     portal,
     payments,
     marketing,
+    dashboard,
 )
 
 api_router = APIRouter()
@@ -43,6 +44,8 @@ api_router.include_router(payments.router, prefix="/payments", tags=["Payments &
 
 # Email Marketing Campaigns & Lead Qualification
 api_router.include_router(marketing.router, prefix="/marketing", tags=["Email Marketing"])
-# api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+
+# Dashboard Metrics, Analytics & Reporting
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 # api_router.include_router(uploads.router, prefix="/uploads", tags=["uploads"])
 
