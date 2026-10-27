@@ -38,7 +38,7 @@ export function useConversation() {
         activeTab,
         debouncedSearch
       ),
-    refetchInterval: 15000, // Background polling fallback every 15s
+    refetchInterval: 5000, // Background polling fallback every 5s
   });
 
   const rooms: ConversationRoomSummary[] = conversationData?.rooms || [];

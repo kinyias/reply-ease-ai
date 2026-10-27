@@ -6,8 +6,10 @@ import { conversationService } from "@/services/conversation-service";
 import { ChatMessageItem, WebSocketMessagePayload } from "@/types/conversation";
 
 function getWebSocketUrl(roomId: string): string {
+  const cleanRoomId = roomId.trim();
   if (process.env.NEXT_PUBLIC_WS_URL) {
-    return `${process.env.NEXT_PUBLIC_WS_URL}/ws/chat/${roomId}`;
+    const base = process.env.NEXT_PUBLIC_WS_URL.replace(/\/+$/, "");
+    return `${base}/ws/chat/${cleanRoomId}`;
   }
 
   if (typeof window !== "undefined") {
@@ -15,10 +17,10 @@ function getWebSocketUrl(roomId: string): string {
     const wsProto = isHttps ? "wss:" : "ws:";
     // Default to port 8000 backend
     const host = window.location.hostname || "localhost";
-    return `${wsProto}//${host}:8000/ws/chat/${roomId}`;
+    return `${wsProto}//${host}:8000/ws/chat/${cleanRoomId}`;
   }
 
-  return `ws://localhost:8000/ws/chat/${roomId}`;
+  return `ws://localhost:8000/ws/chat/${cleanRoomId}`;
 }
 
 export function useChatWindow(roomId: string | null, initialLiveState: boolean = false) {
@@ -122,6 +124,18 @@ export function useChatWindow(roomId: string | null, initialLiveState: boolean =
             if (prev.some((m) => m.id === newMsg.id)) {
               return prev;
             }
+            // Replace matching optimistic message
+            const tempIdx = prev.findIndex(
+              (m) =>
+                m.id.startsWith("temp_") &&
+                m.role === newMsg.role &&
+                m.message === newMsg.message
+            );
+            if (tempIdx !== -1) {
+              const updated = [...prev];
+              updated[tempIdx] = newMsg;
+              return updated;
+            }
             return [...prev, newMsg];
           });
         } else if (payload.type === "live_mode_toggled" && typeof payload.live === "boolean") {
@@ -181,10 +195,13 @@ export function useChatWindow(roomId: string | null, initialLiveState: boolean =
 
       try {
         const savedMsg = await conversationService.sendMessage(roomId, cleanText);
-        // Replace temp optimistic message with persisted message
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? savedMsg : m))
-        );
+        // Replace temp optimistic message with persisted message if not already replaced by WS
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === savedMsg.id)) {
+            return prev.filter((m) => m.id !== tempId);
+          }
+          return prev.map((m) => (m.id === tempId ? savedMsg : m));
+        });
       } catch (err: any) {
         // Revert optimistic message on error
         setMessages((prev) => prev.filter((m) => m.id !== tempId));

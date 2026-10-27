@@ -149,15 +149,17 @@ export function useChatbot() {
     }
 
     let wsUrl: string;
+    const cleanRoomId = chatroomId.trim();
     if (process.env.NEXT_PUBLIC_WS_URL) {
-      wsUrl = `${process.env.NEXT_PUBLIC_WS_URL}/ws/chat/${chatroomId}`;
+      const baseWs = process.env.NEXT_PUBLIC_WS_URL.replace(/\/+$/, "");
+      wsUrl = `${baseWs}/ws/chat/${cleanRoomId}`;
     } else if (typeof window !== "undefined") {
       const isHttps = window.location.protocol === "https:";
       const wsProto = isHttps ? "wss:" : "ws:";
       const host = window.location.hostname || "localhost";
-      wsUrl = `${wsProto}//${host}:8000/ws/chat/${chatroomId}`;
+      wsUrl = `${wsProto}//${host}:8000/ws/chat/${cleanRoomId}`;
     } else {
-      wsUrl = `ws://localhost:8000/ws/chat/${chatroomId}`;
+      wsUrl = `ws://localhost:8000/ws/chat/${cleanRoomId}`;
     }
 
     let socket: WebSocket;
@@ -187,6 +189,23 @@ export function useChatbot() {
             setMessages((prev) => {
               if (prev.some((m) => m.id === incomingMsg.id)) {
                 return prev;
+              }
+              // If an optimistic message matches, upgrade its temporary ID
+              const tempIndex = prev.findIndex(
+                (m) =>
+                  m.role === "assistant" &&
+                  m.message === incomingMsg.message &&
+                  m.id.startsWith("assistant_")
+              );
+              if (tempIndex !== -1) {
+                const updated = [...prev];
+                updated[tempIndex] = {
+                  ...updated[tempIndex],
+                  id: incomingMsg.id,
+                  created_at: incomingMsg.created_at || updated[tempIndex].created_at,
+                  link: incomingMsg.link || updated[tempIndex].link,
+                };
+                return updated;
               }
               const newMsgItem: MessageItem = {
                 id: incomingMsg.id,
@@ -280,18 +299,23 @@ export function useChatbot() {
           })
         );
 
-        // Append assistant response
-        const assistantMsg: MessageItem = {
-          id: `assistant_${Date.now()}`,
-          role: "assistant",
-          message: response.message,
-          raw_message: response.raw_message,
-          created_at: response.created_at || new Date().toISOString(),
-          link: response.link,
-          isLivePrompt: response.live,
-        };
-
-        setMessages((prev) => [...prev, assistantMsg]);
+        // Append assistant response if not already added by WebSocket
+        const assistantMsgId = response.id || `assistant_${Date.now()}`;
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === assistantMsgId || (m.role === "assistant" && m.message === response.message))) {
+            return prev;
+          }
+          const assistantMsg: MessageItem = {
+            id: assistantMsgId,
+            role: "assistant",
+            message: response.message,
+            raw_message: response.raw_message,
+            created_at: response.created_at || new Date().toISOString(),
+            link: response.link,
+            isLivePrompt: response.live,
+          };
+          return [...prev, assistantMsg];
+        });
       } catch (err: any) {
         const errorMsg: MessageItem = {
           id: `error_${Date.now()}`,

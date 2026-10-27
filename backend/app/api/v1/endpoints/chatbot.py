@@ -1,3 +1,4 @@
+import re
 import uuid
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -113,6 +114,7 @@ async def send_chatbot_message(
     )
 
     return ChatbotMessageResponse(
+        id=result.get("id"),
         role=result["role"],
         message=result["message"],
         raw_message=result.get("raw_message"),
@@ -154,7 +156,7 @@ async def get_session_chat_history(
         ChatMessageHistoryItem(
             id=m.id,
             role=m.role.value if hasattr(m.role, "value") else str(m.role or "user"),
-            message=m.message,
+            message=re.sub(r"\((?:complete|realtime)\)", "", m.message, flags=re.IGNORECASE).strip(),
             seen=m.seen,
             created_at=m.created_at,
         )

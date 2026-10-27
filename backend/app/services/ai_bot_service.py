@@ -48,7 +48,7 @@ async def get_or_create_customer_and_room(
     domain: Domain,
     email: Optional[str] = None,
     chatroom_id: Optional[uuid.UUID] = None,
-) -> Tuple[Optional[Customer], Optional[ChatRoom]]:
+) -> Tuple[Customer, ChatRoom]:
     """
     Find or create Customer and ChatRoom.
     If an email is detected, ensures Customer is created, filter questions are cloned
@@ -72,9 +72,10 @@ async def get_or_create_customer_and_room(
         if chatroom and chatroom.customer:
             customer = chatroom.customer
 
+    clean_email = email.strip().lower() if email else None
+
     # 2. If email is provided, find or create Customer
-    if email:
-        clean_email = email.strip().lower()
+    if clean_email:
         cust_stmt = (
             select(Customer)
             .options(
@@ -88,6 +89,10 @@ async def get_or_create_customer_and_room(
 
         if existing_cust:
             customer = existing_cust
+            if chatroom and chatroom.customer_id != customer.id:
+                chatroom.customer_id = customer.id
+        elif customer:
+            customer.email = clean_email
         else:
             # Create new customer
             customer = Customer(
@@ -98,52 +103,62 @@ async def get_or_create_customer_and_room(
             db.add(customer)
             await db.flush()
 
-        # Clone filter questions into CustomerResponses if not already cloned
-        existing_res = await db.execute(
-            select(CustomerResponses).where(CustomerResponses.customer_id == customer.id)
+    # 3. If customer is still None (anonymous visitor), create guest customer
+    if not customer:
+        customer = Customer(
+            id=uuid.uuid4(),
+            email=None,
+            domain_id=domain.id,
         )
-        existing_q_texts = {q.question.strip() for q in existing_res.scalars().all()}
-
-        fq_stmt = (
-            select(FilterQuestions)
-            .where(FilterQuestions.domain_id == domain.id)
-            .order_by(FilterQuestions.created_at.asc())
-        )
-        fq_res = await db.execute(fq_stmt)
-        domain_fqs = fq_res.scalars().all()
-
-        for fq in domain_fqs:
-            if fq.question.strip() not in existing_q_texts:
-                new_resp = CustomerResponses(
-                    id=uuid.uuid4(),
-                    question=fq.question.strip(),
-                    answered=None,
-                    customer_id=customer.id,
-                )
-                db.add(new_resp)
+        db.add(customer)
         await db.flush()
 
-        # Ensure customer has a ChatRoom
-        if not chatroom:
-            room_res = await db.execute(
-                select(ChatRoom).where(ChatRoom.customer_id == customer.id).limit(1)
+    # 4. Clone filter questions into CustomerResponses if not already cloned
+    existing_res = await db.execute(
+        select(CustomerResponses).where(CustomerResponses.customer_id == customer.id)
+    )
+    existing_q_texts = {q.question.strip() for q in existing_res.scalars().all()}
+
+    fq_stmt = (
+        select(FilterQuestions)
+        .where(FilterQuestions.domain_id == domain.id)
+        .order_by(FilterQuestions.created_at.asc())
+    )
+    fq_res = await db.execute(fq_stmt)
+    domain_fqs = fq_res.scalars().all()
+
+    for fq in domain_fqs:
+        if fq.question.strip() not in existing_q_texts:
+            new_resp = CustomerResponses(
+                id=uuid.uuid4(),
+                question=fq.question.strip(),
+                answered=None,
+                customer_id=customer.id,
             )
-            existing_room = room_res.scalar_one_or_none()
-            if existing_room:
-                chatroom = existing_room
-            else:
-                chatroom = ChatRoom(
-                    id=uuid.uuid4(),
-                    customer_id=customer.id,
-                    live=False,
-                    mailed=False,
-                )
-                db.add(chatroom)
-                await db.flush()
-        elif chatroom and not chatroom.customer_id:
-            # Associate existing room with customer
-            chatroom.customer_id = customer.id
+            db.add(new_resp)
+    await db.flush()
+
+    # 5. Ensure customer has a ChatRoom
+    if not chatroom:
+        room_res = await db.execute(
+            select(ChatRoom).where(ChatRoom.customer_id == customer.id).order_by(ChatRoom.created_at.desc()).limit(1)
+        )
+        existing_room = room_res.scalar_one_or_none()
+        if existing_room:
+            chatroom = existing_room
+        else:
+            chatroom = ChatRoom(
+                id=uuid.uuid4(),
+                customer_id=customer.id,
+                live=False,
+                mailed=False,
+            )
+            db.add(chatroom)
             await db.flush()
+    elif not chatroom.customer_id:
+        # Associate existing room with customer
+        chatroom.customer_id = customer.id
+        await db.flush()
 
     return customer, chatroom
 
@@ -420,6 +435,7 @@ async def process_ai_chat(
             chat_room_id=chatroom.id,
         )
         db.add(user_chat_msg)
+        chatroom.updated_at = datetime.now(timezone.utc)
         await db.commit()
 
         # Broadcast live user message to Dashboard Messenger via WebSocket
@@ -460,6 +476,7 @@ async def process_ai_chat(
                 logger.error(f"Failed to send live chat alert email: {e}")
 
         return {
+            "id": str(user_chat_msg.id),
             "role": "assistant",
             "message": "Phòng chat đang kết nối trực tiếp với nhân viên tư vấn. Chuyên viên sẽ trả lời bạn trong giây lát!",
             "live": True,
@@ -582,6 +599,8 @@ async def process_ai_chat(
     clean_message = re.sub(r"\(complete\)", "", clean_message, flags=re.IGNORECASE).strip()
 
     # 12. Save messages to DB if chatroom exists
+    user_msg_obj = None
+    assistant_msg_obj = None
     if chatroom:
         user_msg_obj = ChatMessage(
             id=uuid.uuid4(),
@@ -592,18 +611,18 @@ async def process_ai_chat(
         )
         assistant_msg_obj = ChatMessage(
             id=uuid.uuid4(),
-            # Save raw or clean message (we keep raw keyword for complete/realtime tracking in history)
-            message=raw_response_text,
+            message=clean_message,
             role=Role.assistant,
             seen=True,
             chat_room_id=chatroom.id,
         )
         db.add(user_msg_obj)
         db.add(assistant_msg_obj)
+        chatroom.updated_at = datetime.now(timezone.utc)
 
     await db.commit()
 
-    if chatroom:
+    if chatroom and user_msg_obj and assistant_msg_obj:
         try:
             # Broadcast user message
             await websocket_manager.broadcast_to_room(
@@ -658,6 +677,7 @@ async def process_ai_chat(
             logger.warning(f"Failed to broadcast chat messages via WS: {ws_err}")
 
     return {
+        "id": str(assistant_msg_obj.id) if assistant_msg_obj else None,
         "role": "assistant",
         "message": clean_message,
         "raw_message": raw_response_text,

@@ -34,6 +34,7 @@ export interface MessageItem {
 }
 
 export interface ChatbotMessageResponse {
+  id?: string | null;
   role: "assistant";
   message: string;
   raw_message?: string;

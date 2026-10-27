@@ -1,4 +1,5 @@
 import logging
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
@@ -233,7 +234,21 @@ async def get_room_messages(
     res = await db.execute(stmt)
     messages = res.scalars().all()
 
-    return [ChatMessageResponse.model_validate(m) for m in messages]
+    res_list: List[ChatMessageResponse] = []
+    for m in messages:
+        clean_text = re.sub(r"\((?:complete|realtime)\)", "", m.message, flags=re.IGNORECASE).strip()
+        res_list.append(
+            ChatMessageResponse(
+                id=m.id,
+                message=clean_text,
+                role=m.role,
+                seen=m.seen,
+                chat_room_id=m.chat_room_id,
+                created_at=m.created_at,
+                updated_at=m.updated_at,
+            )
+        )
+    return res_list
 
 
 async def mark_room_seen(

@@ -40,6 +40,7 @@ class ChatbotMessageRequest(BaseModel):
 
 
 class ChatbotMessageResponse(BaseModel):
+    id: Optional[str] = None
     role: str = "assistant"
     message: str
     raw_message: Optional[str] = None
