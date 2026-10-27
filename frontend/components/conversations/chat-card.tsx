@@ -4,6 +4,7 @@ import * as React from "react";
 import { FlameIcon, RadioIcon, SparklesIcon } from "lucide-react";
 import { ConversationRoomSummary } from "@/types/conversation";
 import { Badge } from "@/components/ui/badge";
+import { stripImageTagsForPreview } from "@/components/chatbot/chat-message-content";
 
 // Deterministic pastel color palette for avatars (house style: calm, non-garish)
 const AVATAR_PALETTE = [
@@ -126,7 +127,7 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
         {/* Message snippet preview */}
         <p className="text-xs text-muted-foreground line-clamp-1 break-all mb-1.5 leading-relaxed">
           <span className="font-medium text-foreground/80">{senderPrefix}</span>
-          {lastMsg ? lastMsg.message : "Chưa có tin nhắn nào"}
+          {lastMsg ? stripImageTagsForPreview(lastMsg.message) : "Chưa có tin nhắn nào"}
         </p>
 
         {/* Meta tags: Domain badge, urgent tag, unread counter */}

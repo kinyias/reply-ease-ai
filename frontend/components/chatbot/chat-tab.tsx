@@ -13,6 +13,7 @@ import {
   SparklesIcon,
 } from "lucide-react";
 import { MessageItem } from "@/types/chatbot";
+import { ChatMessageContent } from "./chat-message-content";
 
 interface ChatTabProps {
   messages: MessageItem[];
@@ -139,7 +140,7 @@ export function ChatTab({
                       : "bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-tl-xs border border-zinc-200/80 dark:border-zinc-800"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{item.message}</p>
+                  <ChatMessageContent content={item.message} isUser={isUser} />
 
                   {/* Render Portal or Custom Action Links if present */}
                   {item.link && (

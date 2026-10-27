@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useChatWindow } from "@/hooks/conversation/use-chat-window";
 import { ConversationRoomSummary } from "@/types/conversation";
 import { MessageSkeleton } from "./message-skeleton";
+import { ChatMessageContent } from "@/components/chatbot/chat-message-content";
 
 interface MessengerProps {
   room: ConversationRoomSummary;
@@ -221,13 +222,13 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                 >
                   {/* Bubble */}
                   <div
-                    className={`p-3.5 rounded-2xl text-xs md:text-sm leading-relaxed text-left whitespace-pre-wrap break-words ${
+                    className={`p-3.5 rounded-2xl text-xs md:text-sm leading-relaxed text-left break-words ${
                       isUser
                         ? "bg-muted/90 text-foreground rounded-tl-sm border border-border/50"
                         : "bg-primary text-primary-foreground rounded-tr-sm shadow-xs"
                     }`}
                   >
-                    {item.message}
+                    <ChatMessageContent content={item.message} isUser={isUser} />
 
                     {/* Action link if bot sent portal link */}
                     {item.link && (

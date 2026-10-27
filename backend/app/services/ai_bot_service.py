@@ -214,9 +214,10 @@ async def build_knowledge_context(
     db: AsyncSession,
     domain: Domain,
     query: str,
-) -> str:
+) -> Tuple[str, List[Product]]:
     """
     Assemble RAG context from Pinecone and fallback to local DB HelpDesk & Products.
+    Returns (knowledge_context_str, products_list).
     """
     context_chunks: List[str] = []
 
@@ -245,12 +246,15 @@ async def build_knowledge_context(
     # 3. Retrieve domain Products
     prod_stmt = select(Product).where(Product.domain_id == domain.id).limit(10)
     prod_res = await db.execute(prod_stmt)
-    products = prod_res.scalars().all()
+    products = list(prod_res.scalars().all())
     if products:
-        prod_texts = [f"- {p.name}: {p.price:,} VND (Ảnh: {p.image})" for p in products]
+        prod_texts = [
+            f"- {p.name}: {p.price:,} VND" + (f" (Link ảnh: {p.image})" if p.image else " (Không có ảnh)")
+            for p in products
+        ]
         context_chunks.append("DANH MỤC SẢN PHẨM & DỊCH VỤ CỦA CHÚNG TÔI:\n" + "\n".join(prod_texts))
 
-    return "\n\n".join(context_chunks)
+    return "\n\n".join(context_chunks), products
 
 
 def build_system_prompt(
@@ -316,6 +320,16 @@ QUY TẮC BẮT BUỘC (TUÂN THỦ 100%):
   Cung cấp đường dẫn: /portal/{domain.id}/payment/{customer_id_str}
   (Ví dụ: "Anh/chị có thể xem giỏ hàng và thanh toán VietQR tại: /portal/{domain.id}/payment/{customer_id_str}")
 
+5. QUY TẮC HIỂN THỊ HÌNH ẢNH SẢN PHẨM (BẮT BUỘC DÙNG THẺ <Image>):
+- Khi phản hồi, giới thiệu hoặc tư vấn về thông tin sản phẩm: NẾU sản phẩm đó có thông tin link ảnh (được ghi 'Link ảnh: ...' trong DANH MỤC SẢN PHẨM), bạn BẮT BUỘC phải đặt link ảnh vào bên trong thẻ `<Image>đường_dẫn_ảnh</Image>`.
+  Ví dụ chuẩn:
+  "Dạ bên em có sản phẩm Áo Hoodie Unisex với giá ưu đãi là 350,000 VND ạ:
+  <Image>https://res.cloudinary.com/.../hoodie.jpg</Image>
+  Anh/chị có cần em tư vấn thêm chi tiết không ạ?"
+- BẮT BUỘC sử dụng chính xác thẻ `<Image>...</Image>` (chữ I viết hoa). KHÔNG dùng cú pháp markdown ảnh ![alt](url) và KHÔNG để URL trần ngoài thẻ.
+- Chỉ đặt DUY NHẤT đường link URL bên trong cặp thẻ `<Image>...</Image>`, không chèn thêm bất kỳ chữ hay khoảng trắng thừa nào trong thẻ.
+- Nếu sản phẩm không có link ảnh hoặc ghi 'Không có ảnh', tuyệt đối không tự bịa đặt link ảnh hoặc thêm thẻ <Image>.
+
 HÃY TRẢ LỜI BẰNG TIẾNG VIỆT TỰ NHIÊN, LỊCH SỰ, RÕ RÀNG VÀ CHUYÊN NGHIỆP!"""
 
     return prompt
@@ -326,6 +340,7 @@ def simulate_ai_response(
     customer: Optional[Customer],
     message: str,
     unanswered_questions: List[str],
+    products: Optional[List[Product]] = None,
 ) -> str:
     """
     Intelligent offline/fallback AI response generator adhering strictly to the state machine.
@@ -358,14 +373,30 @@ def simulate_ai_response(
             f"{link} . Cảm ơn anh/chị đã tin tưởng {domain.name}!"
         )
 
-    # 4. If no email yet
+    # 4. Product inquiry & recommendation with <Image>
+    if products and any(k in msg_lower for k in ["sản phẩm", "báo giá", "giá", "product", "hàng", "chi tiết", "quan tâm", "tư vấn", "mẫu"]):
+        matched = [p for p in products if p.name.lower() in msg_lower]
+        target_prod = matched[0] if matched else products[0]
+        img_tag = f"\n<Image>{target_prod.image}</Image>" if target_prod.image else ""
+
+        if not has_email:
+            return (
+                f"Dạ, {domain.name} xin gửi anh/chị thông tin sản phẩm {target_prod.name} với mức giá {target_prod.price:,} VND ạ:{img_tag}\n"
+                f"Để em tiện gửi thêm thông số chi tiết và ưu đãi riêng, anh/chị cho em xin địa chỉ email nhé!"
+            )
+        return (
+            f"Dạ, {domain.name} xin gửi anh/chị thông tin sản phẩm {target_prod.name} với giá ưu đãi là {target_prod.price:,} VND ạ:{img_tag}\n"
+            f"Anh/chị cần em tư vấn thêm chi tiết hoặc hỗ trợ đặt hàng không ạ?"
+        )
+
+    # 5. If no email yet
     if not has_email:
         return (
             f"Chào anh/chị! Em là trợ lý AI của {domain.name}. Em rất vui được hỗ trợ giải đáp mọi thông tin cho mình. "
             f"Để em tiện gửi tài liệu chi tiết và ưu đãi riêng đến mình, anh/chị vui lòng cho em xin địa chỉ email được không ạ?"
         )
 
-    # 5. If has email and has unanswered questions
+    # 6. If has email and has unanswered questions
     if unanswered_questions:
         next_q = unanswered_questions[0]
         return (
@@ -373,7 +404,7 @@ def simulate_ai_response(
             f"{next_q} (complete)"
         )
 
-    # 6. Default friendly response
+    # 7. Default friendly response
     return (
         f"Dạ, {domain.name} luôn sẵn sàng hỗ trợ anh/chị. Anh/chị cần xem thêm về danh mục sản phẩm, bảng giá hay đặt lịch tư vấn trực tiếp thì nhắn em nhé ạ!"
     )
@@ -520,7 +551,7 @@ async def process_ai_chat(
         unanswered_questions = [fq.question for fq in fq_res.scalars().all()]
 
     # 7. Build RAG knowledge context
-    knowledge_context = await build_knowledge_context(db, domain, user_msg_clean)
+    knowledge_context, domain_products = await build_knowledge_context(db, domain, user_msg_clean)
 
     # 8. Prepare System Prompt & Chat Contents
     customer_id_str = str(customer.id) if customer else "lead"
@@ -563,6 +594,7 @@ async def process_ai_chat(
             customer=customer,
             message=user_msg_clean,
             unanswered_questions=unanswered_questions,
+            products=domain_products,
         )
 
     # 11. Post-process AI response keywords

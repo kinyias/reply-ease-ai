@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { UpdateChatBotInput } from "@/types/domain";
+import { ChatMessageContent } from "@/components/chatbot/chat-message-content";
 
 interface ChatbotPreviewProps {
   preview: UpdateChatBotInput;
@@ -76,10 +77,24 @@ export function ChatbotPreview({
 
     // Simulate instant autonomous bot response
     setTimeout(() => {
+      const lower = trimmed.toLowerCase();
+      let replyText = `Cảm ơn bạn! Em đã ghi nhận câu hỏi "${trimmed}". Em có thể hỗ trợ kiểm tra đơn hàng hoặc tư vấn thêm cho bạn ngay ạ!`;
+      
+      if (
+        lower.includes("sản phẩm") ||
+        lower.includes("áo") ||
+        lower.includes("giá") ||
+        lower.includes("ảnh") ||
+        lower.includes("hình") ||
+        lower.includes("product")
+      ) {
+        replyText = `Dạ bên em xin gửi bạn thông tin sản phẩm Áo thun Oversize cao cấp với giá 250.000 đ ạ:\n<Image>https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80</Image>\nBạn có muốn đặt mua mẫu này không ạ?`;
+      }
+
       const botReply: TestMessage = {
         id: String(Date.now() + 1),
         sender: "bot",
-        text: `Cảm ơn bạn! Em đã ghi nhận câu hỏi "${trimmed}". Em có thể hỗ trợ kiểm tra đơn hàng hoặc tư vấn thêm cho bạn ngay ạ!`,
+        text: replyText,
         time: "Vừa xong",
       };
       setTestMessages((prev) => [...prev, botReply]);
@@ -224,7 +239,7 @@ export function ChatbotPreview({
                   : "bg-card text-card-foreground border border-border rounded-tl-xs"
               }`}
             >
-              {msg.text}
+              <ChatMessageContent content={msg.text} isUser={msg.sender === "user"} />
             </div>
           </div>
         ))}
