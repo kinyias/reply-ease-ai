@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     websocket,
     portal,
     payments,
+    marketing,
 )
 
 api_router = APIRouter()
@@ -39,7 +40,9 @@ api_router.include_router(portal.router, prefix="/portal", tags=["Customer Porta
 
 # SePay Payments, VietQR Subscriptions & Merchant Integration
 api_router.include_router(payments.router, prefix="/payments", tags=["Payments & SePay"])
-# api_router.include_router(marketing.router, prefix="/marketing", tags=["marketing"])
+
+# Email Marketing Campaigns & Lead Qualification
+api_router.include_router(marketing.router, prefix="/marketing", tags=["Email Marketing"])
 # api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 # api_router.include_router(uploads.router, prefix="/uploads", tags=["uploads"])
 

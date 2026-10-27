@@ -197,3 +197,84 @@ async def send_live_chat_alert(
         text_content=f"[Live Alert] Customer ({customer_label}) on {domain_name} needs human assistance:\n\n{last_message}\n\nPlease check your ReplyEase dashboard.",
     )
 
+
+async def send_marketing_campaign_bulk(
+    campaign_name: str,
+    template_content: str,
+    recipient_emails: list[str],
+) -> dict:
+    """Send marketing campaign emails to multiple recipients in the background."""
+    logger.info(
+        "Starting background bulk marketing campaign '%s' for %d recipients",
+        campaign_name,
+        len(recipient_emails),
+    )
+    success_count = 0
+    failure_count = 0
+
+    for email in recipient_emails:
+        try:
+            personalized_content = template_content.replace("{{email}}", email)
+            # If not full HTML document, wrap in responsive template
+            if "<html" not in personalized_content.lower():
+                html_body = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }}
+                    .container {{ max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }}
+                    .header {{ background: #ff7a00; padding: 24px 32px; color: #ffffff; text-align: left; }}
+                    .header h1 {{ margin: 0; font-size: 20px; font-weight: 700; }}
+                    .content {{ padding: 32px; font-size: 15px; line-height: 1.6; color: #334155; }}
+                    .footer {{ background: #f8fafc; border-top: 1px solid #f1f5f9; padding: 20px 32px; text-align: center; font-size: 12px; color: #94a3b8; }}
+                  </style>
+                </head>
+                <body>
+                  <div class="container">
+                    <div class="header">
+                      <h1>{campaign_name}</h1>
+                    </div>
+                    <div class="content">
+                      {personalized_content.replace(chr(10), '<br>')}
+                    </div>
+                    <div class="footer">
+                      <p style="margin: 0 0 4px 0;">Email được gửi tự động qua hệ thống CSKH ReplyEase AI.</p>
+                      <p style="margin: 0;">Bạn nhận thư này vì đã tương tác trên website đối tác của chúng tôi.</p>
+                    </div>
+                  </div>
+                </body>
+                </html>
+                """
+            else:
+                html_body = personalized_content
+
+            sent = await send_email(
+                to_email=email,
+                subject=campaign_name,
+                html_content=html_body,
+                text_content=personalized_content,
+            )
+            if sent:
+                success_count += 1
+            else:
+                failure_count += 1
+        except Exception as e:
+            logger.error("Error sending marketing email to %s: %s", email, str(e))
+            failure_count += 1
+
+    logger.info(
+        "Completed bulk campaign '%s': %d succeeded, %d failed",
+        campaign_name,
+        success_count,
+        failure_count,
+    )
+    return {
+        "total": len(recipient_emails),
+        "success": success_count,
+        "failure": failure_count,
+    }
+
+

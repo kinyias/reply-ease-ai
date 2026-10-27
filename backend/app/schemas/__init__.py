@@ -111,3 +111,18 @@ from app.schemas.payment import (
     SepayWebhookPayload,
     SimulatePaymentRequest,
 )
+
+from app.schemas.marketing import (
+    CampaignCreateRequest,
+    CampaignCustomersUpdateRequest,
+    CampaignListResponse,
+    CampaignResponse,
+    CampaignSendRequest,
+    CampaignSendResponse,
+    CampaignTemplateUpdateRequest,
+    CampaignUpdateRequest,
+    CustomerLeadItem,
+    CustomerLeadListResponse,
+    CustomerQuestionAnswerBrief,
+)
+
