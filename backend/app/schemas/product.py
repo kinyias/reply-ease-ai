@@ -63,3 +63,14 @@ class ProductResponse(BaseModel):
     domain_id: Optional[uuid.UUID] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+class ProductListResponse(BaseModel):
+    """Paginated list of products."""
+
+    products: list[ProductResponse]
+    total: int
+    page: int = 1
+    page_size: int = 10
+    total_pages: int = 1
+

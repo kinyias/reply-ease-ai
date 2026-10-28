@@ -51,7 +51,15 @@ export function MarketingView() {
     isDeletingCampaign,
     sendCampaign,
     isSendingCampaign,
+    campaignSearch,
+    setCampaignSearch,
     leads,
+    leadsTotal,
+    leadsTotalPages,
+    leadsPage,
+    setLeadsPage,
+    leadsPageSize,
+    setLeadsPageSize,
     isLeadsLoading,
     selectedDomainId,
     setSelectedDomainId,
@@ -64,6 +72,7 @@ export function MarketingView() {
     inspectingLead,
     setInspectingLead,
   } = useMarketing();
+
 
   const { domains } = useDomainManagement();
 
@@ -175,6 +184,8 @@ export function MarketingView() {
             onSelectCampaign={setActiveCampaignId}
             onCreateCampaign={createCampaign}
             onDeleteCampaign={deleteCampaign}
+            searchQuery={campaignSearch}
+            onSearchChange={setCampaignSearch}
             isCreating={isCreatingCampaign}
             isDeleting={isDeletingCampaign}
           />
@@ -201,6 +212,12 @@ export function MarketingView() {
         <div className="lg:col-span-7">
           <CustomerLeadsTable
             leads={leads}
+            total={leadsTotal}
+            totalPages={leadsTotalPages}
+            currentPage={leadsPage}
+            pageSize={leadsPageSize}
+            onPageChange={setLeadsPage}
+            onPageSizeChange={setLeadsPageSize}
             isLoading={isLeadsLoading}
             domains={domains}
             selectedDomainId={selectedDomainId}
@@ -215,6 +232,7 @@ export function MarketingView() {
           />
         </div>
       </div>
+
 
       {/* Bottom Sticky Action Bar: Dispatch Campaign */}
       <div className="sticky bottom-4 z-30 rounded-xl border border-border/80 bg-background/95 backdrop-blur-md p-4 shadow-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

@@ -25,6 +25,9 @@ export default function ConversationsPage() {
     refetch,
     refreshConversations,
     counts,
+    page,
+    setPage,
+    totalPages,
   } = useConversation();
 
   return (
@@ -45,6 +48,9 @@ export default function ConversationsPage() {
         isRefetching={isRefetching}
         onRefresh={refetch}
         counts={counts}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
       />
 
       {/* Right Column: Live Messenger Window or Empty State */}

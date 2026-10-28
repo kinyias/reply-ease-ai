@@ -1,8 +1,10 @@
 import logging
+import math
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
+
 from fastapi import HTTPException, status
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -73,10 +75,12 @@ async def get_domain_conversations(
     domain_id: Optional[uuid.UUID] = None,
     tab: str = "all",
     search: Optional[str] = None,
+    page: Optional[int] = None,
+    page_size: Optional[int] = None,
 ) -> ConversationListResponse:
     """
     Fetch all chatrooms belonging to user's domains, with unread counters,
-    urgency status, filter questions answered metrics, and search/tab filtering.
+    urgency status, filter questions answered metrics, search/tab filtering, and pagination.
     """
     # 1. Determine which domains to query
     if domain_id:
@@ -89,8 +93,16 @@ async def get_domain_conversations(
 
     if not domain_ids:
         return ConversationListResponse(
-            rooms=[], total=0, unread_total=0, live_total=0, urgent_total=0
+            rooms=[],
+            total=0,
+            unread_total=0,
+            live_total=0,
+            urgent_total=0,
+            page=page or 1,
+            page_size=page_size or 15,
+            total_pages=1,
         )
+
 
     # 2. Query chat rooms with eager loading
     stmt = (
@@ -211,13 +223,28 @@ async def get_domain_conversations(
 
         all_summaries.append(summary)
 
+    filtered_total = len(all_summaries)
+    if page is not None and page_size is not None:
+        start_idx = (page - 1) * page_size
+        sliced_rooms = all_summaries[start_idx : start_idx + page_size]
+    else:
+        sliced_rooms = all_summaries
+
+    eff_page = page or 1
+    eff_size = page_size or (filtered_total if filtered_total > 0 else 15)
+    total_pages = math.ceil(filtered_total / eff_size) if filtered_total > 0 and eff_size > 0 else 1
+
     return ConversationListResponse(
-        rooms=all_summaries,
-        total=len(all_summaries),
+        rooms=sliced_rooms,
+        total=filtered_total,
         unread_total=total_unread,
         live_total=total_live,
         urgent_total=total_urgent,
+        page=eff_page,
+        page_size=eff_size,
+        total_pages=total_pages,
     )
+
 
 
 async def get_room_messages(

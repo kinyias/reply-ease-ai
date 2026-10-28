@@ -31,6 +31,9 @@ class CustomerLeadListResponse(BaseModel):
     """List of customer leads for marketing selection."""
     customers: List[CustomerLeadItem]
     total: int
+    page: int = 1
+    page_size: int = 10
+    total_pages: int = 1
 
 
 class CampaignCreateRequest(BaseModel):
@@ -80,6 +83,10 @@ class CampaignListResponse(BaseModel):
     """List of campaigns owned by the current user."""
     campaigns: List[CampaignResponse]
     total: int
+    page: int = 1
+    page_size: int = 10
+    total_pages: int = 1
+
 
 
 class CampaignSendResponse(BaseModel):

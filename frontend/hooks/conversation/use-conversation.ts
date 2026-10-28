@@ -15,14 +15,28 @@ export function useConversation() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(15);
 
-  // Debounce search input
+  // Debounce search input and reset page to 1
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
+      setPage(1);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  // Reset page when domain or tab changes
+  const handleSetSelectedDomainId = useCallback((id: string) => {
+    setSelectedDomainId(id);
+    setPage(1);
+  }, []);
+
+  const handleSetActiveTab = useCallback((tab: ConversationTab) => {
+    setActiveTab(tab);
+    setPage(1);
+  }, []);
 
   // Query conversation rooms
   const {
@@ -31,12 +45,14 @@ export function useConversation() {
     isRefetching,
     refetch,
   } = useQuery({
-    queryKey: ["conversations", selectedDomainId, activeTab, debouncedSearch],
+    queryKey: ["conversations", selectedDomainId, activeTab, debouncedSearch, page, pageSize],
     queryFn: () =>
       conversationService.getConversations(
         selectedDomainId === "all" ? null : selectedDomainId,
         activeTab,
-        debouncedSearch
+        debouncedSearch,
+        page,
+        pageSize
       ),
     refetchInterval: 5000, // Background polling fallback every 5s
   });
@@ -72,11 +88,17 @@ export function useConversation() {
   return {
     domains,
     selectedDomainId,
-    setSelectedDomainId,
+    setSelectedDomainId: handleSetSelectedDomainId,
     activeTab,
-    setActiveTab,
+    setActiveTab: handleSetActiveTab,
     searchQuery,
     setSearchQuery,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    totalPages: conversationData?.total_pages ?? 1,
+    total: conversationData?.total ?? 0,
     rooms,
     activeRoomId,
     activeRoom,

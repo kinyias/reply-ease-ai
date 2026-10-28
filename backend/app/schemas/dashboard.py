@@ -56,3 +56,7 @@ class AppointmentsListResponse(BaseModel):
     appointments: List[AppointmentItem]
     total: int
     today_count: int
+    page: int = 1
+    page_size: int = 10
+    total_pages: int = 1
+

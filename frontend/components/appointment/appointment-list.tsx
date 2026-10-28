@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PaginationControl } from "@/components/ui/pagination-control";
 import { Appointment } from "@/types/dashboard";
 import { formatDate, formatDateOnly } from "@/lib/utils";
 
@@ -27,6 +28,8 @@ export function AppointmentList({
 }: AppointmentListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<string>("ALL");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Extract unique domains for filter
   const uniqueDomains = useMemo(() => {
@@ -53,6 +56,32 @@ export function AppointmentList({
     });
   }, [appointments, searchTerm, selectedDomain]);
 
+  // Pagination calculation
+  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / pageSize));
+
+  // Auto adjust page if out of bounds
+  React.useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedAppointments = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return filteredAppointments.slice(startIndex, startIndex + pageSize);
+  }, [filteredAppointments, page, pageSize]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setPage(1);
+  };
+
+  const handleDomainChange = (val: string) => {
+    setSelectedDomain(val);
+    setPage(1);
+  };
+
+
   return (
     <Card className="border border-border/80 bg-card shadow-none">
       <CardHeader className="pb-3 border-b border-border/60">
@@ -73,7 +102,7 @@ export function AppointmentList({
               <Input
                 placeholder="Tìm email, domain, giờ..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="h-8 pl-8 text-xs bg-background"
               />
             </div>
@@ -81,8 +110,8 @@ export function AppointmentList({
             {uniqueDomains.length > 1 && (
               <select
                 value={selectedDomain}
-                onChange={(e) => setSelectedDomain(e.target.value)}
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                onChange={(e) => handleDomainChange(e.target.value)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
               >
                 <option value="ALL">Tất cả website</option>
                 {uniqueDomains.map((d) => (
@@ -146,7 +175,7 @@ export function AppointmentList({
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 text-xs">
-                {filteredAppointments.map((b) => {
+                {paginatedAppointments.map((b) => {
                   const initial = b.email ? b.email[0].toUpperCase() : "U";
                   return (
                     <tr
@@ -200,7 +229,7 @@ export function AppointmentList({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-7 text-xs font-medium gap-1 text-primary hover:text-primary/90 hover:bg-primary/5"
+                            className="h-7 text-xs font-medium gap-1 text-primary hover:text-primary/90 hover:bg-primary/5 cursor-pointer"
                           >
                             <MailIcon className="size-3" />
                             <span>Email</span>
@@ -214,8 +243,25 @@ export function AppointmentList({
             </table>
           </div>
         )}
+
+        {/* Pagination */}
+        {!isLoading && filteredAppointments.length > 0 && (
+          <div className="p-4 pt-1">
+            <PaginationControl
+              currentPage={page}
+              totalPages={totalPages}
+              totalItems={filteredAppointments.length}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[5, 10, 20, 50]}
+              itemLabel="lịch hẹn"
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
+
   );
 }
 

@@ -10,10 +10,23 @@ import {
 
 export const marketingService = {
   /**
-   * Lấy danh sách toàn bộ chiến dịch marketing của user
+   * Lấy danh sách chiến dịch marketing của user kèm tìm kiếm và phân trang
    */
-  async getCampaigns(): Promise<CampaignListResponse> {
-    const response = await apiClient.get<CampaignListResponse>("/marketing/campaigns");
+  async getCampaigns(params?: {
+    search?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<CampaignListResponse> {
+    const query: Record<string, string | number> = {};
+    if (params?.search && params.search.trim()) {
+      query.search = params.search.trim();
+    }
+    if (params?.page !== undefined) query.page = params.page;
+    if (params?.page_size !== undefined) query.page_size = params.page_size;
+
+    const response = await apiClient.get<CampaignListResponse>("/marketing/campaigns", {
+      params: Object.keys(query).length > 0 ? query : undefined,
+    });
     return response.data;
   },
 
@@ -80,16 +93,27 @@ export const marketingService = {
     domain_id?: string;
     search?: string;
     only_with_email?: boolean;
+    page?: number;
+    page_size?: number;
   }): Promise<CustomerLeadListResponse> {
+    const query: Record<string, string | number | boolean> = {
+      only_with_email: params?.only_with_email ?? true,
+    };
+    if (params?.domain_id && params.domain_id !== "all") {
+      query.domain_id = params.domain_id;
+    }
+    if (params?.search && params.search.trim()) {
+      query.search = params.search.trim();
+    }
+    if (params?.page !== undefined) query.page = params.page;
+    if (params?.page_size !== undefined) query.page_size = params.page_size;
+
     const response = await apiClient.get<CustomerLeadListResponse>("/marketing/customers", {
-      params: {
-        domain_id: params?.domain_id || undefined,
-        search: params?.search || undefined,
-        only_with_email: params?.only_with_email ?? true,
-      },
+      params: query,
     });
     return response.data;
   },
+
 
   /**
    * Gửi chiến dịch hàng loạt qua background tasks & trừ credits

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 from app.core.config import Settings
 from app.services.gemini_service import (
@@ -51,11 +51,20 @@ async def test_generate_content_with_fallback_success_on_fallback():
         mock_instance.generate_content_async = mock_generate_content_async
         return mock_instance
 
-    with patch("google.generativeai.GenerativeModel", side_effect=mock_generative_model):
-        response = await generate_content_with_fallback("Hello")
-        assert response.text == "Success from gemini-3.1-flash-lite"
-        # Primary failed, first fallback succeeded
-        assert attempted_models == ["gemini-1.5-flash", "gemini-3.1-flash-lite"]
+    models_chain = [
+        "gemini-1.5-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-3-flash",
+        "gemini-3.6-flash",
+    ]
+    with patch.object(Settings, "gemini_models_with_fallback", new_callable=PropertyMock, return_value=models_chain):
+        with patch("google.generativeai.GenerativeModel", side_effect=mock_generative_model):
+            response = await generate_content_with_fallback("Hello")
+            assert response.text == "Success from gemini-3.1-flash-lite"
+            # Primary failed, first fallback succeeded
+            assert attempted_models == ["gemini-1.5-flash", "gemini-3.1-flash-lite"]
 
 
 @pytest.mark.asyncio
@@ -77,16 +86,25 @@ async def test_generate_content_with_fallback_full_chain():
         mock_instance.generate_content_async = mock_generate_content_async
         return mock_instance
 
-    with patch("google.generativeai.GenerativeModel", side_effect=mock_generative_model):
-        response = await generate_content_with_fallback("Hello")
-        assert response.text == "Success from gemini-3-flash"
-        assert attempted_models == [
-            "gemini-1.5-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-3.5-flash-lite",
-            "gemini-2.5-flash",
-            "gemini-3-flash",
-        ]
+    models_chain = [
+        "gemini-1.5-flash",
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-3-flash",
+        "gemini-3.6-flash",
+    ]
+    with patch.object(Settings, "gemini_models_with_fallback", new_callable=PropertyMock, return_value=models_chain):
+        with patch("google.generativeai.GenerativeModel", side_effect=mock_generative_model):
+            response = await generate_content_with_fallback("Hello")
+            assert response.text == "Success from gemini-3-flash"
+            assert attempted_models == [
+                "gemini-1.5-flash",
+                "gemini-3.1-flash-lite",
+                "gemini-3.5-flash-lite",
+                "gemini-2.5-flash",
+                "gemini-3-flash",
+            ]
 
 
 @pytest.mark.asyncio

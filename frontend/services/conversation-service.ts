@@ -14,15 +14,23 @@ export const conversationService = {
   async getConversations(
     domainId?: string | null,
     tab: ConversationTab = "all",
-    search?: string
+    search?: string,
+    page?: number,
+    pageSize?: number
   ): Promise<ConversationListResponse> {
     const url = domainId && domainId !== "all"
       ? `/conversations/domains/${domainId}`
       : "/conversations";
 
-    const params: Record<string, string> = { tab };
+    const params: Record<string, string | number> = { tab };
     if (search && search.trim()) {
       params.search = search.trim();
+    }
+    if (page !== undefined) {
+      params.page = page;
+    }
+    if (pageSize !== undefined) {
+      params.page_size = pageSize;
     }
 
     const response = await apiClient.get<ConversationListResponse>(url, { params });

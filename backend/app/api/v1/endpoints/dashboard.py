@@ -1,12 +1,14 @@
 import logging
+import math
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
@@ -196,63 +198,114 @@ async def get_dashboard_transactions(
     "/appointments",
     response_model=AppointmentsListResponse,
     summary="Get Appointments List",
-    description="Returns all customer appointments booked under the user's domains, with today's count indicator.",
+    description="Returns customer appointments booked under the user's domains, with optional search, domain filter, and pagination.",
 )
 async def get_dashboard_appointments(
+    search: Optional[str] = Query(None, description="Tìm theo email khách hàng hoặc khung giờ"),
+    domain_id: Optional[uuid.UUID] = Query(None, description="Lọc theo domain cụ thể"),
+    page: Optional[int] = Query(None, ge=1, description="Trang (bắt đầu từ 1)"),
+    page_size: Optional[int] = Query(None, ge=1, le=100, description="Số lượng mục mỗi trang"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> AppointmentsListResponse:
     # 1. Fetch user domain IDs
     domain_stmt = select(Domain.id).where(Domain.user_id == current_user.id)
     domain_res = await db.execute(domain_stmt)
-    domain_ids = domain_res.scalars().all()
+    user_domain_ids = domain_res.scalars().all()
 
-    if not domain_ids:
+    if not user_domain_ids:
         return AppointmentsListResponse(
             appointments=[],
             total=0,
             today_count=0,
+            page=page or 1,
+            page_size=page_size or 10,
+            total_pages=1,
         )
 
-    # 2. Fetch all bookings for these domains
+    # Filter target domain
+    if domain_id:
+        if domain_id not in user_domain_ids:
+            return AppointmentsListResponse(
+                appointments=[],
+                total=0,
+                today_count=0,
+                page=page or 1,
+                page_size=page_size or 10,
+                total_pages=1,
+            )
+        target_domain_ids = [domain_id]
+    else:
+        target_domain_ids = user_domain_ids
+
+    # 2. Build filter conditions
+    where_conditions = [Bookings.domain_id.in_(target_domain_ids)]
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        where_conditions.append(or_(Bookings.email.ilike(term), Bookings.slot.ilike(term)))
+
+    # 3. Count total matching bookings
+    count_stmt = select(func.count(Bookings.id)).where(*where_conditions)
+    count_res = await db.execute(count_stmt)
+    total = count_res.scalar_one() or 0
+
+    # 4. Count today's bookings across all user's domains
+    now_utc = datetime.now(timezone.utc)
+    today_date = now_utc.date()
+    today_stmt = (
+        select(Bookings.id, Bookings.date)
+        .where(Bookings.domain_id.in_(user_domain_ids))
+    )
+    today_res = await db.execute(today_stmt)
+    all_user_bookings = today_res.all()
+    today_count = sum(
+        1 for row in all_user_bookings
+        if (row[1].date() if hasattr(row[1], "date") else row[1]) == today_date
+    )
+
+    # 5. Fetch bookings with optional pagination
     stmt = (
         select(Bookings)
         .options(
             selectinload(Bookings.domain),
             selectinload(Bookings.customer),
         )
-        .where(Bookings.domain_id.in_(domain_ids))
+        .where(*where_conditions)
         .order_by(desc(Bookings.date), desc(Bookings.created_at))
     )
+
+    if page is not None and page_size is not None:
+        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
+    elif page_size is not None:
+        stmt = stmt.limit(page_size)
+
     res = await db.execute(stmt)
     bookings = res.scalars().all()
 
-    now_utc = datetime.now(timezone.utc)
-    today_date = now_utc.date()
-
-    items: List[AppointmentItem] = []
-    today_count = 0
-
-    for b in bookings:
-        b_date = b.date.date() if hasattr(b.date, "date") else b.date
-        if b_date == today_date:
-            today_count += 1
-
-        items.append(
-            AppointmentItem(
-                id=b.id,
-                date=b.date,
-                slot=b.slot,
-                email=b.email,
-                domain_id=b.domain_id,
-                domain_name=b.domain.name if b.domain else None,
-                customer_id=b.customer_id,
-                created_at=b.created_at,
-            )
+    items: List[AppointmentItem] = [
+        AppointmentItem(
+            id=b.id,
+            date=b.date,
+            slot=b.slot,
+            email=b.email,
+            domain_id=b.domain_id,
+            domain_name=b.domain.name if b.domain else None,
+            customer_id=b.customer_id,
+            created_at=b.created_at,
         )
+        for b in bookings
+    ]
+
+    eff_page = page or 1
+    eff_size = page_size or (len(items) if items else 10)
+    total_pages = math.ceil(total / eff_size) if total > 0 and eff_size > 0 else 1
 
     return AppointmentsListResponse(
         appointments=items,
-        total=len(items),
+        total=total if (page is not None or page_size is not None) else len(items),
         today_count=today_count,
+        page=eff_page,
+        page_size=eff_size,
+        total_pages=total_pages,
     )
+

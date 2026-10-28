@@ -32,7 +32,9 @@ import { useProducts } from "@/hooks/settings/use-products";
 import { productSchema, ProductFormValues } from "@/schemas/product";
 import { Product } from "@/types/product";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { PaginationControl } from "@/components/ui/pagination-control";
 import uploadService from "@/services/upload-service";
+
 
 interface ProductCatalogProps {
   domainId: string;
@@ -72,10 +74,12 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
     isDeleting,
   } = useProducts(domainId);
 
-  // Search, filter & sort state
+  // Search, filter, sort & pagination state
   const [searchQuery, setSearchQuery] = React.useState("");
   const [priceFilter, setPriceFilter] = React.useState<PriceFilter>("all");
   const [sortBy, setSortBy] = React.useState<SortOption>("newest");
+  const [page, setPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(9);
 
   // Filtered & sorted products list
   const filteredProducts = React.useMemo(() => {
@@ -122,11 +126,43 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
     return result;
   }, [products, searchQuery, priceFilter, sortBy]);
 
+  // Total pages and paginated slice
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+
+  // Auto adjust page if out of bounds
+  React.useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const paginatedProducts = React.useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return filteredProducts.slice(startIndex, startIndex + pageSize);
+  }, [filteredProducts, page, pageSize]);
+
+  const handleSearchChange = (val: string) => {
+    setSearchQuery(val);
+    setPage(1);
+  };
+
+  const handlePriceFilterChange = (filter: PriceFilter) => {
+    setPriceFilter(filter);
+    setPage(1);
+  };
+
+  const handleSortChange = (sort: SortOption) => {
+    setSortBy(sort);
+    setPage(1);
+  };
+
   const handleResetFilters = () => {
     setSearchQuery("");
     setPriceFilter("all");
     setSortBy("newest");
+    setPage(1);
   };
+
 
   // Dialog state
   const [isOpen, setIsOpen] = React.useState(false);
@@ -264,14 +300,14 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               <SearchIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Tìm kiếm sản phẩm theo tên, mã ID hoặc mức giá..."
                 className="pl-9 pr-9 h-9 text-xs sm:text-sm bg-background border-border/70 shadow-2xs focus-visible:ring-1 focus-visible:ring-primary"
               />
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => handleSearchChange("")}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm transition-colors cursor-pointer"
                   title="Xóa từ khóa tìm kiếm"
                 >
@@ -285,7 +321,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               {/* Price Filter */}
               <select
                 value={priceFilter}
-                onChange={(e) => setPriceFilter(e.target.value as PriceFilter)}
+                onChange={(e) => handlePriceFilterChange(e.target.value as PriceFilter)}
                 className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
               >
                 <option value="all">Tất cả mức giá</option>
@@ -298,7 +334,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               <div className="flex items-center gap-1.5">
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  onChange={(e) => handleSortChange(e.target.value as SortOption)}
                   className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
                 >
                   <option value="newest">Mới nhất</option>
@@ -407,79 +443,93 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
 
       {/* Product Grid */}
       {!isLoading && filteredProducts.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProducts.map((product) => {
-            const formattedItemPrice = new Intl.NumberFormat("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            }).format(product.price);
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedProducts.map((product) => {
+              const formattedItemPrice = new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(product.price);
 
-            return (
-              <Card
-                key={product.id}
-                className="group overflow-hidden rounded-xl border border-border/60 bg-card hover:border-border transition-all duration-200 shadow-xs flex flex-col justify-between"
-              >
-                <div>
-                  {/* Image container */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-muted/40 border-b border-border/40">
-                    {product.image ? (
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        unoptimized
-                        className="object-cover group-hover:scale-102 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                        <ImageIcon className="size-8 stroke-1" />
+              return (
+                <Card
+                  key={product.id}
+                  className="group overflow-hidden rounded-xl border border-border/60 bg-card hover:border-border transition-all duration-200 shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Image container */}
+                    <div className="relative aspect-video w-full overflow-hidden bg-muted/40 border-b border-border/40">
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          unoptimized
+                          className="object-cover group-hover:scale-102 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                          <ImageIcon className="size-8 stroke-1" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-4 space-y-1.5">
+                      <h4 className="font-medium text-foreground text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h4>
+                      <div className="flex items-center text-primary font-semibold text-base">
+                        <TagIcon className="size-3.5 mr-1.5 opacity-80" />
+                        {formattedItemPrice}
                       </div>
-                    )}
-                  </div>
-
-                  {/* Body */}
-                  <div className="p-4 space-y-1.5">
-                    <h4 className="font-medium text-foreground text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h4>
-                    <div className="flex items-center text-primary font-semibold text-base">
-                      <TagIcon className="size-3.5 mr-1.5 opacity-80" />
-                      {formattedItemPrice}
                     </div>
                   </div>
-                </div>
 
-                {/* Footer actions */}
-                <div className="px-4 py-2.5 bg-muted/20 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    ID: {product.id.slice(0, 8)}...
-                  </span>
+                  {/* Footer actions */}
+                  <div className="px-4 py-2.5 bg-muted/20 border-t border-border/40 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      ID: {product.id.slice(0, 8)}...
+                    </span>
 
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleOpenEdit(product)}
-                      className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted"
-                      title="Chỉnh sửa sản phẩm"
-                    >
-                      <Edit2Icon className="size-3.5" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleOpenEdit(product)}
+                        className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+                        title="Chỉnh sửa sản phẩm"
+                      >
+                        <Edit2Icon className="size-3.5" />
+                      </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirmId(product.id)}
-                      className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      title="Xóa sản phẩm"
-                    >
-                      <Trash2Icon className="size-3.5" />
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleteConfirmId(product.id)}
+                        className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        title="Xóa sản phẩm"
+                      >
+                        <Trash2Icon className="size-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Pagination Controls */}
+          <PaginationControl
+            currentPage={page}
+            totalPages={totalPages}
+            totalItems={filteredProducts.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[6, 9, 12, 24]}
+            itemLabel="sản phẩm"
+          />
         </div>
       )}
 

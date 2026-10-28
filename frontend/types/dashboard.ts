@@ -46,4 +46,15 @@ export interface AppointmentsResponse {
   appointments: Appointment[];
   total: number;
   today_count: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
 }
+
+export interface GetAppointmentsParams {
+  search?: string;
+  domain_id?: string;
+  page?: number;
+  page_size?: number;
+}
+

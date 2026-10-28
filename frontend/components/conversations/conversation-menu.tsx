@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   GlobeIcon,
   InboxIcon,
   RotateCwIcon,
@@ -36,6 +38,9 @@ interface ConversationMenuProps {
     live: number;
     urgent: number;
   };
+  page?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function ConversationMenu({
@@ -53,6 +58,9 @@ export function ConversationMenu({
   isRefetching,
   onRefresh,
   counts,
+  page = 1,
+  totalPages = 1,
+  onPageChange,
 }: ConversationMenuProps) {
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -204,6 +212,37 @@ export function ConversationMenu({
           ))
         )}
       </div>
+
+      {/* Pagination Footer */}
+      {totalPages > 1 && onPageChange && (
+        <div className="p-2.5 border-t border-border bg-sidebar/80 flex items-center justify-between text-xs shrink-0">
+          <span className="text-muted-foreground font-medium">
+            Trang <span className="text-foreground font-semibold">{page}</span> / {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => onPageChange(Math.max(1, page - 1))}
+              disabled={page <= 1 || isLoading}
+            >
+              <ChevronLeftIcon className="size-3.5 mr-0.5" />
+              Trước
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages || isLoading}
+            >
+              Sau
+              <ChevronRightIcon className="size-3.5 ml-0.5" />
+            </Button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

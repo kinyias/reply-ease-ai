@@ -22,12 +22,14 @@ router = APIRouter()
 async def list_all_conversations(
     tab: str = Query("all", description="Lọc theo tab: all, unread, urgent, live, expired"),
     search: Optional[str] = Query(None, description="Tìm kiếm theo email khách hàng hoặc nội dung tin nhắn"),
+    page: Optional[int] = Query(None, ge=1, description="Số trang (bắt đầu từ 1)"),
+    page_size: Optional[int] = Query(None, ge=1, le=100, description="Số lượng hội thoại mỗi trang"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
     Lấy danh sách các phòng chat thuộc mọi domain mà người dùng đang sở hữu.
-    Hỗ trợ phân loại theo tab (Tất cả, Chưa đọc, Khẩn cấp, Live Mode, Hết hạn) và tìm kiếm nhanh.
+    Hỗ trợ phân loại theo tab (Tất cả, Chưa đọc, Khẩn cấp, Live Mode, Hết hạn), tìm kiếm nhanh và phân trang.
     """
     return await conversation_service.get_domain_conversations(
         db=db,
@@ -35,6 +37,8 @@ async def list_all_conversations(
         domain_id=None,
         tab=tab,
         search=search,
+        page=page,
+        page_size=page_size,
     )
 
 
@@ -47,6 +51,8 @@ async def list_domain_conversations(
     domain_id: uuid.UUID,
     tab: str = Query("all", description="Lọc theo tab: all, unread, urgent, live, expired"),
     search: Optional[str] = Query(None, description="Tìm kiếm theo email khách hàng hoặc nội dung tin nhắn"),
+    page: Optional[int] = Query(None, ge=1, description="Số trang (bắt đầu từ 1)"),
+    page_size: Optional[int] = Query(None, ge=1, le=100, description="Số lượng hội thoại mỗi trang"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -60,6 +66,8 @@ async def list_domain_conversations(
         domain_id=domain_id,
         tab=tab,
         search=search,
+        page=page,
+        page_size=page_size,
     )
 
 

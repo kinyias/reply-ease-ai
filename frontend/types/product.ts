@@ -19,3 +19,17 @@ export interface UpdateProductInput {
   price?: number;
   image?: string;
 }
+
+export interface ProductListResponse {
+  products: Product[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface GetProductsParams {
+  search?: string;
+  page?: number;
+  page_size?: number;
+}

@@ -6,8 +6,10 @@ import {
   CheckCircleIcon,
   MailIcon,
   PlusIcon,
+  SearchIcon,
   Trash2Icon,
   UsersIcon,
+  XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PaginationControl } from "@/components/ui/pagination-control";
 import { Campaign, CreateCampaignPayload } from "@/types/marketing";
 
 interface CampaignListProps {
@@ -28,6 +31,8 @@ interface CampaignListProps {
   onSelectCampaign: (id: string) => void;
   onCreateCampaign: (payload: CreateCampaignPayload) => Promise<any>;
   onDeleteCampaign: (id: string) => Promise<any>;
+  searchQuery?: string;
+  onSearchChange?: (val: string) => void;
   isCreating?: boolean;
   isDeleting?: boolean;
 }
@@ -38,12 +43,43 @@ export function CampaignList({
   onSelectCampaign,
   onCreateCampaign,
   onDeleteCampaign,
+  searchQuery,
+  onSearchChange,
   isCreating = false,
   isDeleting = false,
 }: CampaignListProps) {
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState("");
   const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
+
+  const [internalSearch, setInternalSearch] = useState("");
+  const currentSearch = searchQuery !== undefined ? searchQuery : internalSearch;
+  const [page, setPage] = useState(1);
+  const pageSize = 5;
+
+  const handleSearchChange = (val: string) => {
+    if (onSearchChange) onSearchChange(val);
+    else setInternalSearch(val);
+    setPage(1);
+  };
+
+  const filteredCampaigns = React.useMemo(() => {
+    if (!currentSearch.trim()) return campaigns;
+    const q = currentSearch.toLowerCase().trim();
+    return campaigns.filter((c) => c.name.toLowerCase().includes(q));
+  }, [campaigns, currentSearch]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCampaigns.length / pageSize));
+
+  React.useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paginatedCampaigns = React.useMemo(() => {
+    const s = (page - 1) * pageSize;
+    return filteredCampaigns.slice(s, s + pageSize);
+  }, [filteredCampaigns, page]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,43 +112,69 @@ export function CampaignList({
             Chiến dịch Email
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            {campaigns.length} chiến dịch đã tạo
+            {filteredCampaigns.length} chiến dịch {currentSearch ? `(tìm kiếm)` : `đã tạo`}
           </p>
         </div>
 
         <Button
           size="sm"
           onClick={() => setIsCreateModalOpen(true)}
-          className="h-8 px-2.5 text-xs font-medium"
+          className="h-8 px-2.5 text-xs font-medium cursor-pointer"
         >
           <PlusIcon className="size-3.5 mr-1" />
           Tạo chiến dịch
         </Button>
       </div>
 
+      {/* Campaign Search Bar */}
+      {campaigns.length > 0 && (
+        <div className="relative">
+          <SearchIcon className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder="Tìm theo tên chiến dịch..."
+            value={currentSearch}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="h-8 pl-8 pr-7 text-xs bg-background"
+          />
+          {currentSearch && (
+            <button
+              type="button"
+              onClick={() => handleSearchChange("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer p-0.5"
+            >
+              <XIcon className="size-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Campaigns Scroll Area */}
       <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
-        {campaigns.length === 0 ? (
+        {filteredCampaigns.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/80 p-6 text-center space-y-2 bg-muted/10">
             <MailIcon className="size-6 text-muted-foreground mx-auto" />
             <p className="text-xs font-medium text-foreground">
-              Chưa có chiến dịch nào
+              {currentSearch ? "Không tìm thấy chiến dịch nào" : "Chưa có chiến dịch nào"}
             </p>
             <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">
-              Nhấn &quot;Tạo chiến dịch&quot; để bắt đầu xây dựng chiến dịch email marketing đầu tiên.
+              {currentSearch
+                ? "Thử tìm kiếm với từ khóa khác hoặc xóa tìm kiếm để xem tất cả."
+                : "Nhấn \"Tạo chiến dịch\" để bắt đầu xây dựng chiến dịch email marketing đầu tiên."}
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsCreateModalOpen(true)}
-              className="text-xs h-7 mt-1"
-            >
-              <PlusIcon className="size-3 mr-1" />
-              Tạo mới ngay
-            </Button>
+            {!currentSearch && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="text-xs h-7 mt-1 cursor-pointer"
+              >
+                <PlusIcon className="size-3 mr-1" />
+                Tạo mới ngay
+              </Button>
+            )}
           </div>
         ) : (
-          campaigns.map((c) => {
+          paginatedCampaigns.map((c) => {
             const isActive = c.id === activeCampaignId;
             const recipientCount = c.customers?.length || 0;
             const dateStr = new Date(c.created_at).toLocaleDateString("vi-VN", {
@@ -166,7 +228,7 @@ export function CampaignList({
                       e.stopPropagation();
                       setCampaignToDelete(c);
                     }}
-                    className="size-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-opacity"
+                    className="size-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-opacity cursor-pointer"
                     title="Xóa chiến dịch"
                   >
                     <Trash2Icon className="size-3.5" />
@@ -177,6 +239,19 @@ export function CampaignList({
           })
         )}
       </div>
+
+      {/* Campaign Pagination */}
+      {totalPages > 1 && (
+        <PaginationControl
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={filteredCampaigns.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          itemLabel="chiến dịch"
+        />
+      )}
+
 
       {/* Modal: Create Campaign */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>

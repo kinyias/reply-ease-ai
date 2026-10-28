@@ -1,7 +1,7 @@
 import uuid
 from typing import List
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product import Product
@@ -16,19 +16,29 @@ async def get_products_by_domain(
     domain_id: uuid.UUID,
     user: User,
     search: str | None = None,
-) -> List[Product]:
-    """Retrieve all products belonging to a domain owned by user."""
+    page: int | None = None,
+    page_size: int | None = None,
+) -> tuple[List[Product], int]:
+    """Retrieve products belonging to a domain owned by user, with optional search and pagination."""
     # Ensure domain ownership
     await get_domain_by_id(db, domain_id, user)
 
-    stmt = select(Product).where(Product.domain_id == domain_id)
+    base_where = [Product.domain_id == domain_id]
     if search and search.strip():
         term = f"%{search.strip()}%"
-        stmt = stmt.where(Product.name.ilike(term))
+        base_where.append(Product.name.ilike(term))
 
-    stmt = stmt.order_by(Product.created_at.desc())
+    # Total count query
+    count_stmt = select(func.count(Product.id)).where(*base_where)
+    count_res = await db.execute(count_stmt)
+    total = count_res.scalar_one() or 0
+
+    stmt = select(Product).where(*base_where).order_by(Product.created_at.desc())
+    if page is not None and page_size is not None and page >= 1 and page_size >= 1:
+        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
+
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    return list(result.scalars().all()), total
 
 
 async def get_product_by_id(

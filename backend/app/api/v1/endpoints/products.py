@@ -1,5 +1,6 @@
+import math
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,6 +9,7 @@ from app.core.database import get_db
 from app.models.user import User
 from app.schemas.product import (
     ProductCreateRequest,
+    ProductListResponse,
     ProductResponse,
     ProductUpdateRequest,
 )
@@ -18,23 +20,44 @@ router = APIRouter()
 
 @router.get(
     "/{domain_id}/products",
-    response_model=List[ProductResponse],
+    response_model=Union[ProductListResponse, List[ProductResponse]],
     summary="Get domain products",
-    description="Retrieve all products and services configured for a specific domain.",
+    description="Retrieve products and services configured for a specific domain with optional search and pagination.",
 )
 async def list_domain_products(
     domain_id: uuid.UUID,
     search: Optional[str] = Query(
         None, description="Search term to filter products by name"
     ),
+    page: Optional[int] = Query(
+        None, ge=1, description="Page number (starting from 1)"
+    ),
+    page_size: Optional[int] = Query(
+        None, ge=1, le=100, description="Items per page (1-100)"
+    ),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> List[ProductResponse]:
-    """Retrieve all products for a domain, with optional search filter."""
-    products = await product_service.get_products_by_domain(
-        db, domain_id, current_user, search=search
+) -> Union[ProductListResponse, List[ProductResponse]]:
+    """Retrieve products for a domain, with optional search filter and pagination."""
+    products, total = await product_service.get_products_by_domain(
+        db, domain_id, current_user, search=search, page=page, page_size=page_size
     )
-    return [ProductResponse.model_validate(p) for p in products]
+    product_items = [ProductResponse.model_validate(p) for p in products]
+
+    if page is not None or page_size is not None:
+        p = page or 1
+        ps = page_size or 10
+        total_pages = math.ceil(total / ps) if total > 0 else 1
+        return ProductListResponse(
+            products=product_items,
+            total=total,
+            page=p,
+            page_size=ps,
+            total_pages=total_pages,
+        )
+
+    return product_items
+
 
 
 @router.post(

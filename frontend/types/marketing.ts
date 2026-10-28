@@ -18,6 +18,9 @@ export interface CustomerLead {
 export interface CustomerLeadListResponse {
   customers: CustomerLead[];
   total: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
 }
 
 export interface Campaign {
@@ -34,7 +37,11 @@ export interface Campaign {
 export interface CampaignListResponse {
   campaigns: Campaign[];
   total: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
 }
+
 
 export interface CreateCampaignPayload {
   name: string;

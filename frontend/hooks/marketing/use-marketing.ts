@@ -18,10 +18,37 @@ export function useMarketing() {
 
   // Active campaign selection
   const [activeCampaignId, setActiveCampaignId] = useState<string | null>(null);
+  const [campaignSearch, setCampaignSearch] = useState<string>("");
+  const [debouncedCampaignSearch, setDebouncedCampaignSearch] = useState<string>("");
 
-  // Filters for Leads table
+  // Filters and pagination for Leads table
   const [selectedDomainId, setSelectedDomainId] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [leadsPage, setLeadsPage] = useState<number>(1);
+  const [leadsPageSize, setLeadsPageSize] = useState<number>(10);
+
+  // Debounce lead search input
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setLeadsPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  // Debounce campaign search input
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedCampaignSearch(campaignSearch);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [campaignSearch]);
+
+  const handleDomainChange = (domId: string) => {
+    setSelectedDomainId(domId);
+    setLeadsPage(1);
+  };
 
   // Selected lead emails for assigning or sending
   const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
@@ -32,14 +59,14 @@ export function useMarketing() {
   // User's available credits from subscription
   const currentCredits = user?.subscription?.credits ?? 0;
 
-  // 1. Fetch campaigns
+  // 1. Fetch campaigns with optional search
   const {
     data: campaignsData,
     isLoading: isCampaignsLoading,
     refetch: refetchCampaigns,
   } = useQuery({
-    queryKey: ["marketing-campaigns"],
-    queryFn: () => marketingService.getCampaigns(),
+    queryKey: ["marketing-campaigns", debouncedCampaignSearch],
+    queryFn: () => marketingService.getCampaigns({ search: debouncedCampaignSearch }),
   });
 
   const campaigns = useMemo(() => campaignsData?.campaigns || [], [campaignsData]);
@@ -61,22 +88,27 @@ export function useMarketing() {
     toast.info(`Đã nạp ${campaign.customers.length} email từ chiến dịch "${campaign.name}"`);
   };
 
-  // 2. Fetch Customer Leads
+  // 2. Fetch Customer Leads with search and pagination
   const {
     data: leadsData,
     isLoading: isLeadsLoading,
     refetch: refetchLeads,
   } = useQuery({
-    queryKey: ["marketing-leads", selectedDomainId, searchQuery],
+    queryKey: ["marketing-leads", selectedDomainId, debouncedSearch, leadsPage, leadsPageSize],
     queryFn: () =>
       marketingService.getCustomerLeads({
         domain_id: selectedDomainId === "all" ? undefined : selectedDomainId,
-        search: searchQuery || undefined,
+        search: debouncedSearch || undefined,
         only_with_email: true,
+        page: leadsPage,
+        page_size: leadsPageSize,
       }),
   });
 
   const leads = useMemo(() => leadsData?.customers || [], [leadsData]);
+  const leadsTotal = leadsData?.total ?? 0;
+  const leadsTotalPages = leadsData?.total_pages ?? 1;
+
 
   // Checkbox helpers
   const toggleSelectEmail = (email: string) => {
@@ -181,15 +213,24 @@ export function useMarketing() {
     setActiveCampaignId,
     refetchCampaigns,
     loadCampaignRecipients,
+    campaignSearch,
+    setCampaignSearch,
 
     // Leads & Filters
     leads,
+    leadsTotal,
+    leadsTotalPages,
+    leadsPage,
+    setLeadsPage,
+    leadsPageSize,
+    setLeadsPageSize,
     isLeadsLoading,
     selectedDomainId,
-    setSelectedDomainId,
+    setSelectedDomainId: handleDomainChange,
     searchQuery,
     setSearchQuery,
     refetchLeads,
+
 
     // Selection
     selectedEmails,

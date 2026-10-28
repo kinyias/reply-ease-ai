@@ -26,10 +26,22 @@ export function useDashboardTransactions(limit = 10) {
   });
 }
 
-export function useAppointments() {
+import { GetAppointmentsParams } from "@/types/dashboard";
+
+export function useAppointments(params?: GetAppointmentsParams) {
+  const queryKey = [
+    "dashboard",
+    "appointments",
+    params?.domain_id || "ALL",
+    params?.search?.trim() || "",
+    params?.page || 1,
+    params?.page_size || 10,
+  ];
+
   return useQuery({
-    queryKey: ["dashboard", "appointments"],
-    queryFn: () => dashboardService.getAppointments(),
+    queryKey,
+    queryFn: () => dashboardService.getAppointments(params),
     staleTime: 1000 * 30,
   });
 }
+

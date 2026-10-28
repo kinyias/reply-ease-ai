@@ -1,25 +1,48 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { productService } from "@/services/product-service";
-import { CreateProductInput, UpdateProductInput } from "@/types/product";
+import { CreateProductInput, GetProductsParams, UpdateProductInput } from "@/types/product";
 
-export function useProducts(domainId: string, search?: string) {
+export function useProducts(
+  domainId: string,
+  options?: GetProductsParams | string
+) {
   const queryClient = useQueryClient();
-  const queryKey = search?.trim()
-    ? ["domains", domainId, "products", { search: search.trim() }]
-    : ["domains", domainId, "products"];
+
+  const search = typeof options === "string" ? options : options?.search;
+  const page = typeof options === "object" ? options?.page : undefined;
+  const pageSize = typeof options === "object" ? options?.page_size : undefined;
+
+  const queryKey = [
+    "domains",
+    domainId,
+    "products",
+    { search: search?.trim() || "", page: page || 1, pageSize: pageSize || 10 },
+  ];
 
   // 1. Fetch products
   const {
-    data: products = [],
+    data,
     isLoading,
     isError,
     refetch,
   } = useQuery({
     queryKey,
-    queryFn: () => productService.getProducts(domainId, search),
+    queryFn: () =>
+      productService.getProducts(domainId, {
+        search,
+        page,
+        page_size: pageSize,
+      }),
     enabled: Boolean(domainId),
   });
+
+  const products = data?.products || [];
+  const total = data?.total ?? 0;
+  const totalPages = data?.total_pages ?? 1;
+  const currentPage = data?.page ?? 1;
+  const currentPageSize = data?.page_size ?? 10;
+
 
   // 2. Create product
   const createProductMutation = useMutation({
@@ -85,6 +108,10 @@ export function useProducts(domainId: string, search?: string) {
 
   return {
     products,
+    total,
+    totalPages,
+    page: currentPage,
+    pageSize: currentPageSize,
     isLoading,
     isError,
     refetch,

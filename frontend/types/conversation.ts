@@ -39,6 +39,9 @@ export interface ConversationListResponse {
   unread_total: number;
   live_total: number;
   urgent_total: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
 }
 
 export type ConversationTab = "all" | "unread" | "urgent" | "live" | "expired";

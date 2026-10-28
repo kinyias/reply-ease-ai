@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PaginationControl } from "@/components/ui/pagination-control";
 import { CustomerLead } from "@/types/marketing";
 
 interface DomainOption {
@@ -29,6 +30,12 @@ interface DomainOption {
 
 interface CustomerLeadsTableProps {
   leads: CustomerLead[];
+  total?: number;
+  totalPages?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   isLoading?: boolean;
   domains?: DomainOption[];
   selectedDomainId: string;
@@ -44,6 +51,12 @@ interface CustomerLeadsTableProps {
 
 export function CustomerLeadsTable({
   leads,
+  total,
+  totalPages,
+  currentPage = 1,
+  pageSize = 10,
+  onPageChange,
+  onPageSizeChange,
   isLoading = false,
   domains = [],
   selectedDomainId,
@@ -56,6 +69,7 @@ export function CustomerLeadsTable({
   onClearSelection,
   onInspectLead,
 }: CustomerLeadsTableProps) {
+
   // All valid emails currently listed in table
   const tableEmails = useMemo(() => {
     return leads.map((l) => l.email).filter(Boolean) as string[];
@@ -83,8 +97,9 @@ export function CustomerLeadsTable({
               Danh sách Leads & Khách hàng
             </h2>
             <Badge variant="secondary" className="text-[10px] font-medium">
-              {leads.length} khách
+              {total !== undefined ? total : leads.length} khách
             </Badge>
+
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5">
             Lọc khách hàng tiềm năng qua câu hỏi sàng lọc và chọn để gửi email hàng loạt
@@ -326,7 +341,24 @@ export function CustomerLeadsTable({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages !== undefined && totalPages > 0 && onPageChange && (
+          <div className="pt-2">
+            <PaginationControl
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={total !== undefined ? total : leads.length}
+              pageSize={pageSize}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
+              pageSizeOptions={[5, 10, 20, 50]}
+              itemLabel="khách hàng"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

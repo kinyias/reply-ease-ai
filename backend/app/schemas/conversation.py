@@ -49,6 +49,10 @@ class ConversationListResponse(BaseModel):
     unread_total: int
     live_total: int
     urgent_total: int
+    page: int = 1
+    page_size: int = 15
+    total_pages: int = 1
+
 
 
 class SendMessageRequest(BaseModel):

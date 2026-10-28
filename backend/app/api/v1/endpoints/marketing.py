@@ -1,8 +1,10 @@
+import math
 import re
 import uuid
 from typing import List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+
 from sqlalchemy import delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -54,15 +56,33 @@ def validate_clean_emails(emails: List[str]) -> List[str]:
 
 @router.get("/campaigns", response_model=CampaignListResponse)
 async def list_campaigns(
+    search: Optional[str] = Query(None, description="Tìm theo tên chiến dịch"),
+    page: Optional[int] = Query(None, ge=1, description="Trang (bắt đầu từ 1)"),
+    page_size: Optional[int] = Query(None, ge=1, le=100, description="Số lượng mục mỗi trang"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Lấy danh sách toàn bộ chiến dịch email marketing của user hiện tại."""
+    """Lấy danh sách chiến dịch email marketing của user hiện tại với tìm kiếm và phân trang."""
+    where_conditions = [Campaign.user_id == current_user.id]
+    if search and search.strip():
+        where_conditions.append(Campaign.name.ilike(f"%{search.strip()}%"))
+
+    # Total count query
+    count_stmt = select(func.count(Campaign.id)).where(*where_conditions)
+    count_res = await db.execute(count_stmt)
+    total = count_res.scalar_one() or 0
+
     stmt = (
         select(Campaign)
-        .where(Campaign.user_id == current_user.id)
+        .where(*where_conditions)
         .order_by(Campaign.created_at.desc())
     )
+
+    if page is not None and page_size is not None:
+        stmt = stmt.offset((page - 1) * page_size).limit(page_size)
+    elif page_size is not None:
+        stmt = stmt.limit(page_size)
+
     result = await db.execute(stmt)
     campaigns = result.scalars().all()
 
@@ -80,7 +100,18 @@ async def list_campaigns(
         for c in campaigns
     ]
 
-    return CampaignListResponse(campaigns=items, total=len(items))
+    eff_page = page or 1
+    eff_size = page_size or (len(items) if items else 10)
+    total_pages = math.ceil(total / eff_size) if total > 0 and eff_size > 0 else 1
+
+    return CampaignListResponse(
+        campaigns=items,
+        total=total if (page is not None or page_size is not None) else len(items),
+        page=eff_page,
+        page_size=eff_size,
+        total_pages=total_pages,
+    )
+
 
 
 @router.post("/campaigns", response_model=CampaignResponse, status_code=status.HTTP_201_CREATED)
@@ -294,12 +325,14 @@ async def list_marketing_customers(
     domain_id: Optional[uuid.UUID] = Query(None, description="Lọc theo domain cụ thể"),
     search: Optional[str] = Query(None, description="Tìm theo email khách hoặc câu trả lời"),
     only_with_email: bool = Query(True, description="Chỉ lấy khách hàng đã có email"),
+    page: Optional[int] = Query(None, ge=1, description="Trang (bắt đầu từ 1)"),
+    page_size: Optional[int] = Query(None, ge=1, le=100, description="Số lượng mục mỗi trang"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Lấy danh sách toàn bộ khách hàng tiềm năng thuộc các domain của user,
-    bao gồm chi tiết các câu trả lời câu hỏi lọc (CustomerResponses) để phân loại/gắn vào campaign.
+    Lấy danh sách khách hàng tiềm năng thuộc các domain của user,
+    bao gồm chi tiết câu trả lời, hỗ trợ tìm kiếm và phân trang.
     """
     # Lấy danh sách domain IDs thuộc về user
     user_domains_stmt = select(Domain.id, Domain.name).where(Domain.user_id == current_user.id)
@@ -307,7 +340,13 @@ async def list_marketing_customers(
     domain_map = {d[0]: d[1] for d in domains_res.all()}
 
     if not domain_map:
-        return CustomerLeadListResponse(customers=[], total=0)
+        return CustomerLeadListResponse(
+            customers=[],
+            total=0,
+            page=page or 1,
+            page_size=page_size or 10,
+            total_pages=1,
+        )
 
     target_domain_ids = [domain_id] if domain_id and domain_id in domain_map else list(domain_map.keys())
 
@@ -365,7 +404,23 @@ async def list_marketing_customers(
             )
         )
 
-    return CustomerLeadListResponse(customers=leads, total=len(leads))
+    total_leads = len(leads)
+    eff_page = page or 1
+    eff_size = page_size or (total_leads if total_leads > 0 else 10)
+    total_pages = math.ceil(total_leads / eff_size) if total_leads > 0 and eff_size > 0 else 1
+
+    if page is not None and page_size is not None:
+        start_idx = (page - 1) * page_size
+        leads = leads[start_idx : start_idx + page_size]
+
+    return CustomerLeadListResponse(
+        customers=leads,
+        total=total_leads,
+        page=eff_page,
+        page_size=eff_size,
+        total_pages=total_pages,
+    )
+
 
 
 # ==============================================================================
