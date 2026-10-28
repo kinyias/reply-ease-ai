@@ -8,7 +8,7 @@ class DashboardMetricsResponse(BaseModel):
     potential_clients: int = Field(..., description="Total count of customer leads across user domains")
     pipeline_value: int = Field(..., description="Estimated sales pipeline value in VND (product prices * potential clients)")
     appointments: int = Field(..., description="Total count of scheduled bookings across user domains")
-    total_sales: int = Field(..., description="Total actual sales revenue from completed SePay transactions in VND")
+    total_sales: int = Field(..., description="Total actual sales revenue from completed transactions in VND (excluding subscription upgrades)")
 
 
 class PlanUsageResponse(BaseModel):

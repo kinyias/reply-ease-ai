@@ -14,7 +14,7 @@ from app.models.billing import Billings
 from app.models.booking import Bookings
 from app.models.customer import Customer
 from app.models.domain import Domain
-from app.models.enums import PaymentStatus, Plans
+from app.models.enums import PaymentStatus, PaymentType, Plans
 from app.models.payment_transaction import PaymentTransaction
 from app.models.product import Product
 from app.models.user import User
@@ -48,14 +48,24 @@ async def get_dashboard_metrics(
     domain_res = await db.execute(domain_stmt)
     domain_ids = domain_res.scalars().all()
 
+    # 2. Total sales: sum of completed sales transactions (e.g. PRODUCT_CHECKOUT / customer orders)
+    # Exclude system payments like subscription plan upgrades (PaymentType.SUBSCRIPTION)
+    sales_conditions = [
+        PaymentTransaction.status == PaymentStatus.SUCCESS,
+        PaymentTransaction.payment_type != PaymentType.SUBSCRIPTION,
+    ]
+    if domain_ids:
+        sales_conditions.append(
+            (PaymentTransaction.domain_id.in_(domain_ids)) | (PaymentTransaction.user_id == current_user.id)
+        )
+    else:
+        sales_conditions.append(PaymentTransaction.user_id == current_user.id)
+
+    sales_stmt = select(func.coalesce(func.sum(PaymentTransaction.amount), 0)).where(*sales_conditions)
+    total_sales = (await db.execute(sales_stmt)).scalar() or 0
+
     if not domain_ids:
         # User has no domains yet
-        # Check if user has personal subscription transactions
-        sales_stmt = select(func.coalesce(func.sum(PaymentTransaction.amount), 0)).where(
-            PaymentTransaction.status == PaymentStatus.SUCCESS,
-            PaymentTransaction.user_id == current_user.id,
-        )
-        total_sales = (await db.execute(sales_stmt)).scalar() or 0
         return DashboardMetricsResponse(
             potential_clients=0,
             pipeline_value=0,
@@ -63,27 +73,20 @@ async def get_dashboard_metrics(
             total_sales=int(total_sales),
         )
 
-    # 2. Count potential clients (unique customers under user's domains)
+    # 3. Count potential clients (unique customers under user's domains)
     cust_stmt = select(func.count(Customer.id)).where(Customer.domain_id.in_(domain_ids))
     potential_clients = (await db.execute(cust_stmt)).scalar() or 0
 
-    # 3. Calculate pipeline value: total products price across domains * potential_clients
+    # 4. Calculate pipeline value: total products price across domains * potential_clients
     prod_stmt = select(func.coalesce(func.sum(Product.price), 0)).where(
         Product.domain_id.in_(domain_ids)
     )
     total_product_price = (await db.execute(prod_stmt)).scalar() or 0
     pipeline_value = int(total_product_price) * int(potential_clients)
 
-    # 4. Count appointments (Bookings for user's domains)
+    # 5. Count appointments (Bookings for user's domains)
     appt_stmt = select(func.count(Bookings.id)).where(Bookings.domain_id.in_(domain_ids))
     appointments = (await db.execute(appt_stmt)).scalar() or 0
-
-    # 5. Total sales: sum of completed PaymentTransactions for user or user's domains
-    sales_stmt = select(func.coalesce(func.sum(PaymentTransaction.amount), 0)).where(
-        PaymentTransaction.status == PaymentStatus.SUCCESS,
-        (PaymentTransaction.domain_id.in_(domain_ids)) | (PaymentTransaction.user_id == current_user.id),
-    )
-    total_sales = (await db.execute(sales_stmt)).scalar() or 0
 
     return DashboardMetricsResponse(
         potential_clients=int(potential_clients),

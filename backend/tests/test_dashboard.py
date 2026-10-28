@@ -81,10 +81,10 @@ async def test_dashboard_metrics_and_reporting():
                 customer_id=cust1.id,
                 domain_id=domain_id,
             )
-            # Create 1 successful transaction
-            tx = PaymentTransaction(
+            # 1 successful subscription transaction (system upgrade - should NOT count towards total_sales)
+            tx_sub = PaymentTransaction(
                 id=uuid.uuid4(),
-                order_code=f"TX_{uuid.uuid4().hex[:8].upper()}",
+                order_code=f"TX_SUB_{uuid.uuid4().hex[:8].upper()}",
                 amount=350000,
                 payment_type=PaymentType.SUBSCRIPTION,
                 status=PaymentStatus.SUCCESS,
@@ -92,8 +92,20 @@ async def test_dashboard_metrics_and_reporting():
                 user_id=user_id,
                 domain_id=domain_id,
             )
+            # 1 successful product checkout transaction (customer sale - SHOULD count towards total_sales)
+            tx_sale = PaymentTransaction(
+                id=uuid.uuid4(),
+                order_code=f"TX_SALE_{uuid.uuid4().hex[:8].upper()}",
+                amount=200000,
+                payment_type=PaymentType.PRODUCT_CHECKOUT,
+                status=PaymentStatus.SUCCESS,
+                content="Course AI Order",
+                user_id=user_id,
+                domain_id=domain_id,
+                customer_id=cust1.id,
+            )
 
-            session.add_all([test_user, billing, test_domain, p1, p2, cust1, cust2, booking, tx])
+            session.add_all([test_user, billing, test_domain, p1, p2, cust1, cust2, booking, tx_sub, tx_sale])
             await session.commit()
 
         # 2. Authenticate
@@ -108,7 +120,8 @@ async def test_dashboard_metrics_and_reporting():
         # pipeline_value = (200000 + 300000) * 2 = 1,000,000 VND
         assert metrics_data["pipeline_value"] == 1000000
         assert metrics_data["appointments"] == 1
-        assert metrics_data["total_sales"] == 350000
+        # total_sales must only include customer sales (200000 VND), NOT subscription plan upgrade (350000 VND)
+        assert metrics_data["total_sales"] == 200000
 
         # 4. Test GET /api/v1/dashboard/plan-usage
         usage_resp = await ac.get("/api/v1/dashboard/plan-usage", headers=headers)

@@ -54,7 +54,7 @@ export function DashboardMetricsCards({
       label: "Total Sales",
       subLabel: "Doanh thu thực tế",
       value: metrics ? formatVND(metrics.total_sales) : "0 ₫",
-      description: "Thanh toán thành công qua SePay",
+      description: "Doanh thu từ đơn hàng qua SePay",
       icon: CreditCardIcon,
       unit: "VND",
     },
