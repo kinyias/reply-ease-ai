@@ -49,6 +49,13 @@ app.include_router(api_router, prefix="/api/v1")
 from app.api.v1.endpoints.websocket import router as websocket_router
 app.include_router(websocket_router)
 
+# Direct IPN Aliases (so any configured SePay URL path works seamlessly)
+from app.api.v1.endpoints.payments import sepay_ipn_webhook_handler
+app.add_api_route("/payment/ipn", sepay_ipn_webhook_handler, methods=["POST"], include_in_schema=False)
+app.add_api_route("/payments/ipn", sepay_ipn_webhook_handler, methods=["POST"], include_in_schema=False)
+app.add_api_route("/sepay/ipn", sepay_ipn_webhook_handler, methods=["POST"], include_in_schema=False)
+app.add_api_route("/sepay/webhook", sepay_ipn_webhook_handler, methods=["POST"], include_in_schema=False)
+
 
 @app.get("/", tags=["Health Check"])
 async def root():

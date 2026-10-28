@@ -282,6 +282,14 @@ async def get_user_transactions(
     summary="SePay IPN / Webhook Receiver",
     description="Receives payment notifications and bank balance webhooks from SePay.",
 )
+@router.post(
+    "/ipn",
+    include_in_schema=False,
+)
+@router.post(
+    "/webhook",
+    include_in_schema=False,
+)
 async def sepay_ipn_webhook_handler(
     request: Request,
     response: Response,
