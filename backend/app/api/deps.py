@@ -75,4 +75,15 @@ async def get_current_user(
             detail="User not found",
         )
 
+    # Stop access for demo sessions after 30 minutes
+    if user.type == "demo" and user.email.startswith("demo_"):
+        if user.created_at:
+            cutoff = user.created_at + timedelta(minutes=30)
+            if datetime.now(timezone.utc) > cutoff:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Phiên trải nghiệm demo 30 phút đã kết thúc. Vui lòng đăng ký tài khoản chính thức.",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
     return user

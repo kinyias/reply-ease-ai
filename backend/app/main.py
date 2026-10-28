@@ -21,11 +21,27 @@ async def run_prewarm():
         logger.warning(f"Error in prewarm task: {e}")
 
 
+async def run_startup_demo_cleanup():
+    """One-time startup cleanup to purge expired demo sessions (> 30 mins) left over from previous runs."""
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.services import demo_session_service
+        async with AsyncSessionLocal() as session:
+            count = await demo_session_service.cleanup_expired_demo_sessions(session)
+            if count > 0:
+                logger.info(f"Startup demo cleanup: successfully purged {count} expired demo sessions.")
+            else:
+                logger.info("Startup demo cleanup: no expired demo sessions found.")
+    except Exception as e:
+        logger.warning(f"Error in startup demo cleanup: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: ensure static/uploads directory exists
     os.makedirs(os.path.join(settings.STATIC_DIR, "uploads"), exist_ok=True)
     asyncio.create_task(run_prewarm())
+    asyncio.create_task(run_startup_demo_cleanup())
     yield
 
 

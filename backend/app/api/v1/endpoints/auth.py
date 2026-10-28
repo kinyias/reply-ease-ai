@@ -226,6 +226,14 @@ async def refresh_token(
             detail="User not found.",
         )
 
+    if user.type == "demo" and user.email.startswith("demo_"):
+        from datetime import datetime, timedelta, timezone
+        if user.created_at and datetime.now(timezone.utc) > (user.created_at + timedelta(minutes=30)):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Phiên trải nghiệm demo 30 phút đã kết thúc. Vui lòng đăng ký tài khoản chính thức.",
+            )
+
     new_access_token = create_access_token(user.id)
     new_refresh_token = create_refresh_token(user.id)
 

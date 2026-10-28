@@ -93,8 +93,14 @@ async def cleanup_expired_demo_sessions(db: AsyncSession) -> int:
 
     count = 0
     for u in expired_users:
+        # Extra safety check: never delete master template user
+        if u.id == MASTER_USER_ID or u.email == "demo@gmail.com":
+            continue
+
         # Delete Pinecone namespaces for all domains of this demo user
         for dom in u.domains:
+            if dom.id == MASTER_DOMAIN_ID:
+                continue
             try:
                 await vector_service.delete_namespace(dom.id)
                 logger.info(f"Cleaned up Pinecone namespace for expired demo domain {dom.id}")
