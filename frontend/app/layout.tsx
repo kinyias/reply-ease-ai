@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { DemoBanner } from "@/components/layout/demo-banner";
 
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -44,7 +45,10 @@ export default function RootLayout({
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <Providers>
+          <DemoBanner />
+          {children}
+        </Providers>
       </body>
     </html>
   );

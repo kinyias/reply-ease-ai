@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { MobileHeader } from "@/components/sidebar/mobile-header";
+import { DemoBanner } from "@/components/layout/demo-banner";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);

@@ -14,6 +14,8 @@ export interface User {
   fullname: string
   email: string
   type: string
+  is_demo?: boolean
+  demo_expires_at?: string
   sepay_merchant_id?: string | null
   created_at?: string
   subscription?: BillingBrief | null

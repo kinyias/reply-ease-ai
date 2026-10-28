@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
+import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, Sparkles } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { LoginFormValues, loginSchema } from "@/schemas/auth"
 import { useSignIn } from "@/hooks/auth/use-sign-in"
+import { useDemoSession } from "@/hooks/auth/use-demo-session"
 import { useAuth } from "@/context/auth-context"
 import { getApiErrorMessage } from "@/lib/api-error"
 
@@ -51,6 +52,19 @@ export function SignInForm() {
         description: `Welcome back, ${data.user.fullname || "there"} to ReplyEase AI.`,
       })
       router.push("/dashboard")
+    },
+  })
+
+  const demoSessionMutation = useDemoSession({
+    onSuccess: (data) => {
+      login(data.tokens, data.user)
+      toast.success("Bắt đầu phiên trải nghiệm Demo 30 phút!", {
+        description: "Chào mừng bạn đến với môi trường dùng thử của ReplyEase AI.",
+      })
+      router.push("/dashboard")
+    },
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, "Không thể khởi tạo phiên Demo. Vui lòng thử lại sau."))
     },
   })
 
@@ -175,7 +189,7 @@ export function SignInForm() {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={signInMutation.isPending}
+          disabled={signInMutation.isPending || demoSessionMutation.isPending}
           className="w-full h-10 mt-2 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
         >
           {signInMutation.isPending ? (
@@ -187,6 +201,37 @@ export function SignInForm() {
             <>
               <span>Sign In</span>
               <ArrowRight className="size-4 ml-1.5" />
+            </>
+          )}
+        </Button>
+
+        {/* Divider */}
+        <div className="relative my-4 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-[#e2e8f0] dark:border-slate-800" />
+          </div>
+          <span className="relative bg-white dark:bg-slate-900 px-3 text-[11px] uppercase tracking-wider text-[#94a3b8]">
+            hoặc trải nghiệm ngay
+          </span>
+        </div>
+
+        {/* Demo 30-min Sandbox Button */}
+        <Button
+          type="button"
+          variant="outline"
+          disabled={signInMutation.isPending || demoSessionMutation.isPending}
+          onClick={() => demoSessionMutation.mutate()}
+          className="w-full h-10 font-medium border-orange-200 dark:border-orange-800/60 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 dark:from-orange-950/20 dark:via-amber-950/20 dark:to-orange-950/20 hover:from-orange-100 hover:to-amber-100 text-orange-800 dark:text-orange-200 transition-all cursor-pointer shadow-xs active:translate-y-px"
+        >
+          {demoSessionMutation.isPending ? (
+            <>
+              <Loader2 className="size-4 animate-spin mr-2 text-orange-600" />
+              <span>Đang khởi tạo sandbox 30 phút...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="size-4 mr-2 text-orange-600 animate-pulse" />
+              <span>Dùng thử Demo 30 phút (Không cần đăng ký)</span>
             </>
           )}
         </Button>

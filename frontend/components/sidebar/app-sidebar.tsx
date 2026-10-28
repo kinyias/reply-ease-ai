@@ -230,9 +230,16 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
 
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-semibold text-sidebar-foreground truncate">
-                  {user?.fullname || "Người dùng"}
-                </span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs font-semibold text-sidebar-foreground truncate">
+                    {user?.fullname || "Người dùng"}
+                  </span>
+                  {(user?.type === "demo" || user?.is_demo || user?.email?.startsWith("demo_")) && (
+                    <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded shrink-0">
+                      Demo
+                    </span>
+                  )}
+                </div>
                 <span className="text-[11px] text-muted-foreground truncate">
                   {user?.email || "Chưa đăng nhập"}
                 </span>

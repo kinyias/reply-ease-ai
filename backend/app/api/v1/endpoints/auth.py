@@ -147,6 +147,11 @@ async def login(
     req: LoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
+    # If logging in with demo account, automatically spawn an isolated 30-min demo session
+    if req.email.strip().lower() == "demo@gmail.com":
+        from app.services import demo_session_service
+        return await demo_session_service.create_demo_session(db)
+
     stmt = (
         select(User)
         .where(User.email == req.email)
@@ -239,7 +244,20 @@ async def refresh_token(
 async def get_me(
     current_user: User = Depends(get_current_user),
 ):
-    return current_user
+    from datetime import datetime, timedelta, timezone
+    is_demo = current_user.type == "demo" or current_user.email == "demo@gmail.com"
+    demo_expires_at = None
+    if is_demo:
+        now_utc = datetime.now(timezone.utc)
+        if current_user.created_at and (now_utc - current_user.created_at) < timedelta(minutes=30):
+            demo_expires_at = current_user.created_at + timedelta(minutes=30)
+        else:
+            demo_expires_at = now_utc + timedelta(minutes=30)
+
+    user_resp = UserResponse.model_validate(current_user)
+    user_resp.is_demo = is_demo
+    user_resp.demo_expires_at = demo_expires_at
+    return user_resp
 
 
 @router.post(
@@ -264,3 +282,36 @@ async def change_password(
         "status": 200,
         "message": "Password changed successfully!",
     }
+
+
+@router.post(
+    "/demo-session",
+    response_model=dict,
+    summary="Create an isolated sandbox demo session",
+)
+async def create_demo_session_endpoint(
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Creates an isolated demo session cloned from the master template.
+    Returns access tokens and user profile immediately without requiring credentials.
+    """
+    from app.services import demo_session_service
+    return await demo_session_service.create_demo_session(db)
+
+
+@router.post(
+    "/demo-session/terminate",
+    response_model=dict,
+    summary="Terminate current demo session and wipe all ephemeral data",
+)
+async def terminate_demo_session_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Terminates the current ephemeral demo session, deleting its cloned Pinecone namespace
+    and all transient Postgres records.
+    """
+    from app.services import demo_session_service
+    return await demo_session_service.terminate_demo_session(current_user, db)

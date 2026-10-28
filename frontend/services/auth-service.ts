@@ -71,4 +71,24 @@ export const authService = {
   logout(): void {
     clearAuthCookies()
   },
+
+  /**
+   * Initialize a sandbox demo session
+   */
+  async createDemoSession(): Promise<LoginSuccessResponse> {
+    const response = await apiClient.post<LoginSuccessResponse>(
+      "/auth/demo-session"
+    )
+    return response.data
+  },
+
+  /**
+   * Terminate current demo session and clean up all ephemeral records
+   */
+  async terminateDemoSession(): Promise<{ status: number; message: string }> {
+    const response = await apiClient.post<{ status: number; message: string }>(
+      "/auth/demo-session/terminate"
+    )
+    return response.data
+  },
 }

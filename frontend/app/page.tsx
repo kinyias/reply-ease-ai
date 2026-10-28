@@ -202,7 +202,14 @@ export default function HomePage() {
           </nav>
 
           {/* Primary Action */}
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
+              href="/auth/sign-in"
+              className="inline-flex h-9 items-center justify-center rounded-md border border-orange-200 bg-orange-50/80 px-3.5 text-xs font-semibold text-orange-700 hover:bg-orange-100/90 transition-colors shadow-xs"
+            >
+              <Sparkles className="size-3 mr-1.5 text-orange-600" />
+              <span>Dùng thử Demo 30p</span>
+            </Link>
             <Link
               href="/auth/sign-in"
               className="text-sm font-medium text-[#475569] hover:text-[#0f172a] hidden sm:block"

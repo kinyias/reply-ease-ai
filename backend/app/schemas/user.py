@@ -27,6 +27,8 @@ class UserResponse(BaseModel):
     fullname: str
     email: EmailStr
     type: str
+    is_demo: bool = False
+    demo_expires_at: Optional[datetime] = None
     sepay_merchant_id: Optional[str] = None
     created_at: datetime
     subscription: Optional[BillingBrief] = None

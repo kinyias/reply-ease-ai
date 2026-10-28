@@ -1,3 +1,5 @@
+import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
@@ -7,13 +9,24 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.api.v1.router import api_router
 
+logger = logging.getLogger(__name__)
+
+async def run_prewarm():
+    try:
+        from app.core.database import AsyncSessionLocal
+        from app.services import demo_session_service
+        async with AsyncSessionLocal() as session:
+            await demo_session_service.prewarm_master_embeddings(session)
+    except Exception as e:
+        logger.warning(f"Error in prewarm task: {e}")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: ensure static/uploads directory exists
     os.makedirs(os.path.join(settings.STATIC_DIR, "uploads"), exist_ok=True)
+    asyncio.create_task(run_prewarm())
     yield
-    # Shutdown logic if needed
 
 
 app = FastAPI(
