@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   AlertCircleIcon,
@@ -28,13 +28,16 @@ import { CampaignList } from "@/components/marketing/campaign-list";
 import { TemplateEditor } from "@/components/marketing/template-editor";
 import { CustomerLeadsTable } from "@/components/marketing/customer-leads-table";
 import { LeadAnswersModal } from "@/components/marketing/lead-answers-modal";
+import { MarketingSkeleton } from "@/components/marketing/marketing-skeleton";
 import { useMarketing } from "@/hooks/marketing/use-marketing";
 import { useDomainManagement } from "@/hooks/sidebar/use-domain-management";
 
 export function MarketingView() {
   const {
+    isUserLoading,
     currentCredits,
     campaigns,
+    isCampaignsLoading,
     activeCampaign,
     activeCampaignId,
     setActiveCampaignId,
@@ -63,6 +66,13 @@ export function MarketingView() {
   } = useMarketing();
 
   const { domains } = useDomainManagement();
+
+  // Prevent SSR/CSR hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Send confirmation modal
   const [isSendConfirmOpen, setIsSendConfirmOpen] = useState(false);
@@ -108,6 +118,10 @@ export function MarketingView() {
       // Error is handled in hook mutation toast
     }
   };
+
+  if (!isMounted || (isCampaignsLoading && campaigns.length === 0)) {
+    return <MarketingSkeleton />;
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">

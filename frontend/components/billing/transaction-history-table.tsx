@@ -75,6 +75,8 @@ export function TransactionHistoryTable({
                   <td className="py-3 px-4 text-muted-foreground">
                     {tx.payment_type === "SUBSCRIPTION" ? (
                       <span className="text-foreground font-medium">Nâng cấp gói cước</span>
+                    ) : tx.payment_type === "CREDIT_PURCHASE" ? (
+                      <span className="text-primary font-medium">Nạp thêm Credits</span>
                     ) : (
                       <span>Đơn hàng sản phẩm</span>
                     )}
@@ -109,7 +111,7 @@ export function TransactionHistoryTable({
                   </td>
 
                   {/* Date */}
-                  <td className="py-3 px-4 text-right text-muted-foreground">
+                  <td className="py-3 px-4 text-right text-muted-foreground" suppressHydrationWarning>
                     {formattedDate}
                   </td>
                 </tr>

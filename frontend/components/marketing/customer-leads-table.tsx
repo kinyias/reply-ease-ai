@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CustomerLead } from "@/types/marketing";
 
 interface DomainOption {
@@ -201,11 +202,26 @@ export function CustomerLeadsTable({
             </thead>
             <tbody className="divide-y divide-border/60">
               {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-muted-foreground text-xs">
-                    Đang tải danh sách khách hàng tiềm năng...
-                  </td>
-                </tr>
+                [1, 2, 3, 4, 5].map((i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="p-3 text-center">
+                      <Skeleton className="size-3.5 mx-auto rounded" />
+                    </td>
+                    <td className="p-3 space-y-1">
+                      <Skeleton className="h-3.5 w-36" />
+                      <Skeleton className="h-2.5 w-20" />
+                    </td>
+                    <td className="p-3">
+                      <Skeleton className="h-5 w-24 rounded-full" />
+                    </td>
+                    <td className="p-3 text-center">
+                      <Skeleton className="h-4 w-12 mx-auto rounded" />
+                    </td>
+                    <td className="p-3 text-right">
+                      <Skeleton className="h-7 w-16 ml-auto rounded-md" />
+                    </td>
+                  </tr>
+                ))
               ) : leads.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-muted-foreground text-xs">

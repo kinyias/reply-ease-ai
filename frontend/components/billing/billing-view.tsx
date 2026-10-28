@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SubscriptionCard } from "@/components/billing/subscription-card";
+import { BillingSkeleton } from "@/components/billing/billing-skeleton";
 import { CreditPackagesCard } from "@/components/billing/credit-packages-card";
 import { SepayQrModal } from "@/components/billing/sepay-qr-modal";
 import { TransactionHistoryTable } from "@/components/billing/transaction-history-table";
@@ -50,10 +51,14 @@ export function BillingView() {
 
   const { domains } = useDomainManagement();
 
+  // Prevent SSR/CSR hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
   // Active pricing tab: SUBSCRIPTION (default) or CREDITS
   const [activeTab, setActiveTab] = useState<"CREDITS" | "SUBSCRIPTION">("SUBSCRIPTION");
 
   useEffect(() => {
+    setIsMounted(true);
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
@@ -80,6 +85,10 @@ export function BillingView() {
     currentPlan === "ULTIMATE" ? 5000 : currentPlan === "PRO" ? 500 : 100;
   const domainUsagePercent = Math.min(100, Math.round((domains.length / maxDomains) * 100));
   const creditUsagePercent = Math.min(100, Math.round((currentCredits / maxCredits) * 100));
+
+  if (!isMounted || isUserLoading) {
+    return <BillingSkeleton />;
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8">
