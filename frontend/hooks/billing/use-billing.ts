@@ -27,7 +27,17 @@ export function useBilling() {
     queryFn: () => paymentService.getTransactions(20, 0),
   });
 
-  // Create payment mutation
+  // Credit packages query
+  const {
+    data: creditPackagesData,
+    isLoading: isCreditPackagesLoading,
+  } = useQuery({
+    queryKey: ["credit-packages"],
+    queryFn: () => paymentService.getCreditPackages(),
+    staleTime: 1000 * 60 * 30, // 30 mins
+  });
+
+  // Create payment mutation for subscription
   const createPaymentMutation = useMutation({
     mutationFn: (plan: PaymentPlan) =>
       paymentService.createPayment({
@@ -45,6 +55,24 @@ export function useBilling() {
     },
   });
 
+  // Purchase credits mutation
+  const purchaseCreditsMutation = useMutation({
+    mutationFn: (packageId: string) =>
+      paymentService.createPayment({
+        payment_type: "CREDIT_PURCHASE",
+        package_id: packageId,
+      }),
+    onSuccess: (data) => {
+      setActivePayment(data);
+      setPaymentStatus("PENDING");
+      setIsModalOpen(true);
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.detail || "Không thể tạo giao dịch nạp credits.";
+      toast.error(msg);
+    },
+  });
+
   // Simulate payment mutation
   const simulatePaymentMutation = useMutation({
     mutationFn: (orderCode: string) => paymentService.simulatePayment(orderCode),
@@ -53,7 +81,11 @@ export function useBilling() {
       queryClient.invalidateQueries({ queryKey: authKeys.me() });
       queryClient.invalidateQueries({ queryKey: ["billing-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["domains"] });
-      toast.success("Giả lập thanh toán thành công! Gói cước đã được kích hoạt.");
+      toast.success(
+        activePayment?.payment_type === "CREDIT_PURCHASE"
+          ? `Giả lập thanh toán thành công! Đã nạp ${activePayment.credits_added ?? ""} credits vào tài khoản.`
+          : "Giả lập thanh toán thành công! Gói cước đã được kích hoạt."
+      );
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.detail || "Không thể giả lập thanh toán.");
@@ -74,7 +106,11 @@ export function useBilling() {
           queryClient.invalidateQueries({ queryKey: authKeys.me() });
           queryClient.invalidateQueries({ queryKey: ["billing-transactions"] });
           queryClient.invalidateQueries({ queryKey: ["domains"] });
-          toast.success("Thanh toán thành công! Gói cước đã được cập nhật.");
+          toast.success(
+            activePayment.payment_type === "CREDIT_PURCHASE"
+              ? `Thanh toán thành công! Đã cộng ${activePayment.credits_added ?? res.credits_added ?? ""} credits vào tài khoản.`
+              : "Thanh toán thành công! Gói cước đã được cập nhật."
+          );
           clearInterval(interval);
         } else if (res.status === "FAILED") {
           setPaymentStatus("FAILED");
@@ -100,7 +136,7 @@ export function useBilling() {
         queryClient.invalidateQueries({ queryKey: authKeys.me() });
         queryClient.invalidateQueries({ queryKey: ["billing-transactions"] });
         queryClient.invalidateQueries({ queryKey: ["domains"] });
-        toast.success("Thanh toán thành công qua SePay Gateway! Gói cước đã được kích hoạt.");
+        toast.success("Thanh toán thành công qua SePay Gateway! Dữ liệu đã được cập nhật.");
       } else if (returnStatus === "cancel") {
         toast.info("Đơn hàng thanh toán SePay đã được hủy.");
       } else if (returnStatus === "error") {
@@ -134,6 +170,10 @@ export function useBilling() {
     createPaymentMutation.mutate(plan);
   };
 
+  const handlePurchaseCredits = (packageId: string) => {
+    purchaseCreditsMutation.mutate(packageId);
+  };
+
   const handleSimulatePayment = () => {
     if (!activePayment?.order_code) return;
     simulatePaymentMutation.mutate(activePayment.order_code);
@@ -160,13 +200,17 @@ export function useBilling() {
     totalTransactions: transactionsData?.total || 0,
     isTransactionsLoading,
     refetchTransactions,
+    creditPackages: creditPackagesData?.packages || [],
+    isCreditPackagesLoading,
     isModalOpen,
     activePayment,
     paymentStatus,
-    isCreatingPayment: createPaymentMutation.isPending,
+    isCreatingPayment: createPaymentMutation.isPending || purchaseCreditsMutation.isPending,
+    isPurchasingCredits: purchaseCreditsMutation.isPending,
     isSimulatingPayment: simulatePaymentMutation.isPending,
     isCancellingPayment: cancelPaymentMutation.isPending,
     upgradeToPlan: handleUpgrade,
+    purchaseCredits: handlePurchaseCredits,
     simulatePayment: handleSimulatePayment,
     cancelPayment: handleCancelPayment,
     closeModal: handleCloseModal,

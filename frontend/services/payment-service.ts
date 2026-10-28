@@ -2,6 +2,7 @@ import apiClient from "@/lib/api-client";
 import {
   CancelOrderResponse,
   CreatePaymentPayload,
+  CreditPackagesResponse,
   PaymentResponse,
   PaymentStatusResponse,
   SepayMerchantConfig,
@@ -11,7 +12,17 @@ import {
 
 export const paymentService = {
   /**
-   * Create a new payment transaction (Subscription Upgrade or Product Checkout)
+   * Fetch predefined credit top-up packages
+   */
+  async getCreditPackages(): Promise<CreditPackagesResponse> {
+    const res = await apiClient.get<CreditPackagesResponse>(
+      "/payments/credit-packages"
+    );
+    return res.data;
+  },
+
+  /**
+   * Create a new payment transaction (Subscription Upgrade, Credit Top-up, or Product Checkout)
    * Generates VietQR code and signed SePay Payment Gateway fields
    */
   async createPayment(payload: CreatePaymentPayload): Promise<PaymentResponse> {

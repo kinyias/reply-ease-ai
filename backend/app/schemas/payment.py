@@ -6,14 +6,35 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.models.enums import PaymentStatus, PaymentType, Plans
 
 
+class CreditPackageItem(BaseModel):
+    id: str = Field(..., description="Package identifier, e.g. pkg_100")
+    name: str = Field(..., description="Display package name")
+    credits: int = Field(..., description="Base credits amount")
+    bonus_credits: int = Field(default=0, description="Bonus credits granted")
+    total_credits: int = Field(..., description="Total credits customer receives (credits + bonus_credits)")
+    price: int = Field(..., description="Price in VND")
+    bonus_percentage: int = Field(default=0, description="Bonus percentage")
+    popular: bool = Field(default=False, description="Highlight as popular")
+    best_value: bool = Field(default=False, description="Highlight as best value")
+    description: Optional[str] = None
+
+
+class CreditPackagesResponse(BaseModel):
+    packages: List[CreditPackageItem]
+
+
 class CreatePaymentRequest(BaseModel):
     payment_type: PaymentType = Field(
         default=PaymentType.SUBSCRIPTION,
-        description="Type of payment: SUBSCRIPTION or PRODUCT_CHECKOUT",
+        description="Type of payment: SUBSCRIPTION, PRODUCT_CHECKOUT, or CREDIT_PURCHASE",
     )
     plan: Optional[Plans] = Field(
         default=None,
         description="Required if payment_type is SUBSCRIPTION (PRO or ULTIMATE)",
+    )
+    package_id: Optional[str] = Field(
+        default=None,
+        description="Required if payment_type is CREDIT_PURCHASE (e.g. pkg_100, pkg_500, pkg_100000)",
     )
     domain_id: Optional[uuid.UUID] = Field(
         default=None,
@@ -25,7 +46,7 @@ class CreatePaymentRequest(BaseModel):
     )
     amount: Optional[int] = Field(
         default=None,
-        description="Optional override amount in VND. If not provided, computed from plan or products.",
+        description="Optional override amount in VND. If not provided, computed from plan, package, or products.",
     )
     description: Optional[str] = Field(
         default=None,
@@ -46,6 +67,7 @@ class PaymentResponse(BaseModel):
     direct_checkout_url: Optional[str] = None
     payment_fields: Dict[str, Any]
     plan: Optional[Plans] = None
+    credits_added: Optional[int] = None
     created_at: datetime
 
 
@@ -57,6 +79,7 @@ class PaymentStatusResponse(BaseModel):
     sepay_transaction_id: Optional[str] = None
     content: Optional[str] = None
     plan: Optional[Plans] = None
+    credits_added: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

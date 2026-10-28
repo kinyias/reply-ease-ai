@@ -1,12 +1,30 @@
 export type PaymentPlan = "STANDARD" | "PRO" | "ULTIMATE";
 
-export type PaymentType = "SUBSCRIPTION" | "PRODUCT_CHECKOUT";
+export type PaymentType = "SUBSCRIPTION" | "PRODUCT_CHECKOUT" | "CREDIT_PURCHASE";
 
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
+
+export interface CreditPackageItem {
+  id: string;
+  name: string;
+  credits: number;
+  bonus_credits: number;
+  total_credits: number;
+  price: number;
+  bonus_percentage: number;
+  popular: boolean;
+  best_value: boolean;
+  description?: string;
+}
+
+export interface CreditPackagesResponse {
+  packages: CreditPackageItem[];
+}
 
 export interface CreatePaymentPayload {
   payment_type: PaymentType;
   plan?: PaymentPlan;
+  package_id?: string;
   amount?: number;
   domain_id?: string;
   product_ids?: string[];
@@ -26,6 +44,7 @@ export interface PaymentResponse {
   direct_checkout_url?: string;
   payment_fields: Record<string, any>;
   plan?: PaymentPlan;
+  credits_added?: number;
   created_at: string;
 }
 
@@ -44,6 +63,7 @@ export interface PaymentStatusResponse {
   sepay_transaction_id?: string;
   content?: string;
   plan?: PaymentPlan;
+  credits_added?: number;
   created_at: string;
   updated_at?: string;
 }

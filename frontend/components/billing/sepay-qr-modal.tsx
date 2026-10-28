@@ -93,9 +93,21 @@ export function SepayQrModal({
                 Thanh toán thành công!
               </h2>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Tài khoản của bạn đã được nâng cấp lên gói{" "}
-                <strong className="text-foreground">{payment.plan || "PRO"}</strong>{" "}
-                thành công. Các đặc quyền và AI Credits đã được kích hoạt ngay lập tức.
+                {payment.payment_type === "CREDIT_PURCHASE" ? (
+                  <>
+                    Tài khoản của bạn đã được cộng thêm{" "}
+                    <strong className="text-foreground">
+                      {payment.credits_added?.toLocaleString("vi-VN") || ""} AI Credits
+                    </strong>{" "}
+                    thành công. Số dư credits đã sẵn sàng để trò chuyện AI và gửi email chiến dịch.
+                  </>
+                ) : (
+                  <>
+                    Tài khoản của bạn đã được nâng cấp lên gói{" "}
+                    <strong className="text-foreground">{payment.plan || "PRO"}</strong>{" "}
+                    thành công. Các đặc quyền và AI Credits đã được kích hoạt ngay lập tức.
+                  </>
+                )}
               </p>
             </div>
 
@@ -103,6 +115,14 @@ export function SepayQrModal({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Mã đơn hàng:</span>
                 <span className="font-mono font-medium text-foreground">{payment.order_code}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Dịch vụ:</span>
+                <span className="font-semibold text-foreground">
+                  {payment.payment_type === "CREDIT_PURCHASE"
+                    ? `Nạp +${payment.credits_added?.toLocaleString("vi-VN") || ""} Credits`
+                    : `Gói ${payment.plan || "PRO"}`}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Số tiền:</span>
@@ -136,9 +156,21 @@ export function SepayQrModal({
                       Thanh toán SePay VietQR
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      Nâng cấp gói{" "}
-                      <span className="font-semibold text-primary">{payment.plan}</span> •{" "}
-                      Tự động kích hoạt sau 3 - 5 giây
+                      {payment.payment_type === "CREDIT_PURCHASE" ? (
+                        <>
+                          Nạp{" "}
+                          <span className="font-semibold text-primary">
+                            {payment.credits_added?.toLocaleString("vi-VN") || ""} AI Credits
+                          </span>{" "}
+                          • Tự động kích hoạt sau 3 - 5 giây
+                        </>
+                      ) : (
+                        <>
+                          Nâng cấp gói{" "}
+                          <span className="font-semibold text-primary">{payment.plan}</span> •{" "}
+                          Tự động kích hoạt sau 3 - 5 giây
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>

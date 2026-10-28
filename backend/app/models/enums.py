@@ -15,6 +15,7 @@ class Role(str, enum.Enum):
 class PaymentType(str, enum.Enum):
     SUBSCRIPTION = "SUBSCRIPTION"
     PRODUCT_CHECKOUT = "PRODUCT_CHECKOUT"
+    CREDIT_PURCHASE = "CREDIT_PURCHASE"
 
 
 class PaymentStatus(str, enum.Enum):

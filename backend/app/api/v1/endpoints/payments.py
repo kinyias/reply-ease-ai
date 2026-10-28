@@ -20,10 +20,12 @@ from app.models.enums import PaymentStatus, PaymentType, Plans
 from app.models.payment_transaction import PaymentTransaction
 from app.models.product import Product
 from app.models.user import User
+from app.core.credit_packages import CREDIT_PACKAGES, get_credit_package
 from app.schemas.payment import (
     CancelOrderRequest,
     CancelOrderResponse,
     CreatePaymentRequest,
+    CreditPackagesResponse,
     PaymentResponse,
     PaymentStatusResponse,
     PaymentTransactionItem,
@@ -52,13 +54,27 @@ PLAN_CREDITS = {
 
 
 # =========================================================================
+# Step 7.1: Predefined Credit Top-up Packages
+# =========================================================================
+
+@router.get(
+    "/credit-packages",
+    response_model=CreditPackagesResponse,
+    summary="Get Available Credit Top-up Packages",
+    description="Retrieve all predefined credit packages with prices, bonus rates, and total credits.",
+)
+async def get_credit_packages_endpoint():
+    return CreditPackagesResponse(packages=CREDIT_PACKAGES)
+
+
+# =========================================================================
 # Step 7.2: Create Payment & Check Status
 # =========================================================================
 
 @router.post(
     "/sepay/create-payment",
     response_model=PaymentResponse,
-    summary="Create SePay Payment Transaction (Subscription Upgrade or Product Checkout)",
+    summary="Create SePay Payment Transaction (Subscription Upgrade, Credit Top-up, or Product Checkout)",
     description="Generates a unique order code, persists transaction, and produces VietQR & SePay Gateway parameters.",
 )
 async def create_sepay_payment(
@@ -69,6 +85,8 @@ async def create_sepay_payment(
     # 1. Determine Amount & Validation
     amount = 0
     plan_to_upgrade: Optional[Plans] = None
+    credits_added: Optional[int] = None
+    credit_pkg = None
 
     if payload.payment_type == PaymentType.SUBSCRIPTION:
         if not payload.plan or payload.plan == Plans.STANDARD:
@@ -79,6 +97,20 @@ async def create_sepay_payment(
         plan_to_upgrade = payload.plan
         amount = payload.amount or PLAN_PRICING.get(plan_to_upgrade, 350000)
         description = payload.description or f"ReplyEase AI - Upgrade to {plan_to_upgrade.value} Plan"
+    elif payload.payment_type == PaymentType.CREDIT_PURCHASE:
+        credit_pkg = get_credit_package(
+            package_id=payload.package_id,
+            amount=payload.amount,
+        )
+        if not credit_pkg:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Gói nạp credits không hợp lệ. Vui lòng chọn một gói từ danh sách.",
+            )
+        amount = credit_pkg["price"]
+        credits_added = credit_pkg["total_credits"]
+        bonus_suffix = f" (+{credit_pkg['bonus_credits']} bonus)" if credit_pkg["bonus_credits"] > 0 else ""
+        description = payload.description or f"ReplyEase AI - Nap {credit_pkg['total_credits']} Credits{bonus_suffix}"
     elif payload.payment_type == PaymentType.PRODUCT_CHECKOUT:
         if payload.amount:
             amount = payload.amount
@@ -111,6 +143,8 @@ async def create_sepay_payment(
     rand_suffix = secrets.token_hex(3).upper()
     if plan_to_upgrade:
         order_code = f"SUB_{plan_to_upgrade.value}_{rand_suffix}"
+    elif payload.payment_type == PaymentType.CREDIT_PURCHASE and credit_pkg:
+        order_code = f"CRD_{credit_pkg['credits']}_{rand_suffix}"
     else:
         order_code = f"RE{rand_suffix}"
 
@@ -171,6 +205,7 @@ async def create_sepay_payment(
         direct_checkout_url=direct_checkout_url,
         payment_fields=checkout_payload["payment_fields"],
         plan=plan_to_upgrade,
+        credits_added=credits_added,
         created_at=transaction.created_at,
     )
 
@@ -204,6 +239,13 @@ async def check_payment_status(
     elif "PRO" in transaction.order_code:
         plan = Plans.PRO
 
+    # Parse credits if credit purchase
+    credits_added: Optional[int] = None
+    if transaction.payment_type == PaymentType.CREDIT_PURCHASE or "CRD_" in transaction.order_code:
+        pkg = get_credit_package(amount=transaction.amount, order_code=transaction.order_code)
+        if pkg:
+            credits_added = pkg["total_credits"]
+
     return PaymentStatusResponse(
         order_code=transaction.order_code,
         status=transaction.status,
@@ -212,6 +254,7 @@ async def check_payment_status(
         sepay_transaction_id=transaction.sepay_transaction_id,
         content=transaction.content,
         plan=plan,
+        credits_added=credits_added,
         created_at=transaction.created_at,
         updated_at=transaction.updated_at,
     )
@@ -266,6 +309,74 @@ async def get_user_transactions(
         transactions=items,
         total=total,
     )
+
+
+async def grant_user_credits_or_subscription(
+    db: AsyncSession, transaction: PaymentTransaction
+) -> None:
+    """Helper to upgrade user subscription plan or grant purchased credits."""
+    if not transaction.user_id:
+        return
+
+    if transaction.payment_type == PaymentType.SUBSCRIPTION:
+        bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
+        bill_res = await db.execute(bill_stmt)
+        billing = bill_res.scalar_one_or_none()
+
+        target_plan = Plans.PRO
+        credits_to_add = PLAN_CREDITS[Plans.PRO]
+        if "ULTIMATE" in transaction.order_code:
+            target_plan = Plans.ULTIMATE
+            credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
+
+        if billing:
+            billing.plan = target_plan
+            billing.credits = max(billing.credits, 0) + credits_to_add
+        else:
+            new_billing = Billings(
+                id=uuid.uuid4(),
+                user_id=transaction.user_id,
+                plan=target_plan,
+                credits=credits_to_add,
+            )
+            db.add(new_billing)
+        logger.info(
+            "Upgraded subscription to %s (+%d credits) for user %s",
+            target_plan.value,
+            credits_to_add,
+            transaction.user_id,
+        )
+
+    elif (
+        transaction.payment_type == PaymentType.CREDIT_PURCHASE
+        or "CRD_" in transaction.order_code
+    ):
+        pkg = get_credit_package(
+            amount=transaction.amount,
+            order_code=transaction.order_code,
+        )
+        credits_to_add = pkg["total_credits"] if pkg else 0
+        if credits_to_add > 0:
+            bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
+            bill_res = await db.execute(bill_stmt)
+            billing = bill_res.scalar_one_or_none()
+
+            if billing:
+                billing.credits = max(billing.credits, 0) + credits_to_add
+            else:
+                new_billing = Billings(
+                    id=uuid.uuid4(),
+                    user_id=transaction.user_id,
+                    plan=Plans.STANDARD,
+                    credits=100 + credits_to_add,
+                )
+                db.add(new_billing)
+            logger.info(
+                "Granted %d credits to user %s for order %s",
+                credits_to_add,
+                transaction.user_id,
+                transaction.order_code,
+            )
 
 
 # =========================================================================
@@ -380,29 +491,8 @@ async def sepay_ipn_webhook_handler(
             transaction.sepay_transaction_id = tx_id
             transaction.updated_at = datetime.now(timezone.utc)
 
-            # Upgrade User Subscription if SUBSCRIPTION
-            if transaction.payment_type == PaymentType.SUBSCRIPTION and transaction.user_id:
-                bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
-                bill_res = await db.execute(bill_stmt)
-                billing = bill_res.scalar_one_or_none()
-
-                target_plan = Plans.PRO
-                credits_to_add = PLAN_CREDITS[Plans.PRO]
-                if "ULTIMATE" in transaction.order_code:
-                    target_plan = Plans.ULTIMATE
-                    credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
-
-                if billing:
-                    billing.plan = target_plan
-                    billing.credits = max(billing.credits, 0) + credits_to_add
-                else:
-                    new_billing = Billings(
-                        id=uuid.uuid4(),
-                        user_id=transaction.user_id,
-                        plan=target_plan,
-                        credits=credits_to_add,
-                    )
-                    db.add(new_billing)
+            # Grant subscription plan upgrade or purchased credits
+            await grant_user_credits_or_subscription(db, transaction)
 
             await db.commit()
             logger.info("SePay IPN confirmed order %s successfully", order_inv)
@@ -475,28 +565,8 @@ async def sepay_ipn_webhook_handler(
     transaction.sepay_transaction_id = ref_code
     transaction.updated_at = datetime.now(timezone.utc)
 
-    if transaction.payment_type == PaymentType.SUBSCRIPTION and transaction.user_id:
-        bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
-        bill_res = await db.execute(bill_stmt)
-        billing = bill_res.scalar_one_or_none()
-
-        target_plan = Plans.PRO
-        credits_to_add = PLAN_CREDITS[Plans.PRO]
-        if "ULTIMATE" in transaction.order_code:
-            target_plan = Plans.ULTIMATE
-            credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
-
-        if billing:
-            billing.plan = target_plan
-            billing.credits = max(billing.credits, 0) + credits_to_add
-        else:
-            new_billing = Billings(
-                id=uuid.uuid4(),
-                user_id=transaction.user_id,
-                plan=target_plan,
-                credits=credits_to_add,
-            )
-            db.add(new_billing)
+    # Grant subscription plan upgrade or purchased credits
+    await grant_user_credits_or_subscription(db, transaction)
 
     await db.commit()
     logger.info("SePay Webhook processed successfully for order: %s", transaction.order_code)
@@ -656,29 +726,8 @@ async def simulate_sepay_payment(
     transaction.sepay_transaction_id = ref_code
     transaction.updated_at = datetime.now(timezone.utc)
 
-    # If subscription, upgrade plan & credits
-    if transaction.payment_type == PaymentType.SUBSCRIPTION and transaction.user_id:
-        bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
-        bill_res = await db.execute(bill_stmt)
-        billing = bill_res.scalar_one_or_none()
-
-        target_plan = Plans.PRO
-        credits_to_add = PLAN_CREDITS[Plans.PRO]
-        if "ULTIMATE" in transaction.order_code:
-            target_plan = Plans.ULTIMATE
-            credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
-
-        if billing:
-            billing.plan = target_plan
-            billing.credits = max(billing.credits, 0) + credits_to_add
-        else:
-            new_billing = Billings(
-                id=uuid.uuid4(),
-                user_id=transaction.user_id,
-                plan=target_plan,
-                credits=credits_to_add,
-            )
-            db.add(new_billing)
+    # Grant subscription plan upgrade or purchased credits
+    await grant_user_credits_or_subscription(db, transaction)
 
     await db.commit()
 

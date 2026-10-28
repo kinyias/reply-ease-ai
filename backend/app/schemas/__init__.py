@@ -63,6 +63,8 @@ __all__ = [
     "PortalOrderResponse",
     "PortalOrderStatusResponse",
     "PortalSimulatePaymentRequest",
+    "CreditPackageItem",
+    "CreditPackagesResponse",
     "CreatePaymentRequest",
     "PaymentResponse",
     "PaymentStatusResponse",
@@ -101,6 +103,8 @@ from app.schemas.portal import (
 )
 
 from app.schemas.payment import (
+    CreditPackageItem,
+    CreditPackagesResponse,
     CreatePaymentRequest,
     PaymentResponse,
     PaymentStatusResponse,

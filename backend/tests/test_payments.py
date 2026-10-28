@@ -222,3 +222,98 @@ async def test_sepay_payments_and_webhook_lifecycle():
         assert cancel_res.json()["success"] is True
         assert cancel_res.json()["status"] == "CANCELLED"
 
+
+@pytest.mark.asyncio
+async def test_credit_packages_and_topup_lifecycle():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Test get credit packages endpoint
+        pkg_res = await ac.get("/api/v1/payments/credit-packages")
+        assert pkg_res.status_code == 200
+        packages = pkg_res.json()["packages"]
+        assert len(packages) >= 10
+
+        # Check required packages from prompt
+        p100 = next(p for p in packages if p["credits"] == 100)
+        assert p100["price"] == 50000
+        assert p100["bonus_credits"] == 0
+        assert p100["total_credits"] == 100
+
+        p200 = next(p for p in packages if p["credits"] == 200)
+        assert p200["price"] == 100000
+        assert p200["bonus_credits"] == 10
+        assert p200["total_credits"] == 210
+
+        p500 = next(p for p in packages if p["credits"] == 500)
+        assert p500["price"] == 200000
+        assert p500["bonus_credits"] == 50
+        assert p500["total_credits"] == 550
+
+        p100k = next(p for p in packages if p["credits"] == 100000)
+        assert p100k["price"] == 25000000
+        assert p100k["bonus_credits"] == 50000
+        assert p100k["total_credits"] == 150000
+
+        # 2. Setup user with initial 100 credits
+        user_id = uuid.uuid4()
+        user_email = f"credit_test_{uuid.uuid4().hex[:6]}@example.com"
+        async with AsyncSessionLocal() as session:
+            test_user = User(
+                id=user_id,
+                fullname="Tran Van B",
+                email=user_email,
+                hashed_password="fake_hashed_pw",
+                type="owner",
+            )
+            initial_billing = Billings(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                plan=Plans.STANDARD,
+                credits=100,
+            )
+            session.add_all([test_user, initial_billing])
+            await session.commit()
+
+        token = create_access_token(user_id)
+        auth_headers = {"Authorization": f"Bearer {token}"}
+
+        # 3. Create payment for pkg_500 (500 credits + 50 bonus = 550 total for 200,000 VND)
+        create_res = await ac.post(
+            "/api/v1/payments/sepay/create-payment",
+            json={
+                "payment_type": "CREDIT_PURCHASE",
+                "package_id": "pkg_500",
+            },
+            headers=auth_headers,
+        )
+        assert create_res.status_code == 200
+        pay_data = create_res.json()
+        assert pay_data["amount"] == 200000
+        assert pay_data["payment_type"] == "CREDIT_PURCHASE"
+        assert pay_data["credits_added"] == 550
+        assert "CRD_500_" in pay_data["order_code"]
+        order_code = pay_data["order_code"]
+
+        # 4. Check status
+        status_res = await ac.get(f"/api/v1/payments/check-status/{order_code}")
+        assert status_res.status_code == 200
+        assert status_res.json()["credits_added"] == 550
+        assert status_res.json()["status"] == "PENDING"
+
+        # 5. Simulate payment completion
+        sim_res = await ac.post(
+            "/api/v1/payments/sepay/simulate-payment",
+            json={"order_code": order_code},
+        )
+        assert sim_res.status_code == 200
+        assert sim_res.json()["status"] == "SUCCESS"
+
+        # 6. Verify credits in database: 100 initial + 550 = 650 credits
+        async with AsyncSessionLocal() as session:
+            bill_res = await session.execute(select(Billings).where(Billings.user_id == user_id))
+            billing = bill_res.scalar_one()
+            assert billing.credits == 650
+            # User plan remains STANDARD
+            assert billing.plan == Plans.STANDARD
+
+

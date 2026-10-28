@@ -142,7 +142,7 @@ export function MarketingView() {
             </div>
           </div>
           <Link
-            href="/billing"
+            href="/billing?tab=credits"
             className="inline-flex items-center justify-center h-8 px-2.5 rounded-lg border border-border bg-background text-xs font-medium hover:bg-muted text-foreground transition-colors ml-2"
           >
             <CreditCardIcon className="size-3.5 mr-1 text-primary" />
@@ -229,10 +229,18 @@ export function MarketingView() {
 
         <div className="flex items-center gap-2 shrink-0">
           {!hasEnoughCredits && totalRecipientsCount > 0 && (
-            <span className="text-xs text-destructive font-medium flex items-center gap-1">
-              <AlertCircleIcon className="size-3.5" />
-              Không đủ credits
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-destructive font-medium flex items-center gap-1">
+                <AlertCircleIcon className="size-3.5" />
+                Không đủ credits
+              </span>
+              <Link
+                href="/billing?tab=credits"
+                className="text-[11px] underline font-semibold text-primary hover:text-primary/80"
+              >
+                Nạp ngay
+              </Link>
+            </div>
           )}
 
           <Button

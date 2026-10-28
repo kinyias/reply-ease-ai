@@ -52,7 +52,7 @@ async def get_dashboard_metrics(
     # Exclude system payments like subscription plan upgrades (PaymentType.SUBSCRIPTION)
     sales_conditions = [
         PaymentTransaction.status == PaymentStatus.SUCCESS,
-        PaymentTransaction.payment_type != PaymentType.SUBSCRIPTION,
+        PaymentTransaction.payment_type.notin_([PaymentType.SUBSCRIPTION, PaymentType.CREDIT_PURCHASE]),
     ]
     if domain_ids:
         sales_conditions.append(
