@@ -43,6 +43,7 @@ class PaymentResponse(BaseModel):
     account_name: str
     content: str
     checkout_url: str
+    direct_checkout_url: Optional[str] = None
     payment_fields: Dict[str, Any]
     plan: Optional[Plans] = None
     created_at: datetime
@@ -120,3 +121,42 @@ class SimulatePaymentRequest(BaseModel):
     reference_code: Optional[str] = Field(
         default=None, description="Simulated bank reference code"
     )
+
+
+class CancelOrderRequest(BaseModel):
+    order_invoice_number: str = Field(..., description="Order code / invoice number to cancel")
+
+
+class CancelOrderResponse(BaseModel):
+    success: bool
+    message: str
+    order_invoice_number: str
+    status: Optional[str] = None
+
+
+class SepayIpnOrder(BaseModel):
+    id: Optional[str] = None
+    order_id: Optional[str] = None
+    order_status: Optional[str] = None
+    order_currency: Optional[str] = "VND"
+    order_amount: Optional[str] = None
+    order_invoice_number: Optional[str] = None
+    order_description: Optional[str] = None
+
+
+class SepayIpnTransaction(BaseModel):
+    id: Optional[str] = None
+    payment_method: Optional[str] = None
+    transaction_id: Optional[str] = None
+    transaction_type: Optional[str] = None
+    transaction_status: Optional[str] = None
+    transaction_amount: Optional[str] = None
+    transaction_currency: Optional[str] = "VND"
+
+
+class SepayIpnPayload(BaseModel):
+    timestamp: Optional[int] = None
+    notification_type: str = "ORDER_PAID"
+    order: Optional[SepayIpnOrder] = None
+    transaction: Optional[SepayIpnTransaction] = None
+

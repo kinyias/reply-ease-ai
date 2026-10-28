@@ -32,6 +32,8 @@ interface SepayQrModalProps {
   status: PaymentStatus;
   onSimulateSuccess?: () => void;
   isSimulating?: boolean;
+  onCancelOrder?: () => void;
+  isCancelling?: boolean;
 }
 
 export function SepayQrModal({
@@ -41,6 +43,8 @@ export function SepayQrModal({
   status,
   onSimulateSuccess,
   isSimulating = false,
+  onCancelOrder,
+  isCancelling = false,
 }: SepayQrModalProps) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -60,9 +64,10 @@ export function SepayQrModal({
       paymentService.launchSepayGatewayCheckout(
         payment.checkout_url,
         payment.payment_fields,
+        payment.direct_checkout_url,
         "_blank"
       );
-      toast.info("Đã mở cổng thanh toán SePay Payment Gateway trong tab mới.");
+      toast.info("Đã chuyển hướng đến cổng thanh toán SePay Payment Gateway.");
     }
   };
 
@@ -253,25 +258,28 @@ export function SepayQrModal({
                 </div>
 
                 {/* Additional Actions */}
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <Button
                     type="button"
-                    variant="outline"
                     onClick={handleLaunchGateway}
-                    className="w-full text-xs font-medium gap-1.5 border-border/70"
+                    className="w-full text-xs font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs h-9.5"
                   >
-                    <ExternalLinkIcon className="size-3.5" />
-                    <span>Mở cổng SePay Payment Gateway</span>
+                    <ExternalLinkIcon className="size-4" />
+                    <span>Mở Cổng Thanh Toán SePay (Khuyên dùng)</span>
                   </Button>
+
+                  <p className="text-[11px] text-center text-muted-foreground">
+                    Cổng SePay hỗ trợ tự động mở App Ngân Hàng, VietQR, NAPAS và Thẻ ATM/Visa.
+                  </p>
 
                   {/* Simulate instant confirmation for Testing/Demo */}
                   {onSimulateSuccess && (
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       onClick={onSimulateSuccess}
                       disabled={isSimulating}
-                      className="w-full text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                      className="w-full text-xs text-muted-foreground hover:text-foreground gap-1.5 h-8 border-dashed"
                     >
                       {isSimulating ? (
                         <>
@@ -296,15 +304,36 @@ export function SepayQrModal({
                 <ShieldCheckIcon className="size-4 text-emerald-500" />
                 <span>Bảo mật giao dịch bởi SePay Payment Gateway</span>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-xs h-8"
-              >
-                Hủy bỏ
-              </Button>
+              <div className="flex items-center gap-2">
+                {onCancelOrder && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    disabled={isCancelling}
+                    onClick={onCancelOrder}
+                    className="text-xs h-8 px-3"
+                  >
+                    {isCancelling ? (
+                      <>
+                        <Loader2Icon className="size-3 animate-spin mr-1" />
+                        <span>Đang hủy...</span>
+                      </>
+                    ) : (
+                      <span>Hủy đơn hàng</span>
+                    )}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onClose}
+                  className="text-xs h-8"
+                >
+                  Đóng
+                </Button>
+              </div>
             </div>
           </div>
         )}

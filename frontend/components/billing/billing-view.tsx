@@ -34,8 +34,10 @@ export function BillingView() {
     paymentStatus,
     isCreatingPayment,
     isSimulatingPayment,
+    isCancellingPayment,
     upgradeToPlan,
     simulatePayment,
+    cancelPayment,
     closeModal,
   } = useBilling();
 
@@ -206,7 +208,7 @@ export function BillingView() {
         />
       </div>
 
-      {/* Sepay VietQR Modal */}
+      {/* Sepay VietQR & Gateway Modal */}
       <SepayQrModal
         isOpen={isModalOpen}
         onClose={closeModal}
@@ -214,6 +216,8 @@ export function BillingView() {
         status={paymentStatus}
         onSimulateSuccess={simulatePayment}
         isSimulating={isSimulatingPayment}
+        onCancelOrder={cancelPayment}
+        isCancelling={isCancellingPayment}
       />
     </div>
   );

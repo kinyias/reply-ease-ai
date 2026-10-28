@@ -80,11 +80,34 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-3.5-turbo"
 
-    # SePay Payment Configuration
+    # SePay Payment Gateway Configuration
+    SEPAY_ENV: str = "sandbox"  # "sandbox" or "production"
     SEPAY_MERCHANT_ID: str = "YOUR_MERCHANT_ID"
     SEPAY_SECRET_KEY: str = "YOUR_MERCHANT_SECRET_KEY"
     SEPAY_WEBHOOK_API_KEY: str = ""
     SEPAY_API_URL: str = "https://my.sepay.vn/userapi"
+
+    @property
+    def sepay_is_sandbox(self) -> bool:
+        """Determines if SePay is in sandbox mode by prefix SP-TEST- or SEPAY_ENV setting."""
+        if self.SEPAY_MERCHANT_ID and self.SEPAY_MERCHANT_ID.startswith("SP-TEST-"):
+            return True
+        return (self.SEPAY_ENV or "").strip().lower() == "sandbox"
+
+    @property
+    def sepay_base_checkout_url(self) -> str:
+        """Returns https://pay-sandbox.sepay.vn for sandbox or https://pay.sepay.vn for production."""
+        return "https://pay-sandbox.sepay.vn" if self.sepay_is_sandbox else "https://pay.sepay.vn"
+
+    @property
+    def sepay_checkout_init_url(self) -> str:
+        """Endpoint to submit HTML form POST for SePay Payment Gateway checkout."""
+        return f"{self.sepay_base_checkout_url}/v1/checkout/init"
+
+    @property
+    def sepay_base_api_url(self) -> str:
+        """Returns https://pgapi-sandbox.sepay.vn for sandbox or https://pgapi.sepay.vn for production."""
+        return "https://pgapi-sandbox.sepay.vn" if self.sepay_is_sandbox else "https://pgapi.sepay.vn"
 
     # SMTP Mail
     SMTP_HOST: str = "smtp.gmail.com"

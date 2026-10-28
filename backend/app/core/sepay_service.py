@@ -13,31 +13,26 @@ logger = logging.getLogger(__name__)
 class SePayService:
     """
     SePay Service for handling:
-    1. Dynamic VietQR code generation.
-    2. SePay Payment Gateway checkout fields signing (HMAC-SHA256 base64) compatible with sepay-pg-node.
-    3. Webhook / IPN signature verification.
-    4. Order code parsing from transaction contents.
+    1. SePay Payment Gateway checkout fields signing (HMAC-SHA256 base64) adhering to PAYMENT.md.
+    2. Automatic Checkout URL resolution (via checkout/init redirect).
+    3. IPN Secret Key verification according to IPN.md.
+    4. Order Cancellation API according to CANCLEORDER.md.
+    5. Fallback VietQR code generation and bank transfer regex matching.
     """
 
-    SIGNED_FIELDS_ORDER: List[str] = [
-        "merchant",
-        "env",
-        "operation",
-        "payment_method",
+    # Strictly ordered fields as specified in PAYMENT.md (do not change order)
+    ALLOWED_FIELDS: List[str] = [
         "order_amount",
+        "merchant",
         "currency",
-        "order_invoice_number",
+        "operation",
         "order_description",
+        "order_invoice_number",
         "customer_id",
-        "agreement_id",
-        "agreement_name",
-        "agreement_type",
-        "agreement_payment_frequency",
-        "agreement_amount_per_payment",
+        "payment_method",
         "success_url",
         "error_url",
         "cancel_url",
-        "order_id",
     ]
 
     def __init__(
@@ -45,38 +40,49 @@ class SePayService:
         merchant_id: Optional[str] = None,
         secret_key: Optional[str] = None,
         webhook_api_key: Optional[str] = None,
-        env: str = "sandbox",
+        env: Optional[str] = None,
     ):
-        self.merchant_id = merchant_id or settings.SEPAY_MERCHANT_ID
-        self.secret_key = secret_key or settings.SEPAY_SECRET_KEY
-        self.webhook_api_key = webhook_api_key or settings.SEPAY_WEBHOOK_API_KEY
-        self.env = env
+        self._merchant_id = merchant_id
+        self._secret_key = secret_key
+        self._webhook_api_key = webhook_api_key
+        self._env = env
         self.default_bank_code = "MBBank"
         self.default_bank_account = "0333888999"
         self.default_bank_holder = "REPLY EASE STORE"
 
     @property
-    def base_checkout_url(self) -> str:
-        """Returns the checkout initialization URL depending on environment."""
-        if self.env == "sandbox":
-            return "https://pay-sandbox.sepay.vn/v1/checkout/init"
-        return "https://pay.sepay.vn/v1/checkout/init"
+    def merchant_id(self) -> str:
+        return self._merchant_id or settings.SEPAY_MERCHANT_ID or ""
 
-    def generate_vietqr_url(
-        self,
-        bank_account: Optional[str] = None,
-        bank_code: Optional[str] = None,
-        amount: int = 0,
-        content: str = "",
-    ) -> str:
-        """
-        Generate direct VietQR image URL for SePay bank transfer matching.
-        Format: https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={content}
-        """
-        account = bank_account or self.default_bank_account
-        bank = bank_code or self.default_bank_code
-        safe_content = urllib.parse.quote_plus(content.strip())
-        return f"https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={safe_content}"
+    @property
+    def secret_key(self) -> str:
+        return self._secret_key or settings.SEPAY_SECRET_KEY or ""
+
+    @property
+    def webhook_api_key(self) -> str:
+        return self._webhook_api_key or settings.SEPAY_WEBHOOK_API_KEY or ""
+
+    @property
+    def is_sandbox(self) -> bool:
+        if self.merchant_id and self.merchant_id.startswith("SP-TEST-"):
+            return True
+        configured_env = self._env or settings.SEPAY_ENV
+        return (configured_env or "").strip().lower() == "sandbox"
+
+    @property
+    def base_checkout_url(self) -> str:
+        """Returns base checkout domain depending on sandbox/production."""
+        return "https://pay-sandbox.sepay.vn" if self.is_sandbox else "https://pay.sepay.vn"
+
+    @property
+    def checkout_init_url(self) -> str:
+        """Endpoint to submit HTML form POST for SePay Payment Gateway checkout."""
+        return f"{self.base_checkout_url}/v1/checkout/init"
+
+    @property
+    def base_api_url(self) -> str:
+        """Returns SePay API domain (pgapi) depending on sandbox/production."""
+        return "https://pgapi-sandbox.sepay.vn" if self.is_sandbox else "https://pgapi.sepay.vn"
 
     def sign_checkout_fields(
         self,
@@ -84,17 +90,21 @@ class SePayService:
         secret_key: Optional[str] = None,
     ) -> str:
         """
-        Compute HMAC-SHA256 signature encoded in base64, identical to sepay-pg-node Checkout.signFields:
-        Filters allowed fields in order, joins them as 'key=value' separated by commas,
-        then HMAC-SHA256 hashes with secret_key and encodes in base64.
+        Compute HMAC-SHA256 signature encoded in base64 according to PAYMENT.md:
+        1. Filter signing fields: Only sign fields in allowed list:
+           order_amount, merchant, currency, operation, order_description, order_invoice_number,
+           customer_id, payment_method, success_url, error_url, cancel_url
+        2. Create signing string: field1=value1,field2=value2,field3=value3...
+        3. Encode: base64_encode(hash_hmac('sha256', signedString, secretKey, true))
         """
         key = (secret_key or self.secret_key or "").encode("utf-8")
         signed_parts: List[str] = []
 
-        for field in self.SIGNED_FIELDS_ORDER:
+        for field in self.ALLOWED_FIELDS:
             if field in fields and fields[field] is not None:
                 val = str(fields[field])
-                signed_parts.append(f"{field}={val}")
+                if val != "":
+                    signed_parts.append(f"{field}={val}")
 
         data_string = ",".join(signed_parts)
         signature = hmac.new(
@@ -114,39 +124,144 @@ class SePayService:
         error_url: Optional[str] = None,
         cancel_url: Optional[str] = None,
         customer_id: Optional[str] = None,
+        payment_method: Optional[str] = None,
         custom_merchant_id: Optional[str] = None,
         custom_secret_key: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Builds the complete payment fields required by SePay Payment Gateway
-        including the cryptographic signature.
+        in the strict order documented in PAYMENT.md, including signature.
         """
-        merchant = custom_merchant_id or self.merchant_id or "REPLY_EASE_MERCHANT"
-        secret = custom_secret_key or self.secret_key or "REPLY_EASE_SECRET"
+        merchant = custom_merchant_id or self.merchant_id
+        secret = custom_secret_key or self.secret_key
 
+        # Build in exact order specified by PAYMENT.md
         fields: Dict[str, Any] = {
+            "order_amount": str(int(order_amount)),
             "merchant": merchant,
-            "operation": "PURCHASE",
-            "payment_method": "BANK_TRANSFER",
-            "order_amount": int(order_amount),
             "currency": "VND",
-            "order_invoice_number": order_invoice_number,
+            "operation": "PURCHASE",
             "order_description": order_description,
-            "success_url": success_url or f"{settings.FRONTEND_URL}/billing?success=true",
-            "error_url": error_url or f"{settings.FRONTEND_URL}/billing?error=true",
-            "cancel_url": cancel_url or f"{settings.FRONTEND_URL}/billing?cancel=true",
+            "order_invoice_number": order_invoice_number,
         }
 
         if customer_id:
             fields["customer_id"] = str(customer_id)
 
+        if payment_method:
+            fields["payment_method"] = str(payment_method)
+
+        if success_url:
+            fields["success_url"] = success_url
+        if error_url:
+            fields["error_url"] = error_url
+        if cancel_url:
+            fields["cancel_url"] = cancel_url
+
         signature = self.sign_checkout_fields(fields, secret_key=secret)
         fields["signature"] = signature
 
         return {
-            "checkout_url": self.base_checkout_url,
+            "checkout_url": self.checkout_init_url,
             "payment_fields": fields,
         }
+
+    async def resolve_checkout_redirect(
+        self,
+        payment_fields: Dict[str, Any],
+        init_url: Optional[str] = None,
+    ) -> Optional[str]:
+        """
+        Submit form fields to SePay /v1/checkout/init without following redirects
+        to capture the 302 Location header.
+        This provides a direct payment link (e.g. https://pay-sandbox.sepay.vn/v1/checkout?...)
+        for seamless frontend redirection or embedding.
+        """
+        target_url = init_url or self.checkout_init_url
+        try:
+            import httpx
+            async with httpx.AsyncClient(follow_redirects=False, timeout=6.0) as client:
+                res = await client.post(target_url, data=payment_fields)
+                if res.status_code in (301, 302, 303, 307, 308) and "location" in res.headers:
+                    return res.headers["location"]
+                if res.status_code == 200:
+                    return str(res.url)
+        except Exception as e:
+            logger.warning("Auto-resolving SePay checkout redirect returned: %s", e)
+        return None
+
+    def verify_ipn_secret_key(
+        self,
+        x_secret_key: Optional[str],
+        custom_secret_key: Optional[str] = None,
+    ) -> bool:
+        """
+        Verify incoming IPN notification header X-Secret-Key according to IPN.md:
+        Header:
+          X-Secret-Key: <secret_key>
+        """
+        expected = custom_secret_key or self.secret_key
+        if not expected:
+            # If server doesn't have secret key in dev, allow with warning
+            logger.info("IPN received without configured secret_key on server: permissive mode")
+            return True
+
+        if not x_secret_key:
+            return False
+
+        return hmac.compare_digest(x_secret_key.strip(), expected.strip())
+
+    async def cancel_order(
+        self,
+        order_invoice_number: str,
+        merchant_id: Optional[str] = None,
+        secret_key: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Cancel an unpaid or pending order via SePay Payment Gateway API according to CANCLEORDER.md.
+        Endpoint: POST {base_api_url}/v1/order/cancel
+        Header: Authorization: Basic {base64(merchant_id:secret_key)}
+        Body: {"order_invoice_number": order_invoice_number}
+        """
+        m_id = merchant_id or self.merchant_id or ""
+        s_key = secret_key or self.secret_key or ""
+        auth_str = f"{m_id}:{s_key}"
+        auth_b64 = base64.b64encode(auth_str.encode("utf-8")).decode("utf-8")
+
+        url = f"{self.base_api_url}/v1/order/cancel"
+        payload = {"order_invoice_number": order_invoice_number.strip()}
+
+        import httpx
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                res = await client.post(
+                    url,
+                    json=payload,
+                    headers={
+                        "Authorization": f"Basic {auth_b64}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    return {
+                        "success": True,
+                        "message": data.get("message", "Đã hủy đơn hàng thành công"),
+                    }
+                else:
+                    logger.warning(
+                        "SePay cancel order failed: status=%s, body=%s",
+                        res.status_code,
+                        res.text,
+                    )
+                    return {
+                        "success": False,
+                        "status_code": res.status_code,
+                        "message": res.text,
+                    }
+        except Exception as e:
+            logger.error("Exception in SePay cancel order: %s", e)
+            return {"success": False, "error": str(e)}
 
     def verify_webhook_signature(
         self,
@@ -169,7 +284,6 @@ class SePayService:
             if expected_api_key and provided_key == expected_api_key:
                 return True
             if not expected_api_key:
-                # If server didn't configure a webhook key, accept and log
                 logger.info("SePay Webhook received with API Key: accepted in permissive mode")
                 return True
             return False
@@ -192,11 +306,26 @@ class SePayService:
             ):
                 return True
 
-        # In development without keys configured, permit requests
         if not expected_api_key and settings.ENVIRONMENT == "development":
             return True
 
         return False
+
+    def generate_vietqr_url(
+        self,
+        bank_account: Optional[str] = None,
+        bank_code: Optional[str] = None,
+        amount: int = 0,
+        content: str = "",
+    ) -> str:
+        """
+        Generate direct VietQR image URL for SePay bank transfer matching.
+        Format: https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={content}
+        """
+        account = bank_account or self.default_bank_account
+        bank = bank_code or self.default_bank_code
+        safe_content = urllib.parse.quote_plus(content.strip())
+        return f"https://qr.sepay.vn/img?acc={account}&bank={bank}&amount={amount}&des={safe_content}"
 
     def extract_order_code_from_content(self, content: str) -> Optional[str]:
         """

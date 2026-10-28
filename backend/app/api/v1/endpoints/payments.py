@@ -21,6 +21,8 @@ from app.models.payment_transaction import PaymentTransaction
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.payment import (
+    CancelOrderRequest,
+    CancelOrderResponse,
     CreatePaymentRequest,
     PaymentResponse,
     PaymentStatusResponse,
@@ -104,7 +106,7 @@ async def create_sepay_payment(
             detail="Order amount must be greater than 0 VND.",
         )
 
-    # 2. Generate unique memorable order code for VietQR
+    # 2. Generate unique memorable order code for VietQR & SePay invoice
     # Short alphanumeric format: RE + 6 hex chars (e.g. RE89A1B2)
     rand_suffix = secrets.token_hex(3).upper()
     if plan_to_upgrade:
@@ -139,7 +141,7 @@ async def create_sepay_payment(
         content=order_code,
     )
 
-    # 5. Build SePay Gateway checkout fields (compatible with sepay-pg-node)
+    # 5. Build SePay Gateway checkout fields (strictly adhering to PAYMENT.md)
     checkout_payload = sepay_service.build_checkout_payload(
         order_invoice_number=order_code,
         order_amount=amount,
@@ -148,6 +150,12 @@ async def create_sepay_payment(
         success_url=f"{settings.FRONTEND_URL}/billing?order_code={order_code}&status=success",
         error_url=f"{settings.FRONTEND_URL}/billing?order_code={order_code}&status=error",
         cancel_url=f"{settings.FRONTEND_URL}/billing?order_code={order_code}&status=cancel",
+    )
+
+    # 6. Try resolving direct checkout redirect link (302 Location from SePay checkout/init)
+    direct_checkout_url = await sepay_service.resolve_checkout_redirect(
+        checkout_payload["payment_fields"],
+        init_url=checkout_payload["checkout_url"],
     )
 
     return PaymentResponse(
@@ -160,6 +168,7 @@ async def create_sepay_payment(
         account_name=account_name,
         content=order_code,
         checkout_url=checkout_payload["checkout_url"],
+        direct_checkout_url=direct_checkout_url,
         payment_fields=checkout_payload["payment_fields"],
         plan=plan_to_upgrade,
         created_at=transaction.created_at,
@@ -260,17 +269,23 @@ async def get_user_transactions(
 
 
 # =========================================================================
-# Step 7.3: SePay Webhook Handler (Auto Reconciliation)
+# Step 7.3: SePay IPN & Webhook Handler (Auto Reconciliation - IPN.md)
 # =========================================================================
 
 @router.post(
-    "/sepay/webhook",
-    summary="SePay IPN Webhook Receiver",
-    description="Receives bank transfer balance notifications from SePay, reconciles transaction, and activates subscription or fulfills order.",
+    "/sepay/ipn",
+    summary="SePay Payment Gateway IPN Receiver",
+    description="Receives automatic real-time payment notifications (IPN.md) from SePay Payment Gateway.",
 )
-async def sepay_webhook_handler(
+@router.post(
+    "/sepay/webhook",
+    summary="SePay IPN / Webhook Receiver",
+    description="Receives payment notifications and bank balance webhooks from SePay.",
+)
+async def sepay_ipn_webhook_handler(
     request: Request,
     response: Response,
+    x_secret_key: Optional[str] = Header(None, alias="X-Secret-Key"),
     authorization: Optional[str] = Header(None),
     x_sepay_signature: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db),
@@ -281,22 +296,127 @@ async def sepay_webhook_handler(
     except Exception:
         payload = {}
 
-    logger.info("Received SePay Webhook payload: %s", payload)
+    logger.info("Received SePay IPN/Webhook: headers=(X-Secret-Key=%s, auth=%s), payload=%s",
+                bool(x_secret_key), bool(authorization), payload)
 
-    # 1. Signature / API Key verification
-    is_valid = sepay_service.verify_webhook_signature(
-        authorization_header=authorization,
-        sepay_signature_header=x_sepay_signature,
-        raw_body=raw_body,
-    )
+    # 1. Verification:
+    # A) Check X-Secret-Key (Official SePay Payment Gateway IPN auth)
+    # B) Or Check Apikey / HMAC signature (Personal bank scraper webhook)
+    # C) Permissive in development mode
+    is_valid = False
+    if x_secret_key:
+        is_valid = sepay_service.verify_ipn_secret_key(x_secret_key)
+    elif authorization or x_sepay_signature:
+        is_valid = sepay_service.verify_webhook_signature(
+            authorization_header=authorization,
+            sepay_signature_header=x_sepay_signature,
+            raw_body=raw_body,
+        )
+    elif settings.ENVIRONMENT == "development":
+        logger.info("SePay Webhook received without auth in development mode: accepted")
+        is_valid = True
+
     if not is_valid:
-        logger.warning("SePay Webhook rejected: Invalid signature or API key")
+        logger.warning("SePay IPN/Webhook rejected: Unauthorized")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Webhook signature or authorization key.",
+            detail="Invalid Webhook secret key or authorization credentials.",
         )
 
-    # 2. Extract transfer content and order code
+    # 2. Distinguish between SePay Payment Gateway IPN (IPN.md) and Bank Scraper Webhook
+    notification_type = payload.get("notification_type")
+    order_data = payload.get("order") if isinstance(payload.get("order"), dict) else None
+    tx_data = payload.get("transaction") if isinstance(payload.get("transaction"), dict) else None
+
+    if notification_type or order_data:
+        # ------------------------------------------------------------------
+        # Official SePay Payment Gateway IPN format
+        # ------------------------------------------------------------------
+        order_inv = (
+            order_data.get("order_invoice_number")
+            or order_data.get("order_id")
+            or payload.get("order_invoice_number")
+        )
+        tx_id = (
+            (tx_data.get("transaction_id") if tx_data else None)
+            or (order_data.get("id") if order_data else None)
+            or str(payload.get("timestamp") or "")
+        )
+
+        if not order_inv:
+            logger.warning("No order_invoice_number in SePay IPN payload")
+            return {"success": False, "message": "Missing order_invoice_number"}
+
+        # Find transaction
+        stmt = (
+            select(PaymentTransaction)
+            .options(selectinload(PaymentTransaction.user))
+            .where(
+                (PaymentTransaction.order_code == order_inv)
+                | (PaymentTransaction.content == order_inv)
+            )
+        )
+        res = await db.execute(stmt)
+        transaction = res.scalar_one_or_none()
+
+        if not transaction:
+            logger.warning("PaymentTransaction not found for order invoice: %s", order_inv)
+            return {"success": False, "message": f"Order {order_inv} not found"}
+
+        if notification_type == "ORDER_PAID":
+            if transaction.status == PaymentStatus.SUCCESS:
+                logger.info("Order %s already marked SUCCESS (idempotent IPN)", order_inv)
+                return {"success": True, "message": "Order already confirmed previously"}
+
+            transaction.status = PaymentStatus.SUCCESS
+            transaction.sepay_transaction_id = tx_id
+            transaction.updated_at = datetime.now(timezone.utc)
+
+            # Upgrade User Subscription if SUBSCRIPTION
+            if transaction.payment_type == PaymentType.SUBSCRIPTION and transaction.user_id:
+                bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
+                bill_res = await db.execute(bill_stmt)
+                billing = bill_res.scalar_one_or_none()
+
+                target_plan = Plans.PRO
+                credits_to_add = PLAN_CREDITS[Plans.PRO]
+                if "ULTIMATE" in transaction.order_code:
+                    target_plan = Plans.ULTIMATE
+                    credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
+
+                if billing:
+                    billing.plan = target_plan
+                    billing.credits = max(billing.credits, 0) + credits_to_add
+                else:
+                    new_billing = Billings(
+                        id=uuid.uuid4(),
+                        user_id=transaction.user_id,
+                        plan=target_plan,
+                        credits=credits_to_add,
+                    )
+                    db.add(new_billing)
+
+            await db.commit()
+            logger.info("SePay IPN confirmed order %s successfully", order_inv)
+            response.status_code = status.HTTP_200_OK
+            return {
+                "success": True,
+                "message": "Order confirmed successfully",
+                "order_code": transaction.order_code,
+            }
+
+        elif notification_type == "TRANSACTION_VOID":
+            transaction.status = PaymentStatus.FAILED
+            transaction.updated_at = datetime.now(timezone.utc)
+            await db.commit()
+            logger.info("SePay IPN voided order %s", order_inv)
+            return {"success": True, "message": "Transaction voided"}
+
+        return {"success": True, "message": f"Unhandled notification_type {notification_type}"}
+
+    # ------------------------------------------------------------------
+    # Fallback: Bank balance webhook format (content + transferAmount)
+    # ------------------------------------------------------------------
     content = payload.get("content", "") or ""
     order_inv = payload.get("order_invoice_number") or payload.get("code")
     transfer_amount = payload.get("transferAmount") or payload.get("accumulated") or 0
@@ -305,14 +425,12 @@ async def sepay_webhook_handler(
     extracted_code = order_inv or sepay_service.extract_order_code_from_content(content)
 
     if not extracted_code:
-        logger.warning("Could not extract order_code from SePay webhook content: '%s'", content)
-        # Still return 200 to SePay so it does not retry indefinitely for unrecognised memos
+        logger.warning("Could not extract order_code from transfer content: '%s'", content)
         return {
             "success": False,
             "message": "Order code not recognized in transfer description",
         }
 
-    # 3. Match PaymentTransaction in database
     stmt = (
         select(PaymentTransaction)
         .options(selectinload(PaymentTransaction.user))
@@ -325,7 +443,6 @@ async def sepay_webhook_handler(
     transaction = res.scalar_one_or_none()
 
     if not transaction:
-        # Fallback: search if order_code is substring of content
         fuzzy_stmt = select(PaymentTransaction).where(
             func.position(PaymentTransaction.order_code, content) > 0
         )
@@ -339,39 +456,24 @@ async def sepay_webhook_handler(
             "message": f"Transaction not found for order code: {extracted_code}",
         }
 
-    # 4. Idempotency Check
     if transaction.status == PaymentStatus.SUCCESS:
-        logger.info("Order %s already processed with SUCCESS. Acknowledging webhook.", transaction.order_code)
+        logger.info("Order %s already processed with SUCCESS.", transaction.order_code)
         return {
             "success": True,
             "message": "Transaction was already completed previously.",
         }
 
-    # 5. Verify transfer amount (with tolerance for demo/testing)
-    if transfer_amount and int(transfer_amount) < transaction.amount:
-        logger.warning(
-            "Transfer amount %s is less than required %s for order %s",
-            transfer_amount,
-            transaction.amount,
-            transaction.order_code,
-        )
-
-    # 6. Mark Transaction as SUCCESS
     transaction.status = PaymentStatus.SUCCESS
     transaction.sepay_transaction_id = ref_code
     transaction.updated_at = datetime.now(timezone.utc)
 
-    # 7. Upgrade User Subscription if SUBSCRIPTION payment
     if transaction.payment_type == PaymentType.SUBSCRIPTION and transaction.user_id:
-        # Load user billings
         bill_stmt = select(Billings).where(Billings.user_id == transaction.user_id)
         bill_res = await db.execute(bill_stmt)
         billing = bill_res.scalar_one_or_none()
 
-        # Determine target plan
         target_plan = Plans.PRO
         credits_to_add = PLAN_CREDITS[Plans.PRO]
-
         if "ULTIMATE" in transaction.order_code:
             target_plan = Plans.ULTIMATE
             credits_to_add = PLAN_CREDITS[Plans.ULTIMATE]
@@ -379,12 +481,6 @@ async def sepay_webhook_handler(
         if billing:
             billing.plan = target_plan
             billing.credits = max(billing.credits, 0) + credits_to_add
-            logger.info(
-                "Upgraded user %s billing to %s with +%s credits",
-                transaction.user_id,
-                target_plan.value,
-                credits_to_add,
-            )
         else:
             new_billing = Billings(
                 id=uuid.uuid4(),
@@ -393,12 +489,6 @@ async def sepay_webhook_handler(
                 credits=credits_to_add,
             )
             db.add(new_billing)
-            logger.info(
-                "Created new billing for user %s with plan %s and %s credits",
-                transaction.user_id,
-                target_plan.value,
-                credits_to_add,
-            )
 
     await db.commit()
     logger.info("SePay Webhook processed successfully for order: %s", transaction.order_code)
@@ -409,6 +499,56 @@ async def sepay_webhook_handler(
         "message": "Transaction processed successfully",
         "order_code": transaction.order_code,
     }
+
+
+# =========================================================================
+# Step 7.4: Cancel Order API (CANCLEORDER.md)
+# =========================================================================
+
+@router.post(
+    "/sepay/cancel-order",
+    response_model=CancelOrderResponse,
+    summary="Cancel SePay Pending Order",
+    description="Cancel an unpaid or pending order via SePay Payment Gateway API (CANCLEORDER.md).",
+)
+async def cancel_sepay_order(
+    payload: CancelOrderRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    inv = payload.order_invoice_number.strip()
+    stmt = select(PaymentTransaction).where(
+        (PaymentTransaction.order_code == inv) & (PaymentTransaction.user_id == current_user.id)
+    )
+    res = await db.execute(stmt)
+    transaction = res.scalar_one_or_none()
+
+    if not transaction:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order '{inv}' not found for current user.",
+        )
+
+    if transaction.status == PaymentStatus.SUCCESS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot cancel an order that has already been captured and paid.",
+        )
+
+    # Call SePay Cancel Order API
+    sepay_res = await sepay_service.cancel_order(order_invoice_number=inv)
+    msg = sepay_res.get("message", "Đã hủy đơn hàng thành công")
+
+    transaction.status = PaymentStatus.FAILED
+    transaction.updated_at = datetime.now(timezone.utc)
+    await db.commit()
+
+    return CancelOrderResponse(
+        success=True,
+        message=msg,
+        order_invoice_number=inv,
+        status="CANCELLED",
+    )
 
 
 # =========================================================================

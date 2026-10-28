@@ -61,7 +61,7 @@ async def test_sepay_payments_and_webhook_lifecycle():
         assert data["plan"] == "PRO"
         assert "SUB_PRO_" in data["order_code"]
         assert "qr.sepay.vn" in data["qr_url"]
-        assert data["checkout_url"] == sepay_service.base_checkout_url
+        assert data["checkout_url"] == sepay_service.checkout_init_url
         assert "signature" in data["payment_fields"]
         order_code = data["order_code"]
 
@@ -73,42 +73,49 @@ async def test_sepay_payments_and_webhook_lifecycle():
         assert status_data["status"] == "PENDING"
         assert status_data["amount"] == 350000
 
-        # 4. Test SePay Webhook reconciliation
-        webhook_payload = {
-            "id": 9991234,
-            "gateway": "MBBank",
-            "transactionDate": "2026-10-26 15:30:00",
-            "accountNumber": "0333888999",
-            "content": f"{order_code} chuyen tien goi PRO",
-            "transferAmount": 350000,
-            "referenceCode": "MBFT2026102601",
+        # 4. Test SePay Payment Gateway IPN (IPN.md specification)
+        ipn_payload = {
+            "timestamp": 1757058220,
+            "notification_type": "ORDER_PAID",
+            "order": {
+                "id": "e2c195be-c721-47eb-b323-99ab24e52d85",
+                "order_id": "NPSETVI00101000042R",
+                "order_status": "CAPTURED",
+                "order_currency": "VND",
+                "order_amount": "350000.00",
+                "order_invoice_number": order_code,
+                "order_description": "Upgrade to PRO",
+            },
+            "transaction": {
+                "id": "384c66dd-41e6-4316-a544-b4141682595c",
+                "payment_method": "BANK_TRANSFER",
+                "transaction_id": "SPTX_998877",
+                "transaction_type": "PAYMENT",
+                "transaction_status": "APPROVED",
+                "transaction_amount": "350000",
+                "transaction_currency": "VND",
+            },
+            "customer": {
+                "customer_id": str(user_id),
+            },
         }
-        raw_bytes = json.dumps(webhook_payload).encode("utf-8")
-        webhook_sig = base64.b64encode(
-            hmac.new(
-                sepay_service.secret_key.encode("utf-8"),
-                raw_bytes,
-                hashlib.sha256,
-            ).digest()
-        ).decode("utf-8")
 
-        webhook_res = await ac.post(
-            "/api/v1/payments/sepay/webhook",
-            content=raw_bytes,
+        ipn_res = await ac.post(
+            "/api/v1/payments/sepay/ipn",
+            json=ipn_payload,
             headers={
+                "X-Secret-Key": sepay_service.secret_key,
                 "Content-Type": "application/json",
-                "x-sepay-signature": webhook_sig,
             },
         )
-        assert webhook_res.status_code == 200, webhook_res.text
-        webhook_data = webhook_res.json()
-        assert webhook_data["success"] is True
+        assert ipn_res.status_code == 200, ipn_res.text
+        assert ipn_res.json()["success"] is True
 
         # 5. Check status is now SUCCESS
         status_res2 = await ac.get(f"/api/v1/payments/check-status/{order_code}")
         assert status_res2.status_code == 200
         assert status_res2.json()["status"] == "SUCCESS"
-        assert status_res2.json()["sepay_transaction_id"] == "MBFT2026102601"
+        assert status_res2.json()["sepay_transaction_id"] == "SPTX_998877"
 
         # 6. Verify User's billing was upgraded to PRO and +500 credits
         async with AsyncSessionLocal() as session:
@@ -118,17 +125,17 @@ async def test_sepay_payments_and_webhook_lifecycle():
             assert updated_billing.plan == Plans.PRO
             assert updated_billing.credits == 600  # 100 initial + 500 from PRO
 
-        # 7. Test Idempotency (calling webhook again with same ref returns success without double-crediting)
-        webhook_res2 = await ac.post(
-            "/api/v1/payments/sepay/webhook",
-            content=raw_bytes,
+        # 7. Test Idempotency (calling IPN again with same invoice returns success without double-crediting)
+        ipn_res2 = await ac.post(
+            "/api/v1/payments/sepay/ipn",
+            json=ipn_payload,
             headers={
+                "X-Secret-Key": sepay_service.secret_key,
                 "Content-Type": "application/json",
-                "x-sepay-signature": webhook_sig,
             },
         )
-        assert webhook_res2.status_code == 200
-        assert webhook_res2.json()["success"] is True
+        assert ipn_res2.status_code == 200
+        assert ipn_res2.json()["success"] is True
 
         async with AsyncSessionLocal() as session:
             bill_stmt = select(Billings).where(Billings.user_id == user_id)
@@ -196,3 +203,22 @@ async def test_sepay_payments_and_webhook_lifecycle():
         assert conf_updated["is_configured"] is True
         assert conf_updated["sepay_merchant_id"] == "MERCHANT_USER_123"
         assert conf_updated["sepay_secret_key_masked"].endswith("4321")
+
+        # 11. Test Cancel Order API (CANCLEORDER.md)
+        create_to_cancel = await ac.post(
+            "/api/v1/payments/sepay/create-payment",
+            json={"payment_type": "SUBSCRIPTION", "plan": "PRO"},
+            headers=auth_headers,
+        )
+        assert create_to_cancel.status_code == 200
+        cancel_code = create_to_cancel.json()["order_code"]
+
+        cancel_res = await ac.post(
+            "/api/v1/payments/sepay/cancel-order",
+            json={"order_invoice_number": cancel_code},
+            headers=auth_headers,
+        )
+        assert cancel_res.status_code == 200
+        assert cancel_res.json()["success"] is True
+        assert cancel_res.json()["status"] == "CANCELLED"
+

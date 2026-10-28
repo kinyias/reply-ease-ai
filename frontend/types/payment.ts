@@ -23,9 +23,17 @@ export interface PaymentResponse {
   account_name: string;
   content: string;
   checkout_url: string;
+  direct_checkout_url?: string;
   payment_fields: Record<string, any>;
   plan?: PaymentPlan;
   created_at: string;
+}
+
+export interface CancelOrderResponse {
+  success: boolean;
+  message: string;
+  order_invoice_number: string;
+  status?: string;
 }
 
 export interface PaymentStatusResponse {

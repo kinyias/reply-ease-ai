@@ -88,6 +88,47 @@ export function useBilling() {
     return () => clearInterval(interval);
   }, [isModalOpen, activePayment, paymentStatus, queryClient]);
 
+  // Check URL query parameters upon redirect return from SePay Checkout
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const returnStatus = params.get("status");
+
+    if (returnStatus) {
+      if (returnStatus === "success") {
+        queryClient.invalidateQueries({ queryKey: authKeys.me() });
+        queryClient.invalidateQueries({ queryKey: ["billing-transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["domains"] });
+        toast.success("Thanh toán thành công qua SePay Gateway! Gói cước đã được kích hoạt.");
+      } else if (returnStatus === "cancel") {
+        toast.info("Đơn hàng thanh toán SePay đã được hủy.");
+      } else if (returnStatus === "error") {
+        toast.error("Thanh toán SePay không thành công hoặc xảy ra lỗi.");
+      }
+
+      // Clean up URL query parameters without reloading
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }, [queryClient]);
+
+  // Cancel payment mutation (CANCLEORDER.md)
+  const cancelPaymentMutation = useMutation({
+    mutationFn: (orderCode: string) => paymentService.cancelOrder(orderCode),
+    onSuccess: (data) => {
+      setPaymentStatus("FAILED");
+      setIsModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["billing-transactions"] });
+      toast.info(data.message || "Đã hủy đơn hàng thành công.");
+    },
+    onError: (err: any) => {
+      const msg = err.response?.data?.detail || "Không thể hủy đơn hàng.";
+      toast.error(msg);
+      setIsModalOpen(false);
+    },
+  });
+
   const handleUpgrade = (plan: PaymentPlan) => {
     if (plan === "STANDARD") return;
     createPaymentMutation.mutate(plan);
@@ -96,6 +137,14 @@ export function useBilling() {
   const handleSimulatePayment = () => {
     if (!activePayment?.order_code) return;
     simulatePaymentMutation.mutate(activePayment.order_code);
+  };
+
+  const handleCancelPayment = () => {
+    if (!activePayment?.order_code) {
+      setIsModalOpen(false);
+      return;
+    }
+    cancelPaymentMutation.mutate(activePayment.order_code);
   };
 
   const handleCloseModal = () => {
@@ -116,8 +165,10 @@ export function useBilling() {
     paymentStatus,
     isCreatingPayment: createPaymentMutation.isPending,
     isSimulatingPayment: simulatePaymentMutation.isPending,
+    isCancellingPayment: cancelPaymentMutation.isPending,
     upgradeToPlan: handleUpgrade,
     simulatePayment: handleSimulatePayment,
+    cancelPayment: handleCancelPayment,
     closeModal: handleCloseModal,
   };
 }
