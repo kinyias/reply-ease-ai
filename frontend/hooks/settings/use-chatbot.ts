@@ -25,6 +25,10 @@ export const CHATBOT_COLOR_PRESETS = [
 
 export const CHATBOT_AVATAR_PRESETS = [
   {
+    name: "ReplyEase Mascot",
+    url: "/icons/logo.png",
+  },
+  {
     name: "Autonomous AI",
     url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=128&auto=format&fit=crop&q=80",
   },

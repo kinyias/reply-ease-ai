@@ -14,6 +14,8 @@ import {
   Database,
   CreditCard,
   Code2,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 
 interface Scenario {
@@ -157,8 +159,15 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between motion-target">
           {/* Wordmark */}
           <Link href="/" className="inline-flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-[#c2410c] text-white">
-              <Bot className="size-5" />
+            <div className="flex size-9 items-center justify-center rounded-lg overflow-hidden bg-slate-100 border border-slate-200/60 shadow-xs shrink-0">
+              <Image
+                src="/icons/logo.png"
+                alt="ReplyEase AI"
+                width={36}
+                height={36}
+                className="size-full object-contain"
+                priority
+              />
             </div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-xl tracking-tight text-[#0f172a]">
@@ -952,98 +961,155 @@ export default function HomePage() {
         <section id="pricing" className="py-20 md:py-28 bg-[#ffffff]">
           <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-3xl mb-14 motion-target">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#f1f5f9] px-3 py-1 text-xs font-semibold text-[#c2410c] mb-3">
+                <Sparkles className="size-3.5" />
+                <span>Bảng giá & Hạn mức tính năng</span>
+              </div>
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                Transparent Pricing
+                Transparent Pricing · Bảng giá minh bạch
               </h2>
-              <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                Invest flexibly according to your scale and order volume. No hidden fees; upgrade or cancel anytime.
+              <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[55ch]">
+                Lựa chọn gói cước phù hợp với quy mô bán hàng của bạn. Tích hợp thanh toán SePay VietQR tức thời, bộ nhớ Pinecone RAG chuyên sâu, không phí ẩn và hỗ trợ nâng cấp bất cứ lúc nào.
               </p>
             </div>
 
             {/* Desktop Table Comparison */}
-            <div className="hidden lg:block overflow-hidden rounded-xl motion-target">
+            <div className="hidden lg:block overflow-hidden rounded-xl border border-slate-200/80 motion-target shadow-xs">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="bg-[#f8f9fb]">
-                    <th className="p-6 text-base font-semibold text-[#0f172a] w-1/4">
-                      Comparison Features
+                  <tr className="bg-[#f8f9fb] border-b border-slate-200/80">
+                    <th className="p-6 text-base font-semibold text-[#0f172a] w-1/4 align-bottom">
+                      Tính năng so sánh
                     </th>
-                    <th className="p-6 w-1/4">
-                      <div className="text-lg font-semibold text-[#0f172a]">Starter</div>
-                      <div className="text-2xl font-bold text-[#0f172a] mt-1">490,000 VND</div>
-                      <div className="text-sm text-[#64748b]">per month</div>
-                    </th>
-                    <th className="p-6 w-1/4 bg-[#f1f5f9]">
-                      <div className="text-lg font-semibold text-[#0f172a]">
-                        Growth (Recommended)
+                    <th className="p-6 w-1/4 align-top">
+                      <div className="text-lg font-bold text-[#0f172a]">Standard</div>
+                      <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
+                        Dành cho cá nhân trải nghiệm & thử nghiệm AI
                       </div>
-                      <div className="text-2xl font-bold text-[#c2410c] mt-1">1,490,000 VND</div>
-                      <div className="text-sm text-[#64748b]">per month</div>
+                      <div className="text-2xl font-extrabold text-[#0f172a] mt-2">0 VND</div>
+                      <div className="text-xs text-[#64748b] font-medium">Miễn phí trọn đời</div>
                     </th>
-                    <th className="p-6 w-1/4">
-                      <div className="text-lg font-semibold text-[#0f172a]">Enterprise</div>
-                      <div className="text-2xl font-bold text-[#0f172a] mt-1">3,990,000 VND</div>
-                      <div className="text-sm text-[#64748b]">per month</div>
+                    <th className="p-6 w-1/4 bg-[#f1f5f9] border-x border-slate-200/80 relative align-top">
+                      <div className="absolute top-3 right-5">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2.5 py-0.5 text-[11px] font-bold text-[#c2410c]">
+                          <Sparkles className="size-3" />
+                          Phổ biến nhất
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-[#0f172a]">Pro</div>
+                      <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
+                        Lựa chọn tốt nhất cho doanh nghiệp vừa & nhỏ
+                      </div>
+                      <div className="text-2xl font-extrabold text-[#c2410c] mt-2">350.000 VND</div>
+                      <div className="text-xs text-[#64748b] font-medium">mỗi tháng (per month)</div>
+                    </th>
+                    <th className="p-6 w-1/4 align-top">
+                      <div className="flex items-center justify-between">
+                        <div className="text-lg font-bold text-[#0f172a]">Ultimate</div>
+                        <span className="inline-flex items-center gap-1 rounded bg-[#e2e8f0] px-2 py-0.5 text-[11px] font-bold text-[#334155]">
+                          Tối ưu nhất
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
+                        Doanh nghiệp lớn cần tự động hoá tối đa quy mô
+                      </div>
+                      <div className="text-2xl font-extrabold text-[#0f172a] mt-2">850.000 VND</div>
+                      <div className="text-xs text-[#64748b] font-medium">mỗi tháng (per month)</div>
                     </th>
                   </tr>
                 </thead>
-                <tbody className="text-base">
+                <tbody className="text-sm divide-y divide-slate-200/70">
                   <tr>
-                    <td className="p-5 font-medium text-[#0f172a]">Monthly AI Conversations</td>
-                    <td className="p-5 text-[#475569]">1,000 sessions</td>
-                    <td className="p-5 font-semibold text-[#0f172a] bg-[#f1f5f9]/60">
-                      5,000 sessions
+                    <td className="p-5 font-semibold text-[#0f172a]">Hạn mức Website / Domain</td>
+                    <td className="p-5 text-[#475569]">
+                      <span className="font-semibold text-[#0f172a]">1 Website</span> kết nối
                     </td>
-                    <td className="p-5 text-[#475569]">Unlimited</td>
+                    <td className="p-5 bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      <span className="font-bold text-[#0f172a]">5 Websites</span> kết nối
+                    </td>
+                    <td className="p-5 text-[#475569]">
+                      <span className="font-bold text-[#0f172a]">10 Websites</span> kết nối
+                    </td>
                   </tr>
-                  <tr className="bg-[#f8f9fb]">
-                    <td className="p-5 font-medium text-[#0f172a]">SePay VietQR Integration</td>
-                    <td className="p-5 text-[#475569]">1 bank account</td>
-                    <td className="p-5 font-semibold text-[#0f172a] bg-[#f1f5f9]/60">
-                      3 bank accounts
+                  <tr className="bg-[#f8f9fb]/60">
+                    <td className="p-5 font-semibold text-[#0f172a]">AI Chat Credits</td>
+                    <td className="p-5 text-[#475569]">
+                      <span className="font-semibold text-[#0f172a]">100 credits</span> khởi đầu
                     </td>
-                    <td className="p-5 text-[#475569]">Unlimited</td>
-                  </tr>
-                  <tr>
-                    <td className="p-5 font-medium text-[#0f172a]">RAG Knowledge Documents</td>
-                    <td className="p-5 text-[#475569]">Up to 10 documents</td>
-                    <td className="p-5 font-semibold text-[#0f172a] bg-[#f1f5f9]/60">
-                      Up to 50 documents & URLs
+                    <td className="p-5 bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      <span className="font-bold text-[#c2410c]">500 credits</span> hàng tháng
                     </td>
-                    <td className="p-5 text-[#475569]">Full organization repository</td>
-                  </tr>
-                  <tr className="bg-[#f8f9fb]">
-                    <td className="p-5 font-medium text-[#0f172a]">1-Touch Staff Handover</td>
-                    <td className="p-5 text-[#475569]">Basic notifications</td>
-                    <td className="p-5 font-semibold text-[#0f172a] bg-[#f1f5f9]/60">
-                      Full via Telegram/Zalo
+                    <td className="p-5 text-[#475569]">
+                      <span className="font-bold text-[#0f172a]">5.000 credits</span> dung lượng lớn
                     </td>
-                    <td className="p-5 text-[#475569]">Advanced custom webhooks</td>
                   </tr>
                   <tr>
-                    <td className="p-5 font-medium text-[#0f172a]">Technical Support SLA</td>
-                    <td className="p-5 text-[#475569]">Within 24 hours</td>
-                    <td className="p-5 font-semibold text-[#0f172a] bg-[#f1f5f9]/60">
-                      Priority within 2 hours
+                    <td className="p-5 font-semibold text-[#0f172a]">Huấn luyện AI & Pinecone RAG</td>
+                    <td className="p-5 text-[#475569]">Chatbot AI trả lời tự động cơ bản</td>
+                    <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      AI Sales Bot + Pinecone Vector RAG, huấn luyện FAQ HelpDesk chuyên sâu
                     </td>
-                    <td className="p-5 text-[#475569]">Dedicated 24/7 technical manager</td>
+                    <td className="p-5 text-[#475569]">
+                      Pinecone Vector RAG không giới hạn tài liệu & catalog sản phẩm
+                    </td>
                   </tr>
-                  <tr className="bg-[#f8f9fb]">
+                  <tr className="bg-[#f8f9fb]/60">
+                    <td className="p-5 font-semibold text-[#0f172a]">Thanh toán SePay VietQR</td>
+                    <td className="p-5 text-[#475569]">Tự động tạo VietQR đơn hàng (Đối soát thủ công)</td>
+                    <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      Cổng SePay VietQR tự động đối soát & xác nhận đơn tức thì
+                    </td>
+                    <td className="p-5 text-[#475569]">
+                      Tích hợp SePay Connect tài khoản riêng của Shop, nhận tiền trực tiếp
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-5 font-semibold text-[#0f172a]">Live Messenger & Human Takeover</td>
+                    <td className="p-5 text-[#475569]">Thu thập email khách tiềm năng</td>
+                    <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      Live Messenger & Chuyển giao nhân viên 1 chạm tức thì
+                    </td>
+                    <td className="p-5 text-[#475569]">
+                      Chuyển tiếp đa kênh khẩn cấp & Cảnh báo tức thì
+                    </td>
+                  </tr>
+                  <tr className="bg-[#f8f9fb]/60">
+                    <td className="p-5 font-semibold text-[#0f172a]">Bán hàng & Tiếp thị</td>
+                    <td className="p-5 text-[#475569]">Form thu thập khách tiềm năng</td>
+                    <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      Quản lý đơn hàng & Đặt lịch hẹn khách hàng
+                    </td>
+                    <td className="p-5 text-[#475569]">
+                      Email Marketing hàng loạt tới Lead + Báo cáo Pipeline tài chính
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-5 font-semibold text-[#0f172a]">Tích hợp & Hỗ trợ kỹ thuật</td>
+                    <td className="p-5 text-[#475569]">Mã nhúng iframe widget, hỗ trợ cộng đồng</td>
+                    <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
+                      Nhúng đa nền tảng, hỗ trợ ưu tiên qua email
+                    </td>
+                    <td className="p-5 text-[#475569]">
+                      Hỗ trợ kỹ thuật 24/7 & Đồng hành onboarding trực tiếp 1-1
+                    </td>
+                  </tr>
+                  <tr className="bg-[#f8f9fb] border-t border-slate-200/80">
                     <td className="p-6"></td>
                     <td className="p-6">
                       <Link
                         href="/auth/sign-up"
                         className="inline-flex w-full h-11 items-center justify-center rounded-md bg-[#0f172a] text-white text-sm font-medium hover:bg-[#334155] transition-colors"
                       >
-                        Choose Starter
+                        Bắt đầu miễn phí
                       </Link>
                     </td>
-                    <td className="p-6 bg-[#f1f5f9]">
+                    <td className="p-6 bg-[#f1f5f9] border-x border-slate-200/80">
                       <Link
                         href="/auth/sign-up"
-                        className="inline-flex w-full h-11 items-center justify-center rounded-md bg-[#c2410c] text-white text-sm font-medium hover:bg-[#9a3412] transition-colors"
+                        className="inline-flex w-full h-11 items-center justify-center gap-1.5 rounded-md bg-[#c2410c] text-white text-sm font-semibold hover:bg-[#9a3412] transition-colors shadow-sm"
                       >
-                        Start Pro Trial
+                        <Zap className="size-4 fill-current" />
+                        <span>Nâng cấp gói Pro</span>
                       </Link>
                     </td>
                     <td className="p-6">
@@ -1051,7 +1117,7 @@ export default function HomePage() {
                         href="/auth/sign-up"
                         className="inline-flex w-full h-11 items-center justify-center rounded-md bg-[#0f172a] text-white text-sm font-medium hover:bg-[#334155] transition-colors"
                       >
-                        Contact Enterprise
+                        Nâng cấp Ultimate
                       </Link>
                     </td>
                   </tr>
@@ -1059,64 +1125,134 @@ export default function HomePage() {
               </table>
             </div>
 
-            {/* Mobile Cards Stack without check icon tell */}
+            {/* Mobile Cards Stack */}
             <div className="lg:hidden space-y-6 motion-target">
               {[
                 {
-                  name: "Starter",
-                  price: "490,000 VND",
-                  period: "month",
-                  conversations: "1,000 sessions per month",
-                  bank: "1 bank account",
-                  rag: "Up to 10 documents",
+                  id: "STANDARD",
+                  name: "Standard",
+                  tagline: "Dành cho cá nhân trải nghiệm và thử nghiệm AI Chatbot.",
+                  price: "0 VND",
+                  period: "Miễn phí trọn đời",
+                  domains: "1 Website / Domain kết nối",
+                  credits: "100 AI Chat Credits khởi đầu",
+                  features: [
+                    "1 Website / Domain kết nối",
+                    "100 AI Chat Credits khởi đầu",
+                    "Chatbot AI trả lời tự động",
+                    "Thu thập email khách tiềm năng",
+                    "Tự động tạo VietQR đơn hàng",
+                    "Đối soát thanh toán thủ công",
+                    "Mã nhúng iframe widget đơn giản",
+                    "Hỗ trợ qua cộng đồng",
+                  ],
+                  cta: "Bắt đầu miễn phí",
                   recommended: false,
                 },
                 {
-                  name: "Growth (Recommended)",
-                  price: "1,490,000 VND",
-                  period: "month",
-                  conversations: "5,000 sessions per month",
-                  bank: "3 bank accounts",
-                  rag: "Up to 50 documents & URLs",
+                  id: "PRO",
+                  name: "Pro",
+                  badge: "Phổ biến nhất",
+                  tagline: "Lựa chọn tốt nhất cho doanh nghiệp vừa và nhỏ bán hàng tự động.",
+                  price: "350.000 VND",
+                  period: "VNĐ / tháng",
+                  domains: "5 Websites / Domains kết nối",
+                  credits: "500 AI Chat Credits hàng tháng",
+                  features: [
+                    "5 Websites / Domains kết nối",
+                    "500 AI Chat Credits hàng tháng",
+                    "AI Sales Bot + Pinecone Vector RAG",
+                    "Huấn luyện FAQ HelpDesk chuyên sâu",
+                    "Cổng thanh toán SePay VietQR tự động",
+                    "Live Messenger & Human takeover tức thì",
+                    "Quản lý đơn hàng & Đặt lịch hẹn",
+                    "Hỗ trợ kỹ thuật ưu tiên qua email",
+                  ],
+                  cta: "Nâng cấp lên Pro",
                   recommended: true,
                 },
                 {
-                  name: "Enterprise",
-                  price: "3,990,000 VND",
-                  period: "month",
-                  conversations: "Unlimited sessions",
-                  bank: "Unlimited bank accounts",
-                  rag: "Full organization repository",
+                  id: "ULTIMATE",
+                  name: "Ultimate",
+                  badge: "Tối ưu nhất",
+                  tagline: "Dành cho các doanh nghiệp lớn cần tự động hoá tối đa quy mô.",
+                  price: "850.000 VND",
+                  period: "VNĐ / tháng",
+                  domains: "10 Websites / Domains kết nối",
+                  credits: "5.000 AI Chat Credits dung lượng lớn",
+                  features: [
+                    "10 Websites / Domains kết nối",
+                    "5.000 AI Chat Credits dung lượng lớn",
+                    "Pinecone Vector RAG không giới hạn tài liệu",
+                    "Tích hợp SePay Connect tài khoản riêng của Shop",
+                    "Nhận tiền bán hàng trực tiếp về tài khoản ngân hàng",
+                    "Email Marketing hàng loạt tới Lead",
+                    "Báo cáo thống kê tài chính và Pipeline",
+                    "Hỗ trợ 24/7 & Hỗ trợ kỹ thuật trực tiếp",
+                  ],
+                  cta: "Nâng cấp Ultimate",
                   recommended: false,
                 },
               ].map((tier, idx) => (
                 <div
                   key={idx}
-                  className={`p-6 rounded-xl ${
+                  className={`p-6 rounded-xl border transition-all ${
                     tier.recommended
-                      ? "bg-[#f1f5f9]"
-                      : "bg-[#f8f9fb]"
+                      ? "bg-[#f8fafc] border-[#c2410c] shadow-md relative"
+                      : "bg-[#f8f9fb] border-slate-200/80"
                   }`}
                 >
-                  <div className="text-lg font-semibold text-[#0f172a]">{tier.name}</div>
-                  <div className="text-2xl font-bold text-[#0f172a] mt-1">
-                    {tier.price}{" "}
-                    <span className="text-sm font-normal text-[#64748b]">/ {tier.period}</span>
+                  {tier.badge && (
+                    <div className="mb-3">
+                      <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2.5 py-0.5 text-xs font-bold text-[#c2410c]">
+                        <Sparkles className="size-3" />
+                        {tier.badge}
+                      </span>
+                    </div>
+                  )}
+                  <div className="text-xl font-bold text-[#0f172a]">{tier.name}</div>
+                  <p className="text-xs text-[#64748b] mt-1">{tier.tagline}</p>
+
+                  <div className="mt-4 pb-4 border-b border-slate-200/80">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold text-[#0f172a]">
+                        {tier.price}
+                      </span>
+                      <span className="text-xs text-[#64748b] font-medium">
+                        / {tier.period}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-xs text-[#475569] flex flex-wrap gap-x-3 gap-y-1">
+                      <span>Hạn mức: <strong className="text-[#0f172a]">{tier.domains}</strong></span>
+                      <span>•</span>
+                      <span>Credits: <strong className="text-[#0f172a]">{tier.credits}</strong></span>
+                    </div>
                   </div>
-                  <div className="mt-4 space-y-2 text-sm text-[#475569]">
-                    <div>{tier.conversations}</div>
-                    <div>{tier.bank}</div>
-                    <div>{tier.rag}</div>
+
+                  <div className="mt-5 space-y-2.5">
+                    <div className="text-xs font-semibold text-[#0f172a] uppercase tracking-wider">
+                      Tính năng bao gồm:
+                    </div>
+                    <ul className="space-y-2 text-xs text-[#475569]">
+                      {tier.features.map((feature, fIdx) => (
+                        <li key={fIdx} className="flex items-start gap-2">
+                          <Check className="size-4 text-[#15803d] shrink-0 mt-0.5" />
+                          <span className="leading-snug">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+
                   <Link
                     href="/auth/sign-up"
-                    className={`mt-6 inline-flex w-full h-11 items-center justify-center rounded-md text-sm font-medium transition-colors ${
+                    className={`mt-6 inline-flex w-full h-11 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors ${
                       tier.recommended
-                        ? "bg-[#c2410c] text-white hover:bg-[#9a3412]"
+                        ? "bg-[#c2410c] text-white hover:bg-[#9a3412] shadow-sm"
                         : "bg-[#0f172a] text-white hover:bg-[#334155]"
                     }`}
                   >
-                    Choose {tier.name}
+                    {tier.recommended && <Zap className="size-3.5 fill-current" />}
+                    <span>{tier.cta}</span>
                   </Link>
                 </div>
               ))}
@@ -1159,7 +1295,7 @@ export default function HomePage() {
                   },
                   {
                     q: "Can I test the platform for free before committing to a paid plan?",
-                    a: "Yes. We provide a full-featured 14-day free trial with no credit card required. After the trial, you can select the plan that fits your volume or discontinue at any time.",
+                    a: "Yes. You can start immediately with our Standard Free plan (1 website, 100 AI Chat credits) with no credit card required. When your sales scale up, upgrade anytime to Pro (350,000 VND/mo for 5 domains & 500 credits) or Ultimate (850,000 VND/mo for 10 domains & 5,000 credits).",
                   },
                   {
                     q: "How long does it take to embed ReplyEase AI into an active website?",
@@ -1315,8 +1451,14 @@ export default function HomePage() {
             {/* Wordmark Tile (col 1–8) */}
             <div className="lg:col-span-8 p-8 rounded-xl bg-[#0f172a] text-white flex flex-col justify-between min-h-[160px] motion-target">
               <div className="flex items-center gap-2.5">
-                <div className="flex size-7 items-center justify-center rounded bg-[#c2410c] text-white">
-                  <Bot className="size-4" />
+                <div className="flex size-7 items-center justify-center rounded-md overflow-hidden bg-white/10 shrink-0">
+                  <Image
+                    src="/icons/logo.png"
+                    alt="ReplyEase AI"
+                    width={28}
+                    height={28}
+                    className="size-full object-contain"
+                  />
                 </div>
                 <span className="text-sm font-semibold text-[#94a3b8]">
                   ReplyEase AI Enterprise

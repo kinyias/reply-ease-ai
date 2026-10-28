@@ -35,9 +35,7 @@ export function ChatbotPreview({
 
   const headerBg = preview.background || "#f25f22";
   const headerText = preview.text_color || "#ffffff";
-  const avatarUrl =
-    preview.icon ||
-    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=128&auto=format&fit=crop&q=80";
+  const avatarUrl = preview.icon || "/icons/logo.png";
   const welcomeText =
     preview.welcome_message || "Hey there, have a question? Text us here";
   const showHelpdesk = Boolean(preview.helpdesk);

@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Bot, Check, CheckCircle2, CornerDownRight, Globe, Shield, Zap } from "lucide-react"
 
 export function AuthShowcase() {
@@ -83,7 +84,15 @@ export function AuthShowcase() {
             <div className="rounded-lg border border-[#e2e8f0] bg-white p-3 space-y-2 shadow-2xs">
               <div className="flex items-center justify-between text-[11px] text-[#64748b]">
                 <div className="flex items-center gap-1.5 text-[#c2410c] font-medium">
-                  <Bot className="size-3.5" />
+                  <div className="size-4 rounded overflow-hidden flex items-center justify-center shrink-0">
+                    <Image
+                      src="/icons/logo.png"
+                      alt="ReplyEase AI Logo"
+                      width={16}
+                      height={16}
+                      className="size-full object-contain"
+                    />
+                  </div>
                   <span>ReplyEase AI Assistant</span>
                 </div>
                 <span className="font-mono text-xs text-[#475569]">14:22:05 (240ms)</span>

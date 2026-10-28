@@ -3,6 +3,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -122,8 +123,15 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
         <div className="flex items-center justify-between pb-2">
           {!isCollapsed ? (
             <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-xs">
-                <SparklesIcon className="size-4" />
+              <div className="size-8 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 shadow-xs shrink-0">
+                <Image
+                  src="/icons/logo.png"
+                  alt="ReplyEase AI"
+                  width={32}
+                  height={32}
+                  className="size-full object-contain"
+                  priority
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold tracking-tight text-sidebar-foreground">
@@ -135,8 +143,15 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
               </div>
             </Link>
           ) : (
-            <div className="mx-auto size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-xs">
-              <SparklesIcon className="size-4" />
+            <div className="mx-auto size-8 rounded-lg overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800 shadow-xs">
+              <Image
+                src="/icons/logo.png"
+                alt="ReplyEase AI"
+                width={32}
+                height={32}
+                className="size-full object-contain"
+                priority
+              />
             </div>
           )}
 

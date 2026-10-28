@@ -19,6 +19,17 @@ export const metadata: Metadata = {
   title: "ReplyEase AI — Autonomous Customer Support & Instant Checkout",
   description:
     "ReplyEase AI powers e-commerce brands to deploy 24/7 conversational customer service, automate inventory checks, and close orders instantly with automated checkout.",
+  icons: {
+    icon: [
+      { url: "/icons/logo.png" },
+      { url: "/icons/logo.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/logo.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: ["/icons/logo.png"],
+    apple: [
+      { url: "/icons/logo.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({

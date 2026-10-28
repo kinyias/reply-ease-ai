@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Bot } from "lucide-react"
+import Image from "next/image"
 
 interface AuthLogoProps {
   className?: string
@@ -11,9 +11,15 @@ export function AuthLogo({ className = "" }: AuthLogoProps) {
       href="/"
       className={`inline-flex items-center gap-2.5 transition-opacity hover:opacity-90 ${className}`}
     >
-      {/* Precision Geometric Monogram */}
-      <div className="flex size-9 items-center justify-center rounded-lg bg-[#f25f22] text-white shadow-xs">
-        <Bot className="size-5" />
+      <div className="flex size-9 items-center justify-center rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-xs">
+        <Image
+          src="/icons/logo.png"
+          alt="ReplyEase AI Logo"
+          width={36}
+          height={36}
+          className="size-full object-contain"
+          priority
+        />
       </div>
       <div className="flex flex-col">
         <div className="flex items-center gap-1.5 leading-none">

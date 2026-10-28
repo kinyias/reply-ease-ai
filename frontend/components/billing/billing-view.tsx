@@ -45,7 +45,7 @@ export function BillingView() {
   const maxDomains =
     currentPlan === "ULTIMATE" ? 10 : currentPlan === "PRO" ? 5 : 1;
   const maxCredits =
-    currentPlan === "ULTIMATE" ? 500 : currentPlan === "PRO" ? 50 : 10;
+    currentPlan === "ULTIMATE" ? 5000 : currentPlan === "PRO" ? 500 : 100;
   const domainUsagePercent = Math.min(100, Math.round((domains.length / maxDomains) * 100));
   const creditUsagePercent = Math.min(100, Math.round((currentCredits / maxCredits) * 100));
 

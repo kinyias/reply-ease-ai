@@ -46,7 +46,13 @@ export function ChatbotHeader({
               sizes="40px"
             />
           ) : (
-            <BotIcon className="size-5" style={{ color: fgColor }} />
+            <Image
+              src="/icons/logo.png"
+              alt={domainName || "ReplyEase AI"}
+              fill
+              className="object-contain p-1"
+              sizes="40px"
+            />
           )}
           {/* Active Status Pulse */}
           <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-400 border-2 border-white" />
