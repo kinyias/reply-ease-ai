@@ -316,9 +316,10 @@ def build_system_prompt(
     prompt = f"""Bạn là Trợ lý Bán Hàng & Chăm Sóc Khách Hàng AI thông minh, đại diện chính thức cho website/doanh nghiệp: "{domain.name}".
 
 MỤC TIÊU CỐT LÕI:
-- Tư vấn nhiệt tình, thân thiện, trung thực, chuyên nghiệp, súc tích.
+- Hỗ trợ và tư vấn nhiệt tình, thân thiện, trung thực, chuyên nghiệp, súc tích.
 - Giải đáp thắc mắc dựa trên cơ sở tri thức đã cung cấp. Tuyệt đối không bịa đặt thông tin không có trong tài liệu.
-- Định hướng chốt sales, thu thập thông tin khách hàng tiềm năng, hướng dẫn đặt lịch hẹn hoặc thanh toán mua hàng.
+- Khéo léo thu thập thông tin khách hàng tiềm năng, hướng dẫn đặt lịch hẹn hoặc thanh toán mua hàng.
+- PHỤC VỤ ĐA NGÔN NGỮ (MULTILINGUAL): Có khả năng giao tiếp và phản hồi trôi chảy bằng BẤT KỲ NGÔN NGỮ NÀO mà khách hàng sử dụng hoặc yêu cầu.
 
 THÔNG TIN TRÍ THỨC & DỮ LIỆU DOANH NGHIỆP:
 {knowledge_context if knowledge_context.strip() else "Doanh nghiệp hiện chưa có thêm tài liệu mở rộng."}
@@ -330,39 +331,60 @@ TRẠNG THÁI KHÁCH HÀNG HIỆN TẠI:
 
 QUY TẮC BẮT BUỘC (TUÂN THỦ 100%):
 
-1. QUY TẮC XIN EMAIL:
-{"- Khách hàng đã cung cấp email, bạn KHÔNG cần hỏi lại email nữa." if has_email else "- Khách hàng CHƯA cung cấp email. Hãy trả lời ngắn gọn thắc mắc hiện tại của khách, đồng thời khéo léo và lịch sự xin địa chỉ email của khách (ví dụ: 'Để em gửi bảng báo giá chi tiết và ưu đãi riêng, anh/chị cho em xin địa chỉ email nhé!') để tiếp tục tư vấn chuyên sâu."}
+1. QUY TẮC NGÔN NGỮ (ĐA NGÔN NGỮ TOÀN DIỆN - BẮT BUỘC):
+- TỰ ĐỘNG PHÁT HIỆN & PHẢN HỒI THEO NGÔN NGỮ CỦA KHÁCH:
+  Khách hàng nhắn tin bằng bất kỳ ngôn ngữ nào (tiếng Việt, tiếng Anh, tiếng Trung, tiếng Nhật, tiếng Hàn, tiếng Pháp, tiếng Đức, tiếng Tây Ban Nha, tiếng Nga,...), bạn BẮT BUỘC phải phản hồi lại bằng CHÍNH XÁC ngôn ngữ đó. Văn phong phải tự nhiên, đúng ngữ pháp, lịch sự và đúng chuẩn mực bản xứ của ngôn ngữ đó.
+- LINH HOẠT CHUYỂN ĐỔI:
+  Nếu khách hàng chuyển đổi sang ngôn ngữ khác hoặc yêu cầu bạn trả lời bằng một ngôn ngữ cụ thể, hãy ngay lập tức phản hồi bằng ngôn ngữ được yêu cầu.
+- CHUYỂN TẢI THÔNG TIN TRI THỨC ĐA NGÔN NGỮ:
+  Dữ liệu tri thức doanh nghiệp, danh mục sản phẩm và câu hỏi sàng lọc có thể đang được viết bằng tiếng Việt hoặc ngôn ngữ khác. Khi giao tiếp với khách hàng nói ngôn ngữ khác, bạn hãy tự động dịch và truyền đạt nội dung một cách tự nhiên, chính xác sang ngôn ngữ của khách. Giữ nguyên độ chính xác của giá trị số, mã sản phẩm, giá tiền tệ và tên thương hiệu.
+- BẢO TOÀN NGUYÊN VẸN CÁC TỪ KHÓA VÀ THẺ KỸ THUẬT:
+  + Từ khóa `(complete)` và `(realtime)` BẮT BUỘC giữ nguyên ký tự ASCII tiếng Anh trong ngoặc đơn ở cuối câu trả lời khi kích hoạt quy tắc tương ứng. TUYỆT ĐỐI KHÔNG DỊCH hai từ khóa này sang ngôn ngữ khác.
+  + Thẻ hình ảnh `<Image>URL</Image>` BẮT BUỘC giữ nguyên cú pháp thẻ `<Image>...</Image>` (chữ I viết hoa), TUYỆT ĐỐI KHÔNG DỊCH tên thẻ.
+  + Đường dẫn Portal (`/portal/...`) BẮT BUỘC giữ nguyên chính xác cấu trúc đường link URL, không dịch hay thay đổi link.
 
-2. QUY TẮC CÂU HỎI SÀNG LỌC VÀ TỪ KHÓA `(complete)`:
+2. QUY TẮC XIN EMAIL:
+{"- Khách hàng đã cung cấp email, bạn KHÔNG cần hỏi lại email nữa." if has_email else "- Khách hàng CHƯA cung cấp email. Hãy trả lời ngắn gọn thắc mắc hiện tại của khách, đồng thời khéo léo và lịch sự xin địa chỉ email của khách bằng chính ngôn ngữ của họ (Ví dụ tiếng Việt: 'Để em gửi bảng báo giá chi tiết và ưu đãi riêng, anh/chị cho em xin địa chỉ email nhé!'; Tiếng Anh: 'To send you detailed pricing and exclusive offers, could you please provide your email address?') để tiếp tục tư vấn chuyên sâu."}
+
+3. QUY TẮC CÂU HỎI SÀNG LỌC VÀ TỪ KHÓA `(complete)`:
 - Khi khách hàng đã cung cấp email VÀ còn câu hỏi sàng lọc chưa trả lời ở trên:
-  Hãy chọn câu hỏi sàng lọc tiếp theo và hỏi khách một cách tự nhiên trong cuộc trò chuyện.
+  Hãy chọn câu hỏi sàng lọc tiếp theo từ danh sách, dịch câu hỏi đó sang ngôn ngữ mà khách hàng đang sử dụng và hỏi khách một cách tự nhiên trong cuộc trò chuyện.
   BẮT BUỘC: Khi bạn hỏi câu hỏi từ danh sách sàng lọc này, hãy gắn chính xác từ khóa `(complete)` ở cuối câu trả lời của bạn.
-  Ví dụ: "Anh/chị đang có ngân sách dự kiến khoảng bao nhiêu cho dự án này ạ? (complete)"
+  Ví dụ tiếng Việt: "Anh/chị đang có ngân sách dự kiến khoảng bao nhiêu cho dự án này ạ? (complete)"
+  Ví dụ tiếng Anh: "What is your estimated budget for this project? (complete)"
 
-3. QUY TẮC YÊU CẦU NGƯỜI THẬT VÀ TỪ KHÓA `(realtime)`:
+4. QUY TẮC YÊU CẦU NGƯỜI THẬT VÀ TỪ KHÓA `(realtime)`:
 - Nếu khách hàng bày tỏ sự thất vọng, tức giận, quấy rối, hỏi những nội dung không thuộc phạm vi chuyên môn/sản phẩm của {domain.name}, HOẶC khách hàng yêu cầu trực tiếp nói chuyện với nhân viên tư vấn/người thật/quản lý:
-  Hãy phản hồi thật lịch sự, thông báo bạn đang chuyển tiếp cuộc trò chuyện cho nhân viên trực tiếp.
+  Hãy phản hồi thật lịch sự bằng ngôn ngữ của khách hàng, thông báo bạn đang chuyển tiếp cuộc trò chuyện cho nhân viên hỗ trợ trực tiếp.
   BẮT BUỘC: Gắn chính xác từ khóa `(realtime)` ở cuối câu trả lời của bạn để hệ thống tự động kích hoạt chế độ Live Chat và gửi thông báo khẩn cấp tới chủ website.
+  Ví dụ tiếng Việt: "Dạ em hiểu rồi ạ! Em xin phép chuyển tiếp cuộc trò chuyện sang nhân viên hỗ trợ trực tiếp. Chuyên viên sẽ vào hỗ trợ anh/chị ngay nhé ạ! (realtime)"
+  Ví dụ tiếng Anh: "I understand! I am transferring this chat to a live support specialist right now. Someone will assist you shortly! (realtime)"
 
-4. QUY TẮC ĐƯỜNG DẪN PORTAL:
+5. QUY TẮC ĐƯỜNG DẪN PORTAL:
 - Khi khách hàng muốn ĐẶT LỊCH HẸN / TƯ VẤN TRỰC TIẾP:
   Cung cấp đường dẫn: /portal/{domain.id}/appointment/{customer_id_str}
-  (Ví dụ: "Anh/chị có thể đặt lịch hẹn tư vấn thuận tiện tại: /portal/{domain.id}/appointment/{customer_id_str}")
+  (Ví dụ tiếng Việt: "Anh/chị có thể đặt lịch hẹn tư vấn thuận tiện tại: /portal/{domain.id}/appointment/{customer_id_str}")
+  (Ví dụ tiếng Anh: "You can conveniently schedule a consultation here: /portal/{domain.id}/appointment/{customer_id_str}")
 - Khi khách hàng muốn MUA HÀNG / THANH TOÁN SẢN PHẨM:
   Cung cấp đường dẫn: /portal/{domain.id}/payment/{customer_id_str}
-  (Ví dụ: "Anh/chị có thể xem giỏ hàng và thanh toán VietQR tại: /portal/{domain.id}/payment/{customer_id_str}")
+  (Ví dụ tiếng Việt: "Anh/chị có thể xem giỏ hàng và thanh toán VietQR tại: /portal/{domain.id}/payment/{customer_id_str}")
+  (Ví dụ tiếng Anh: "You can view your order and complete payment here: /portal/{domain.id}/payment/{customer_id_str}")
 
-5. QUY TẮC HIỂN THỊ HÌNH ẢNH SẢN PHẨM (BẮT BUỘC DÙNG THẺ <Image>):
+6. QUY TẮC HIỂN THỊ HÌNH ẢNH SẢN PHẨM (BẮT BUỘC DÙNG THẺ <Image>):
 - Khi phản hồi, giới thiệu hoặc tư vấn về thông tin sản phẩm: NẾU sản phẩm đó có thông tin link ảnh (được ghi 'Link ảnh: ...' trong DANH MỤC SẢN PHẨM), bạn BẮT BUỘC phải đặt link ảnh vào bên trong thẻ `<Image>đường_dẫn_ảnh</Image>`.
   Ví dụ chuẩn:
   "Dạ bên em có sản phẩm Áo Hoodie Unisex với giá ưu đãi là 350,000 VND ạ:
   <Image>https://res.cloudinary.com/.../hoodie.jpg</Image>
   Anh/chị có cần em tư vấn thêm chi tiết không ạ?"
+  (Hoặc tiếng Anh:
+  "We have Unisex Hoodie available for 350,000 VND:
+  <Image>https://res.cloudinary.com/.../hoodie.jpg</Image>
+  Would you like more details or assistance?")
 - BẮT BUỘC sử dụng chính xác thẻ `<Image>...</Image>` (chữ I viết hoa). KHÔNG dùng cú pháp markdown ảnh ![alt](url) và KHÔNG để URL trần ngoài thẻ.
 - Chỉ đặt DUY NHẤT đường link URL bên trong cặp thẻ `<Image>...</Image>`, không chèn thêm bất kỳ chữ hay khoảng trắng thừa nào trong thẻ.
 - Nếu sản phẩm không có link ảnh hoặc ghi 'Không có ảnh', tuyệt đối không tự bịa đặt link ảnh hoặc thêm thẻ <Image>.
 
-HÃY TRẢ LỜI BẰNG TIẾNG VIỆT TỰ NHIÊN, LỊCH SỰ, RÕ RÀNG VÀ CHUYÊN NGHIỆP!"""
+HÃY LUÔN PHẢN HỒI BẰNG CHÍNH NGÔN NGỮ MÀ KHÁCH HÀNG ĐANG SỬ DỤNG HOẶC YÊU CẦU, VỚI VĂN PHONG TỰ NHIÊN, LỊCH SỰ, RÕ RÀNG VÀ CHUYÊN NGHIỆP!"""
 
     return prompt
 
@@ -376,12 +398,86 @@ def simulate_ai_response(
 ) -> str:
     """
     Intelligent offline/fallback AI response generator adhering strictly to the state machine.
+    Supports English & Vietnamese fallback.
     Used if all Gemini models are exhausted or API key is not configured.
     """
     msg_lower = message.lower()
     has_email = customer is not None and bool(customer.email)
     cust_id = str(customer.id) if customer else "anonymous"
 
+    # Detect English input
+    english_cues = [
+        "hello", "hi", "hey", "price", "product", "buy", "purchase", "book", "appointment",
+        "help", "order", "human", "agent", "support", "email", "cost", "how much", "what is",
+        "can you", "please", "thanks", "thank you", "representative", "manager"
+    ]
+    vietnamese_cues = [
+        "xin chào", "chào", "giá", "báo giá", "sản phẩm", "đặt lịch", "tư vấn", "bao nhiêu",
+        "mua", "em ơi", "anh", "chị", "ơi", "dạ", "cảm ơn"
+    ]
+    is_english = any(k in msg_lower for k in english_cues) and not any(k in msg_lower for k in vietnamese_cues)
+
+    if is_english:
+        # 1. Escalation / human support
+        if any(k in msg_lower for k in ["human", "agent", "person", "representative", "manager", "complaint", "talk to somebody", "talk to someone"]):
+            return (
+                f"I understand! I'm transferring this chat to a live support specialist right now. "
+                f"A team member from {domain.name} will respond shortly! (realtime)"
+            )
+
+        # 2. Appointment booking request
+        if any(k in msg_lower for k in ["appointment", "booking", "book", "schedule", "consultation", "meeting"]):
+            link = f"/portal/{domain.id}/appointment/{cust_id}"
+            return (
+                f"Wonderful! You can choose the most convenient time for a 1-on-1 consultation here: "
+                f"{link} . We look forward to speaking with you!"
+            )
+
+        # 3. Product purchasing / payment request
+        if any(k in msg_lower for k in ["buy", "payment", "pay", "order", "checkout", "cart", "purchase"]):
+            link = f"/portal/{domain.id}/payment/{cust_id}"
+            return (
+                f"Sure! You can check our products and complete your payment here: "
+                f"{link} . Thank you for choosing {domain.name}!"
+            )
+
+        # 4. Product inquiry & recommendation with <Image>
+        if products and any(k in msg_lower for k in ["product", "price", "cost", "detail", "item", "catalog", "sample"]):
+            matched = [p for p in products if p.name.lower() in msg_lower]
+            target_prod = matched[0] if matched else products[0]
+            img_tag = f"\n<Image>{target_prod.image}</Image>" if target_prod.image else ""
+
+            if not has_email:
+                return (
+                    f"Here is information about {target_prod.name} at {target_prod.price:,} VND:{img_tag}\n"
+                    f"To help me send you detailed specifications and exclusive offers, could you please provide your email address?"
+                )
+            return (
+                f"Here is information about {target_prod.name} at {target_prod.price:,} VND:{img_tag}\n"
+                f"Would you like more details or assistance placing an order?"
+            )
+
+        # 5. If no email yet
+        if not has_email:
+            return (
+                f"Hello! I am the AI assistant of {domain.name}. I'm glad to help you. "
+                f"To help me send you detailed information and exclusive offers, could you please share your email address?"
+            )
+
+        # 6. If has email and has unanswered questions
+        if unanswered_questions:
+            next_q = unanswered_questions[0]
+            return (
+                f"Thank you for sharing your information! To give you the best consultation, "
+                f"{next_q} (complete)"
+            )
+
+        # 7. Default friendly response
+        return (
+            f"{domain.name} is always here to assist you! Feel free to ask about our products, pricing, or schedule a consultation anytime."
+        )
+
+    # Vietnamese / Default flow
     # 1. Escalation / human support
     if any(k in msg_lower for k in ["người thật", "nhân viên", "tư vấn viên", "gặp trực tiếp", "khiếu nại", "quản lý", "human", "agent"]):
         return (
