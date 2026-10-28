@@ -4,6 +4,8 @@ import {
   CreateHelpDeskInput,
   FilterQuestionItem,
   HelpDeskItem,
+  KnowledgeChunkItem,
+  KnowledgeDocumentItem,
   UpdateFilterQuestionInput,
   UpdateHelpDeskInput,
 } from "@/types/training";
@@ -96,6 +98,67 @@ export const trainingService = {
       message: string;
       question_id: string;
     }>(`/domains/${domainId}/filter-questions/${questionId}`);
+    return response.data;
+  },
+
+  // ==========================================
+  // Knowledge Documents API Calls (PDF, Excel, TXT)
+  // ==========================================
+
+  async getDocuments(domainId: string): Promise<KnowledgeDocumentItem[]> {
+    const response = await apiClient.get<KnowledgeDocumentItem[]>(
+      `/domains/${domainId}/documents`
+    );
+    return response.data;
+  },
+
+  async uploadDocument(
+    domainId: string,
+    file: File
+  ): Promise<KnowledgeDocumentItem> {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await apiClient.post<KnowledgeDocumentItem>(
+      `/domains/${domainId}/documents`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async getDocumentChunks(
+    domainId: string,
+    documentId: string
+  ): Promise<KnowledgeChunkItem[]> {
+    const response = await apiClient.get<KnowledgeChunkItem[]>(
+      `/domains/${domainId}/documents/${documentId}/chunks`
+    );
+    return response.data;
+  },
+
+  async deleteDocument(
+    domainId: string,
+    documentId: string
+  ): Promise<{ message: string; document_id: string }> {
+    const response = await apiClient.delete<{
+      message: string;
+      document_id: string;
+    }>(`/domains/${domainId}/documents/${documentId}`);
+    return response.data;
+  },
+
+  async retrainDocument(
+    domainId: string,
+    documentId: string
+  ): Promise<KnowledgeDocumentItem> {
+    const response = await apiClient.post<KnowledgeDocumentItem>(
+      `/domains/${domainId}/documents/${documentId}/retrain`
+    );
     return response.data;
   },
 };

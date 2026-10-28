@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.models.customer import Customer
     from app.models.booking import Bookings
     from app.models.payment_transaction import PaymentTransaction
+    from app.models.knowledge_document import KnowledgeDocument
 
 
 class Domain(BaseModel):
@@ -70,4 +71,11 @@ class Domain(BaseModel):
     )
     transactions: Mapped[List["PaymentTransaction"]] = relationship(
         "PaymentTransaction", back_populates="domain", lazy="selectin"
+    )
+    knowledge_documents: Mapped[List["KnowledgeDocument"]] = relationship(
+        "KnowledgeDocument",
+        back_populates="domain",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+        order_by="KnowledgeDocument.created_at.desc()",
     )

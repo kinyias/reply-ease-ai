@@ -15,6 +15,7 @@ from app.models.product import Product
 from app.models.campaign import Campaign
 from app.models.payment_transaction import PaymentTransaction
 from app.models.otp import OTPVerification
+from app.models.knowledge_document import KnowledgeDocument, KnowledgeChunk
 
 __all__ = [
     "BaseModel",
@@ -37,4 +38,6 @@ __all__ = [
     "Campaign",
     "PaymentTransaction",
     "OTPVerification",
+    "KnowledgeDocument",
+    "KnowledgeChunk",
 ]

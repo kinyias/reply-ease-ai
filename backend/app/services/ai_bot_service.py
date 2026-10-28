@@ -20,6 +20,7 @@ from app.models.domain import Domain
 from app.models.enums import Plans, Role
 from app.models.filter_question import FilterQuestions
 from app.models.helpdesk import HelpDesk
+from app.models.knowledge_document import KnowledgeChunk
 from app.models.product import Product
 from app.services import vector_service
 from app.services.email_service import send_live_chat_alert
@@ -223,18 +224,48 @@ async def build_knowledge_context(
     context_chunks: List[str] = []
 
     # 1. Query Pinecone vector DB
+    pinecone_found = False
     try:
         pinecone_matches = await vector_service.query_knowledge(
             domain_id=domain.id,
             query=query,
-            top_k=3,
+            top_k=5,
         )
         if pinecone_matches:
             rag_snippets = [f"- {m['text']}" for m in pinecone_matches if m.get("text")]
             if rag_snippets:
                 context_chunks.append("THÔNG TIN TRUY XUẤT TỪ CƠ SỞ TRI THỨC (RAG):\n" + "\n".join(rag_snippets))
+                pinecone_found = True
     except Exception as exc:
         logger.warning(f"Error querying vector service: {exc}")
+
+    # Fallback/supplementary: query database KnowledgeChunks if vector DB returned few matches
+    if not pinecone_found:
+        try:
+            words = [w.strip() for w in re.split(r"[\s\.,\?!;:]+", query) if len(w.strip()) >= 3]
+            doc_chunks: List[KnowledgeChunk] = []
+            if words:
+                from sqlalchemy import or_
+                conditions = [KnowledgeChunk.content.ilike(f"%{w}%") for w in words[:4]]
+                kw_stmt = select(KnowledgeChunk).where(
+                    KnowledgeChunk.domain_id == domain.id,
+                    or_(*conditions),
+                ).limit(5)
+                kw_res = await db.execute(kw_stmt)
+                doc_chunks = list(kw_res.scalars().all())
+
+            if not doc_chunks:
+                recent_stmt = select(KnowledgeChunk).where(
+                    KnowledgeChunk.domain_id == domain.id
+                ).order_by(KnowledgeChunk.created_at.desc()).limit(3)
+                recent_res = await db.execute(recent_stmt)
+                doc_chunks = list(recent_res.scalars().all())
+
+            if doc_chunks:
+                doc_snippets = [f"- {c.content}" for c in doc_chunks]
+                context_chunks.append("THÔNG TIN TRUY XUẤT TỪ TÀI LIỆU HUẤN LUYỆN (PDF/EXCEL/TXT):\n" + "\n".join(doc_snippets))
+        except Exception as exc:
+            logger.warning(f"Error querying DB knowledge chunks: {exc}")
 
     # 2. Retrieve domain HelpDesk FAQs
     hd_stmt = select(HelpDesk).where(HelpDesk.domain_id == domain.id).limit(10)

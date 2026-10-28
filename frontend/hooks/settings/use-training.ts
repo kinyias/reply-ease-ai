@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -205,6 +206,113 @@ export function useFilterQuestions(domainId: string) {
     onAddQuestion,
     deleteQuestion: (qId: string) => deleteMutation.mutate(qId),
     applyPreset,
+    refetch,
+  };
+}
+
+/**
+ * Hook for managing Knowledge Documents (PDF, Excel, TXT)
+ */
+export function useKnowledgeDocuments(domainId: string) {
+  const queryClient = useQueryClient();
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+
+  const {
+    data: documents = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["knowledge-documents", domainId],
+    queryFn: () => trainingService.getDocuments(domainId),
+    enabled: Boolean(domainId),
+  });
+
+  const {
+    data: chunks = [],
+    isLoading: isLoadingChunks,
+  } = useQuery({
+    queryKey: ["knowledge-chunks", domainId, selectedDocId],
+    queryFn: () =>
+      selectedDocId
+        ? trainingService.getDocumentChunks(domainId, selectedDocId)
+        : Promise.resolve([]),
+    enabled: Boolean(domainId && selectedDocId),
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => trainingService.uploadDocument(domainId, file),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["knowledge-documents", domainId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["domain", domainId] });
+      toast.success(
+        `Đã huấn luyện thành công tệp "${data.file_name}" (${data.num_chunks} đoạn tri thức)`
+      );
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as {
+        response?: { data?: { detail?: string } };
+      };
+      toast.error(
+        axiosError.response?.data?.detail ||
+          "Không thể tải lên và huấn luyện tài liệu"
+      );
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (docId: string) =>
+      trainingService.deleteDocument(domainId, docId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["knowledge-documents", domainId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["domain", domainId] });
+      if (selectedDocId) setSelectedDocId(null);
+      toast.success("Đã xóa tài liệu và tri thức vector");
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as {
+        response?: { data?: { detail?: string } };
+      };
+      toast.error(axiosError.response?.data?.detail || "Không thể xóa tài liệu");
+    },
+  });
+
+  const retrainMutation = useMutation({
+    mutationFn: (docId: string) =>
+      trainingService.retrainDocument(domainId, docId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["knowledge-documents", domainId],
+      });
+      toast.success(`Đã tái huấn luyện tệp "${data.file_name}" thành công`);
+    },
+    onError: (error: unknown) => {
+      const axiosError = error as {
+        response?: { data?: { detail?: string } };
+      };
+      toast.error(
+        axiosError.response?.data?.detail ||
+          "Không thể tái huấn luyện tài liệu"
+      );
+    },
+  });
+
+  return {
+    documents,
+    isLoading,
+    isUploading: uploadMutation.isPending,
+    isDeleting: deleteMutation.isPending,
+    isRetraining: retrainMutation.isPending,
+    selectedDocId,
+    setSelectedDocId,
+    chunks,
+    isLoadingChunks,
+    uploadDocument: (file: File) => uploadMutation.mutateAsync(file),
+    deleteDocument: (docId: string) => deleteMutation.mutate(docId),
+    retrainDocument: (docId: string) => retrainMutation.mutate(docId),
     refetch,
   };
 }

@@ -1,6 +1,6 @@
 import uuid
 from typing import Any, Dict, List
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -13,6 +13,8 @@ from app.schemas.training import (
     HelpDeskCreateRequest,
     HelpDeskResponse,
     HelpDeskUpdateRequest,
+    KnowledgeChunkResponse,
+    KnowledgeDocumentResponse,
 )
 from app.services import training_service
 
@@ -187,3 +189,106 @@ async def delete_filter_question(
         "message": "Filter question deleted successfully",
         "question_id": str(question_id),
     }
+
+
+# ==========================================
+# 3. Knowledge Document Training Endpoints (PDF, Excel, TXT)
+# ==========================================
+
+
+@router.get(
+    "/{domain_id}/documents",
+    response_model=List[KnowledgeDocumentResponse],
+    summary="Get trained knowledge documents",
+    description="Retrieve all uploaded training documents (PDF, Excel, TXT) for a domain.",
+)
+async def list_knowledge_documents(
+    domain_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[KnowledgeDocumentResponse]:
+    """Retrieve all uploaded documents trained for this domain."""
+    docs = await training_service.get_knowledge_documents(
+        db, domain_id, current_user
+    )
+    return [KnowledgeDocumentResponse.model_validate(d) for d in docs]
+
+
+@router.post(
+    "/{domain_id}/documents",
+    response_model=KnowledgeDocumentResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload and train document (PDF, Excel, TXT)",
+    description="Upload a PDF, Excel (.xlsx/.xls/.csv), or TXT/Markdown file to automatically parse, chunk, and train the AI knowledge base.",
+)
+async def upload_knowledge_document(
+    domain_id: uuid.UUID,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> KnowledgeDocumentResponse:
+    """Upload and train a new knowledge document for a domain."""
+    doc = await training_service.upload_and_train_document(
+        db, domain_id, current_user, file
+    )
+    return KnowledgeDocumentResponse.model_validate(doc)
+
+
+@router.get(
+    "/{domain_id}/documents/{document_id}/chunks",
+    response_model=List[KnowledgeChunkResponse],
+    summary="Get document extracted text chunks",
+    description="Retrieve all text chunks extracted from a specific document for inspection or verification.",
+)
+async def list_document_chunks(
+    domain_id: uuid.UUID,
+    document_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[KnowledgeChunkResponse]:
+    """Retrieve extracted chunks for an uploaded document."""
+    chunks = await training_service.get_document_chunks(
+        db, domain_id, document_id, current_user
+    )
+    return [KnowledgeChunkResponse.model_validate(c) for c in chunks]
+
+
+@router.delete(
+    "/{domain_id}/documents/{document_id}",
+    response_model=Dict[str, Any],
+    summary="Delete knowledge document",
+    description="Delete an uploaded document, its extracted chunks, and vector embeddings from the AI knowledge base.",
+)
+async def delete_knowledge_document(
+    domain_id: uuid.UUID,
+    document_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Delete a knowledge document and its vectors."""
+    await training_service.delete_knowledge_document(
+        db, domain_id, document_id, current_user
+    )
+    return {
+        "message": "Knowledge document deleted successfully",
+        "document_id": str(document_id),
+    }
+
+
+@router.post(
+    "/{domain_id}/documents/{document_id}/retrain",
+    response_model=KnowledgeDocumentResponse,
+    summary="Retrain knowledge document",
+    description="Re-vectorize and re-sync document chunks to Pinecone vector DB.",
+)
+async def retrain_knowledge_document(
+    domain_id: uuid.UUID,
+    document_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> KnowledgeDocumentResponse:
+    """Retrain and re-embed all chunks of an existing document."""
+    doc = await training_service.retrain_knowledge_document(
+        db, domain_id, document_id, current_user
+    )
+    return KnowledgeDocumentResponse.model_validate(doc)

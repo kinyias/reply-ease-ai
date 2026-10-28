@@ -73,3 +73,34 @@ class FilterQuestionResponse(BaseModel):
     domain_id: Optional[uuid.UUID] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+
+
+class KnowledgeChunkResponse(BaseModel):
+    """Extracted text chunk details response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    document_id: uuid.UUID
+    domain_id: uuid.UUID
+    chunk_index: int
+    title: Optional[str] = None
+    content: str
+    created_at: Optional[datetime] = None
+
+
+class KnowledgeDocumentResponse(BaseModel):
+    """Uploaded knowledge document details response."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    domain_id: uuid.UUID
+    file_name: str
+    file_type: str
+    file_size: int
+    status: str
+    num_chunks: int
+    error_message: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
