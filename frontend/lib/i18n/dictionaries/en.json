@@ -193,6 +193,33 @@
       "colStatus": "Status",
       "colDate": "Date",
       "viewAll": "View all transactions in Billing"
+    },
+    "monthlyAnalytics": {
+      "title": "Monthly Performance Trends",
+      "subtitle": "Track monthly Potential Clients (Leads) and Total Sales revenue on the same timeline",
+      "clientsLegend": "Potential Clients",
+      "salesLegend": "Total Sales",
+      "clientsAxis": "Clients (Leads)",
+      "salesAxis": "Sales (VND)",
+      "yearLabel": "Year:",
+      "noData": "No analytics data recorded for year {year}",
+      "totalClientsYear": "Total Leads ({year}):",
+      "totalSalesYear": "Total Revenue ({year}):",
+      "clientsUnit": "leads",
+      "months": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      }
     }
   },
   "domainSwitcher": {

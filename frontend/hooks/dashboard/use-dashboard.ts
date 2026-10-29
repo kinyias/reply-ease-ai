@@ -45,3 +45,12 @@ export function useAppointments(params?: GetAppointmentsParams) {
   });
 }
 
+export function useMonthlyAnalytics(year?: number) {
+  return useQuery({
+    queryKey: ["dashboard", "monthly-analytics", year],
+    queryFn: () => dashboardService.getMonthlyAnalytics(year),
+    staleTime: 1000 * 60, // 1 minute
+  });
+}
+
+

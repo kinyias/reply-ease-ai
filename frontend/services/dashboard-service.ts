@@ -3,6 +3,7 @@ import {
   AppointmentsResponse,
   DashboardMetrics,
   DashboardTransactionsResponse,
+  MonthlyAnalyticsResponse,
   PlanUsage,
 } from "@/types/dashboard";
 
@@ -60,6 +61,19 @@ export const dashboardService = {
     const res = await apiClient.get<AppointmentsResponse>("/dashboard/appointments", {
       params: Object.keys(query).length > 0 ? query : undefined,
     });
+    return res.data;
+  },
+
+  /**
+   * Fetch monthly analytics for potential clients and total sales
+   */
+  async getMonthlyAnalytics(year?: number): Promise<MonthlyAnalyticsResponse> {
+    const res = await apiClient.get<MonthlyAnalyticsResponse>(
+      "/dashboard/monthly-analytics",
+      {
+        params: year ? { year } : undefined,
+      }
+    );
     return res.data;
   },
 };

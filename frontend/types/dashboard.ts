@@ -58,3 +58,17 @@ export interface GetAppointmentsParams {
   page_size?: number;
 }
 
+export interface MonthlyAnalyticsItem {
+  month: number;
+  month_name: string;
+  potential_clients: number;
+  total_sales: number;
+}
+
+export interface MonthlyAnalyticsResponse {
+  year: number;
+  months: MonthlyAnalyticsItem[];
+  available_years: number[];
+}
+
+

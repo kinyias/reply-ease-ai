@@ -25,6 +25,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AddDomainModal } from "@/components/sidebar/add-domain-modal";
 import { useI18n } from "@/context/i18n-context";
 import { DashboardMetricsCards } from "@/components/dashboard/dashboard-metrics-cards";
+import { MonthlyAnalyticsChart } from "@/components/dashboard/monthly-analytics-chart";
 import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { RecentTransactionsTable } from "@/components/dashboard/recent-transactions-table";
 
@@ -116,6 +117,9 @@ export default function DashboardPage() {
           isLoading={isLoadingMetrics}
         />
       </div>
+
+      {/* Monthly Performance Trends: Potential Clients & Total Sales */}
+      <MonthlyAnalyticsChart />
 
       {/* 3. Step 9.2: Plan Usage Progress & Resource Quota */}
       <PlanUsageCard

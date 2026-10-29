@@ -193,6 +193,33 @@
       "colStatus": "Trạng thái",
       "colDate": "Thời gian",
       "viewAll": "Xem toàn bộ lịch sử trong mục Gói cước"
+    },
+    "monthlyAnalytics": {
+      "title": "Biểu đồ hiệu suất hàng tháng",
+      "subtitle": "So sánh số lượng Khách hàng tiềm năng (Leads) và Tổng doanh số bán hàng qua từng tháng trong năm",
+      "clientsLegend": "Khách hàng tiềm năng",
+      "salesLegend": "Tổng doanh số",
+      "clientsAxis": "Số lượng lead",
+      "salesAxis": "Doanh số (VNĐ)",
+      "yearLabel": "Năm:",
+      "noData": "Chưa có dữ liệu thống kê cho năm {year}",
+      "totalClientsYear": "Tổng lead năm ({year}):",
+      "totalSalesYear": "Tổng doanh số năm ({year}):",
+      "clientsUnit": "lead",
+      "months": {
+        "1": "Thg 1",
+        "2": "Thg 2",
+        "3": "Thg 3",
+        "4": "Thg 4",
+        "5": "Thg 5",
+        "6": "Thg 6",
+        "7": "Thg 7",
+        "8": "Thg 8",
+        "9": "Thg 9",
+        "10": "Thg 10",
+        "11": "Thg 11",
+        "12": "Thg 12"
+      }
     }
   },
   "domainSwitcher": {

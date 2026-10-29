@@ -60,3 +60,17 @@ class AppointmentsListResponse(BaseModel):
     page_size: int = 10
     total_pages: int = 1
 
+
+class MonthlyAnalyticsItem(BaseModel):
+    month: int = Field(..., description="Month number (1-12)")
+    month_name: str = Field(..., description="Month label e.g. Jan, Feb...")
+    potential_clients: int = Field(default=0, description="Count of leads/potential clients acquired in this month")
+    total_sales: int = Field(default=0, description="Total sales revenue (VND) completed in this month")
+
+
+class MonthlyAnalyticsResponse(BaseModel):
+    year: int = Field(..., description="Target year for the monthly metrics")
+    months: List[MonthlyAnalyticsItem] = Field(..., description="12 months breakdown")
+    available_years: List[int] = Field(default_factory=list, description="Available years for selection")
+
+

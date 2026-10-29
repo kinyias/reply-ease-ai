@@ -26,6 +26,8 @@ from app.schemas.dashboard import (
     DashboardMetricsResponse,
     DashboardTransactionItem,
     DashboardTransactionsResponse,
+    MonthlyAnalyticsItem,
+    MonthlyAnalyticsResponse,
     PlanUsageResponse,
 )
 from app.services.domain_service import PLAN_DOMAIN_LIMITS, get_user_billing_plan
@@ -95,6 +97,134 @@ async def get_dashboard_metrics(
         pipeline_value=int(pipeline_value),
         appointments=int(appointments),
         total_sales=int(total_sales),
+    )
+
+
+@router.get(
+    "/monthly-analytics",
+    response_model=MonthlyAnalyticsResponse,
+    summary="Get Monthly Analytics for Potential Clients and Total Sales",
+    description="Returns month-by-month breakdown (Jan to Dec) of potential clients and total sales for a specific year.",
+)
+async def get_dashboard_monthly_analytics(
+    year: Optional[int] = Query(None, description="Year for analytics (defaults to current year)"),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MonthlyAnalyticsResponse:
+    now_utc = datetime.now(timezone.utc)
+    target_year = year or now_utc.year
+
+    start_of_year = datetime(target_year, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    start_of_next_year = datetime(target_year + 1, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+
+    # 1. Fetch user domain IDs
+    domain_stmt = select(Domain.id).where(Domain.user_id == current_user.id)
+    domain_res = await db.execute(domain_stmt)
+    domain_ids = domain_res.scalars().all()
+
+    # 2. Query potential clients (Customer created in each month)
+    cust_monthly: dict[int, int] = {m: 0 for m in range(1, 13)}
+    if domain_ids:
+        cust_stmt = (
+            select(
+                func.extract("month", Customer.created_at).label("month"),
+                func.count(Customer.id).label("count"),
+            )
+            .where(
+                Customer.domain_id.in_(domain_ids),
+                Customer.created_at >= start_of_year,
+                Customer.created_at < start_of_next_year,
+            )
+            .group_by(func.extract("month", Customer.created_at))
+        )
+        cust_res = await db.execute(cust_stmt)
+        for row in cust_res.all():
+            m = int(row[0])
+            cust_monthly[m] = int(row[1])
+
+    # 3. Query total sales (PaymentTransaction completed in each month)
+    sales_monthly: dict[int, int] = {m: 0 for m in range(1, 13)}
+    sales_conditions = [
+        PaymentTransaction.status == PaymentStatus.SUCCESS,
+        PaymentTransaction.payment_type.notin_([PaymentType.SUBSCRIPTION, PaymentType.CREDIT_PURCHASE]),
+        PaymentTransaction.created_at >= start_of_year,
+        PaymentTransaction.created_at < start_of_next_year,
+    ]
+    if domain_ids:
+        sales_conditions.append(
+            (PaymentTransaction.domain_id.in_(domain_ids)) | (PaymentTransaction.user_id == current_user.id)
+        )
+    else:
+        sales_conditions.append(PaymentTransaction.user_id == current_user.id)
+
+    sales_stmt = (
+        select(
+            func.extract("month", PaymentTransaction.created_at).label("month"),
+            func.coalesce(func.sum(PaymentTransaction.amount), 0).label("sales"),
+        )
+        .where(*sales_conditions)
+        .group_by(func.extract("month", PaymentTransaction.created_at))
+    )
+    sales_res = await db.execute(sales_stmt)
+    for row in sales_res.all():
+        m = int(row[0])
+        sales_monthly[m] = int(row[1])
+
+    # 4. Discover available years for filtering
+    available_years_set = {now_utc.year, target_year}
+    if domain_ids:
+        cust_years_stmt = (
+            select(func.extract("year", Customer.created_at).label("year"))
+            .where(Customer.domain_id.in_(domain_ids))
+            .group_by(func.extract("year", Customer.created_at))
+        )
+        cust_years_res = await db.execute(cust_years_stmt)
+        for r in cust_years_res.scalars().all():
+            if r is not None:
+                available_years_set.add(int(r))
+
+    pay_conditions = [
+        PaymentTransaction.status == PaymentStatus.SUCCESS,
+        PaymentTransaction.payment_type.notin_([PaymentType.SUBSCRIPTION, PaymentType.CREDIT_PURCHASE]),
+    ]
+    if domain_ids:
+        pay_conditions.append(
+            (PaymentTransaction.domain_id.in_(domain_ids)) | (PaymentTransaction.user_id == current_user.id)
+        )
+    else:
+        pay_conditions.append(PaymentTransaction.user_id == current_user.id)
+
+    pay_years_stmt = (
+        select(func.extract("year", PaymentTransaction.created_at).label("year"))
+        .where(*pay_conditions)
+        .group_by(func.extract("year", PaymentTransaction.created_at))
+    )
+    pay_years_res = await db.execute(pay_years_stmt)
+    for r in pay_years_res.scalars().all():
+        if r is not None:
+            available_years_set.add(int(r))
+
+    available_years = sorted(list(available_years_set), reverse=True)
+
+    month_labels = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
+
+    months_list = [
+        MonthlyAnalyticsItem(
+            month=m,
+            month_name=month_labels[m - 1],
+            potential_clients=cust_monthly.get(m, 0),
+            total_sales=sales_monthly.get(m, 0),
+        )
+        for m in range(1, 13)
+    ]
+
+    return MonthlyAnalyticsResponse(
+        year=target_year,
+        months=months_list,
+        available_years=available_years,
     )
 
 
