@@ -70,3 +70,23 @@ export interface LoginSuccessResponse {
 export interface ApiErrorDetail {
   detail: string | Array<{ loc: string[]; msg: string; type: string }>
 }
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface VerifyResetOtpRequest {
+  email: string
+  otp: string
+}
+
+export interface ResetPasswordRequest {
+  email: string
+  otp: string
+  new_password: string
+}
+
+export interface AuthActionResponse {
+  status: number
+  message: string
+}

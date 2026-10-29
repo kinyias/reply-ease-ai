@@ -139,6 +139,83 @@ async def create_and_send_otp(db: AsyncSession, email: str) -> str:
     return otp_code
 
 
+async def create_and_send_password_reset_otp(
+    db: AsyncSession,
+    email: str,
+    fullname: Optional[str] = None,
+) -> str:
+    """Generate, store, and send a 6-digit OTP code for password reset."""
+    # Clean up any existing OTP for this email
+    await db.execute(delete(OTPVerification).where(OTPVerification.email == email))
+
+    otp_code = generate_otp_code()
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+    otp_entry = OTPVerification(
+        email=email,
+        otp_code=otp_code,
+        expires_at=expires_at,
+    )
+    db.add(otp_entry)
+    await db.commit()
+
+    # Log in console for development/testing ease
+    print(f"\n==========================================")
+    print(f"🔑 [DEV RESET OTP] Code for {email}: {otp_code}")
+    print(f"==========================================\n")
+
+    user_greeting = f"Xin chào {fullname}," if fullname else "Xin chào,"
+    subject = f"{otp_code} là mã xác nhận đặt lại mật khẩu ReplyEase AI của bạn"
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9f9f9; padding: 20px; }}
+        .card {{ max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }}
+        .header {{ text-align: center; margin-bottom: 24px; }}
+        .title {{ color: #171717; font-size: 22px; font-weight: bold; margin: 0; }}
+        .badge {{ background: #fee2e2; color: #dc2626; font-weight: 600; padding: 4px 12px; border-radius: 9999px; font-size: 13px; display: inline-block; margin-top: 8px; }}
+        .code-box {{ background: #f5f5f5; border: 2px dashed #f87171; border-radius: 10px; text-align: center; padding: 20px; margin: 24px 0; }}
+        .code {{ font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #dc2626; font-family: monospace; }}
+        .desc {{ color: #666; font-size: 14px; line-height: 1.6; }}
+        .notice {{ background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; font-size: 13px; color: #92400e; margin: 16px 0; }}
+        .footer {{ font-size: 12px; color: #999; text-align: center; margin-top: 24px; }}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h2 class="title">ReplyEase AI</h2>
+          <span class="badge">Yêu cầu khôi phục mật khẩu</span>
+        </div>
+        <p class="desc">{user_greeting}<br>Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản <strong>{email}</strong> trên ReplyEase AI. Vui lòng sử dụng mã OTP bên dưới để xác nhận:</p>
+        <div class="code-box">
+          <div class="code">{otp_code}</div>
+        </div>
+        <div class="notice">
+          ⚠️ Mã này có hiệu lực trong <strong>10 phút</strong>. Tuyệt đối không chia sẻ mã này cho bất kỳ ai.
+        </div>
+        <p class="desc">Nếu bạn không gửi yêu cầu này, vui lòng bỏ qua thư hoặc đổi mật khẩu ngay để bảo mật tài khoản.</p>
+        <div class="footer">
+          &copy; 2026 ReplyEase AI. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    await send_email(
+        to_email=email,
+        subject=subject,
+        html_content=html_content,
+        text_content=f"Mã xác thực đặt lại mật khẩu ReplyEase AI của bạn là: {otp_code}. Có hiệu lực trong 10 phút.",
+    )
+
+    return otp_code
+
+
 async def send_live_chat_alert(
     owner_email: str,
     domain_name: str,

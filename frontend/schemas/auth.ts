@@ -55,3 +55,33 @@ export const verifyOtpSchema = z.object({
 })
 
 export type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Please enter your email address" })
+    .email({ message: "Invalid email address format" }),
+})
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
+
+export const resetPasswordSchema = z
+  .object({
+    otp: z
+      .string()
+      .length(6, { message: "OTP code must be exactly 6 digits" })
+      .regex(/^\d+$/, { message: "OTP code must contain only numbers" }),
+    newPassword: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" })
+      .max(64, { message: "Password must not exceed 64 characters" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Please confirm your password" }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>

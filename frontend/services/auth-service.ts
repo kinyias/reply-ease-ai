@@ -1,14 +1,18 @@
 import apiClient from "@/lib/api-client"
 import { clearAuthCookies } from "@/lib/cookies"
 import {
+  AuthActionResponse,
+  ForgotPasswordRequest,
   GenerateOtpRequest,
   GenerateOtpResponse,
   LoginRequest,
   LoginSuccessResponse,
   RegisterSuccessResponse,
+  ResetPasswordRequest,
   TokenResponse,
   User,
   VerifyOtpRequest,
+  VerifyResetOtpRequest,
 } from "@/types/auth"
 
 export const authService = {
@@ -88,6 +92,45 @@ export const authService = {
   async terminateDemoSession(): Promise<{ status: number; message: string }> {
     const response = await apiClient.post<{ status: number; message: string }>(
       "/auth/demo-session/terminate"
+    )
+    return response.data
+  },
+
+  /**
+   * Send password reset OTP to email
+   */
+  async forgotPassword(
+    payload: ForgotPasswordRequest
+  ): Promise<AuthActionResponse> {
+    const response = await apiClient.post<AuthActionResponse>(
+      "/auth/forgot-password",
+      payload
+    )
+    return response.data
+  },
+
+  /**
+   * Verify password reset OTP
+   */
+  async verifyResetOtp(
+    payload: VerifyResetOtpRequest
+  ): Promise<AuthActionResponse> {
+    const response = await apiClient.post<AuthActionResponse>(
+      "/auth/forgot-password/verify-otp",
+      payload
+    )
+    return response.data
+  },
+
+  /**
+   * Reset password with OTP and new password
+   */
+  async resetPassword(
+    payload: ResetPasswordRequest
+  ): Promise<AuthActionResponse> {
+    const response = await apiClient.post<AuthActionResponse>(
+      "/auth/reset-password",
+      payload
     )
     return response.data
   },

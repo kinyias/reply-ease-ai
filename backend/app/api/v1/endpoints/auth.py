@@ -20,14 +20,20 @@ from app.models.otp import OTPVerification
 from app.models.user import User
 from app.schemas.auth import (
     ChangePasswordRequest,
+    ForgotPasswordRequest,
     GenerateOTPRequest,
     LoginRequest,
     RefreshTokenRequest,
+    ResetPasswordRequest,
     TokenResponse,
     VerifyOTPRequest,
+    VerifyResetOtpRequest,
 )
 from app.schemas.user import UserResponse
-from app.services.email_service import create_and_send_otp
+from app.services.email_service import (
+    create_and_send_otp,
+    create_and_send_password_reset_otp,
+)
 
 router = APIRouter()
 
@@ -289,6 +295,121 @@ async def change_password(
     return {
         "status": 200,
         "message": "Password changed successfully!",
+    }
+
+
+@router.post(
+    "/forgot-password",
+    status_code=status.HTTP_200_OK,
+    summary="Send password reset OTP to user's registered email",
+)
+async def forgot_password(
+    req: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await db.scalar(select(User).where(User.email == req.email))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Email này chưa được đăng ký trong hệ thống.",
+        )
+
+    if user.type == "demo" or user.email.lower() == "demo@gmail.com":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tài khoản dùng thử Demo không hỗ trợ chức năng đặt lại mật khẩu.",
+        )
+
+    await create_and_send_password_reset_otp(db, user.email, user.fullname)
+    return {
+        "status": 200,
+        "message": "Mã OTP đặt lại mật khẩu đã được gửi đến email của bạn.",
+    }
+
+
+@router.post(
+    "/forgot-password/verify-otp",
+    status_code=status.HTTP_200_OK,
+    summary="Verify password reset OTP",
+)
+async def verify_reset_otp(
+    req: VerifyResetOtpRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = (
+        select(OTPVerification)
+        .where(
+            OTPVerification.email == req.email,
+            OTPVerification.otp_code == req.otp,
+        )
+        .order_by(OTPVerification.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    otp_record = result.scalar_one_or_none()
+
+    now = datetime.now(timezone.utc)
+    if not otp_record or otp_record.expires_at < now:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã OTP không hợp lệ hoặc đã hết hạn.",
+        )
+
+    return {
+        "status": 200,
+        "message": "Mã OTP hợp lệ.",
+    }
+
+
+@router.post(
+    "/reset-password",
+    status_code=status.HTTP_200_OK,
+    summary="Reset password using OTP verification code",
+)
+async def reset_password(
+    req: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    user = await db.scalar(select(User).where(User.email == req.email))
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy người dùng với email này.",
+        )
+
+    if user.type == "demo" or user.email.lower() == "demo@gmail.com":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tài khoản dùng thử Demo không hỗ trợ chức năng đặt lại mật khẩu.",
+        )
+
+    stmt = (
+        select(OTPVerification)
+        .where(
+            OTPVerification.email == req.email,
+            OTPVerification.otp_code == req.otp,
+        )
+        .order_by(OTPVerification.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    otp_record = result.scalar_one_or_none()
+
+    now = datetime.now(timezone.utc)
+    if not otp_record or otp_record.expires_at < now:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Mã OTP không hợp lệ hoặc đã hết hạn.",
+        )
+
+    # Update password
+    user.hashed_password = get_password_hash(req.new_password)
+
+    # Delete used OTP
+    await db.execute(delete(OTPVerification).where(OTPVerification.email == req.email))
+    await db.commit()
+
+    return {
+        "status": 200,
+        "message": "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
     }
 
 
