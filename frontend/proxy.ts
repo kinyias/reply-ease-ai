@@ -3,9 +3,22 @@ import type { NextRequest } from "next/server"
 
 /**
  * Routes that require authentication.
+ * In Next.js App Router, (dashboard) is a Route Group so its folders
+ * do not prepend "/dashboard" to the URL path (e.g. /billing, /appointments).
  * Unauthenticated users will be redirected to /auth/sign-in.
  */
-const PROTECTED_PREFIXES = ["/dashboard", "/portal", "/settings"]
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/appointment",
+  "/appointments",
+  "/billing",
+  "/conversation",
+  "/conversations",
+  "/email-marketing",
+  "/integration",
+  "/marketing",
+  "/settings",
+]
 
 /**
  * Authentication routes for guests only.
