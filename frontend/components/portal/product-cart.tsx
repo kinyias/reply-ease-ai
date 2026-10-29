@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import Image from "next/image";
 import { CheckIcon, CreditCardIcon, QrCodeIcon, ShoppingBagIcon } from "lucide-react";
 import { PaymentMethod } from "@/hooks/portal/use-portal-checkout";
@@ -22,6 +24,7 @@ export function ProductCart({
   paymentMethod,
   onChangePaymentMethod,
 }: ProductCartProps) {
+  const { t } = useI18n();
   const formatVND = (val: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
@@ -37,11 +40,11 @@ export function ProductCart({
           <div className="flex items-center gap-2">
             <ShoppingBagIcon className="size-4 text-orange-600" />
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base">
-              Danh sách sản phẩm / dịch vụ
+              {t("portal.productListTitle", "Products & Services")}
             </h3>
           </div>
           <span className="text-xs text-zinc-500">
-            {selectedProductIds.length}/{products.length} đã chọn
+            {t("portal.selectedCount", { selected: selectedProductIds.length, total: products.length }, `${selectedProductIds.length}/${products.length} selected`)}
           </span>
         </div>
 
@@ -94,7 +97,7 @@ export function ProductCart({
                       {p.name}
                     </h4>
                     <span className="text-xs text-zinc-500">
-                      Giao dịch tiêu chuẩn
+                      {t("portal.standardTx", "Standard checkout")}
                     </span>
                   </div>
                 </div>
@@ -113,7 +116,7 @@ export function ProductCart({
       {/* Payment Method Switcher Tabs */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
         <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base">
-          Phương thức thanh toán
+          {t("portal.paymentMethod", "Payment Method")}
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -133,14 +136,14 @@ export function ProductCart({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100">
-                  Chuyển khoản VietQR
+                  {t("portal.vietqrTitle", "VietQR Bank Transfer")}
                 </span>
                 <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">
-                  Phổ biến
+                  {t("portal.popular", "Popular")}
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Quét mã ngân hàng SePay, xác nhận tự động trong 3 giây.
+                {t("portal.vietqrDesc", "Scan SePay QR code, automated verification in 3 seconds.")}
               </p>
             </div>
           </button>
@@ -160,10 +163,10 @@ export function ProductCart({
             </div>
             <div>
               <span className="font-semibold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100">
-                Thẻ Quốc Tế (Stripe)
+                {t("portal.stripeTitle", "International Card (Stripe)")}
               </span>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Thanh toán an toàn qua Visa, Mastercard, thẻ quốc tế.
+                {t("portal.cardSub", "Secure payment via Visa, Mastercard, and international cards.")}
               </p>
             </div>
           </button>
@@ -173,16 +176,16 @@ export function ProductCart({
       {/* Order Total Summary */}
       <div className="bg-zinc-50/80 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 space-y-3">
         <div className="flex items-center justify-between text-xs sm:text-sm text-zinc-500">
-          <span>Tạm tính</span>
+          <span>{t("portal.subtotal", "Subtotal")}</span>
           <span>{formatVND(calculatedTotal)}</span>
         </div>
         <div className="flex items-center justify-between text-xs sm:text-sm text-zinc-500">
-          <span>Phí cổng thanh toán</span>
-          <span className="text-emerald-600 font-medium">Miễn phí</span>
+          <span>{t("portal.gatewayFee", "Payment gateway fee")}</span>
+          <span className="text-emerald-600 font-medium">{t("portal.free", "Free")}</span>
         </div>
         <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <span className="font-semibold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-            Tổng thanh toán
+            {t("portal.totalPay", "Total Amount")}
           </span>
           <span className="font-bold text-lg sm:text-xl text-orange-600 dark:text-orange-400">
             {formatVND(calculatedTotal)}

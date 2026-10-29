@@ -23,6 +23,7 @@ import { SepayQrModal } from "@/components/billing/sepay-qr-modal";
 import { TransactionHistoryTable } from "@/components/billing/transaction-history-table";
 import { useBilling } from "@/hooks/billing/use-billing";
 import { useDomainManagement } from "@/hooks/sidebar/use-domain-management";
+import { useI18n } from "@/context/i18n-context";
 
 export function BillingView() {
   const {
@@ -50,6 +51,7 @@ export function BillingView() {
   } = useBilling();
 
   const { domains } = useDomainManagement();
+  const { t } = useI18n();
 
   // Prevent SSR/CSR hydration mismatch
   const [isMounted, setIsMounted] = useState(false);
@@ -97,14 +99,14 @@ export function BillingView() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Gói cước & Nạp Credits SePay
+              {t("billing.title", "Plans & SePay Credits")}
             </h1>
             <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
               VietQR Gateway
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            Quản lý gói tài khoản, nạp thêm AI Chat & Email marketing credits và theo dõi lịch sử thanh toán qua SePay VietQR.
+            {t("billing.subtitle")}
           </p>
         </div>
 
@@ -112,7 +114,7 @@ export function BillingView() {
           <Link href="/integration">
             <Button variant="outline" size="sm" className="text-xs gap-1.5 border-border">
               <ShieldCheckIcon className="size-3.5 text-primary" />
-              <span>Tích hợp SePay Shop</span>
+              <span>{t("billing.integrateShop", "Shop Integration")}</span>
             </Button>
           </Link>
           <Button
@@ -120,10 +122,10 @@ export function BillingView() {
             size="sm"
             onClick={() => refetchTransactions()}
             className="text-xs gap-1.5 border-border"
-            title="Làm mới dữ liệu"
+            title={t("billing.refresh", "Refresh")}
           >
             <RotateCcwIcon className="size-3.5 text-muted-foreground" />
-            <span className="hidden sm:inline">Làm mới</span>
+            <span className="hidden sm:inline">{t("billing.refresh", "Refresh")}</span>
           </Button>
         </div>
       </div>
@@ -133,7 +135,7 @@ export function BillingView() {
         {/* Card 1: Current Plan */}
         <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-muted-foreground">Gói tài khoản hiện tại</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("billing.currentPlan", "Current Plan")}</span>
             <ZapIcon className="size-4 text-muted-foreground" />
           </div>
           <div>
@@ -143,7 +145,7 @@ export function BillingView() {
                   {currentPlan}
                 </h3>
                 <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                  Đang kích hoạt
+                  {t("common.active", "Active")}
                 </Badge>
               </div>
               <Button
@@ -152,15 +154,15 @@ export function BillingView() {
                 onClick={() => scrollToPricing("SUBSCRIPTION")}
                 className="text-xs text-primary hover:text-primary/90 h-7 px-2 -mr-2"
               >
-                Nâng cấp
+                {t("billing.upgrade", "Upgrade")}
               </Button>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
               {currentPlan === "STANDARD"
-                ? "Gói miễn phí cơ bản với 1 website."
+                ? t("billing.plans.standard.tagline", "Basic free plan with 1 website.")
                 : currentPlan === "PRO"
-                ? "Gói Pro chuyên nghiệp với 5 website & Pinecone RAG."
-                : "Gói Ultimate cao cấp với 10 website & SePay Connect."}
+                ? t("billing.plans.pro.tagline", "Pro plan with 5 websites & Pinecone RAG.")
+                : t("billing.plans.ultimate.tagline", "Enterprise tier with 10 websites & SePay Connect.")}
             </p>
           </div>
         </div>
@@ -185,7 +187,7 @@ export function BillingView() {
                 className="text-xs h-7 px-2.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground gap-1 shadow-2xs"
               >
                 <PlusIcon className="size-3" />
-                <span>Nạp thêm</span>
+                <span>{t("billing.buyCredits", "Top-Up Credits")}</span>
               </Button>
             </div>
             <div className="w-full bg-muted/60 h-1.5 rounded-full mt-2.5 overflow-hidden">
@@ -195,8 +197,8 @@ export function BillingView() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground mt-1.5 flex justify-between">
-              <span>Hạn mức theo gói: {maxCredits.toLocaleString("vi-VN")}</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Vĩnh viễn</span>
+              <span>{t("billing.creditPackages.creditsUnit", "Credits")}: {maxCredits.toLocaleString("vi-VN")}</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">{t("common.permanent", "Permanent")}</span>
             </p>
           </div>
         </div>
@@ -204,7 +206,7 @@ export function BillingView() {
         {/* Card 3: Domain Quota */}
         <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-muted-foreground">Hạn mức Websites kết nối</span>
+            <span className="text-xs font-medium text-muted-foreground">{t("dashboard.domainQuota", "Connected Domains Quota")}</span>
             <GlobeIcon className="size-4 text-muted-foreground" />
           </div>
           <div>
@@ -212,7 +214,7 @@ export function BillingView() {
               <h3 className="text-2xl font-bold tracking-tight text-foreground">
                 {domains.length}
               </h3>
-              <span className="text-xs text-muted-foreground">/ {maxDomains} domain tối đa</span>
+              <span className="text-xs text-muted-foreground">/ {maxDomains} max domains</span>
             </div>
             <div className="w-full bg-muted/60 h-1.5 rounded-full mt-2.5 overflow-hidden">
               <div
@@ -221,7 +223,7 @@ export function BillingView() {
               />
             </div>
             <p className="text-[11px] text-muted-foreground mt-1.5 flex justify-between">
-              <span>{maxDomains - domains.length} slot khả dụng còn lại</span>
+              <span>{maxDomains - domains.length} available slots remaining</span>
               <span>{domainUsagePercent}%</span>
             </p>
           </div>
@@ -233,10 +235,10 @@ export function BillingView() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/80">
           <div>
             <h2 className="text-lg font-bold tracking-tight text-foreground">
-              Bảng giá dịch vụ ReplyEase AI
+              {t("billing.title", "Plans & SePay Credits")}
             </h2>
             <p className="text-xs text-muted-foreground">
-              Thanh toán tức thời qua mã VietQR SePay, hệ thống tự động đối soát và kích hoạt trong 3 - 5 giây.
+              {t("billing.subtitle", "Manage subscription plans, top-up AI & Email credits, and audit VietQR transactions.")}
             </p>
           </div>
 
@@ -252,7 +254,7 @@ export function BillingView() {
               }`}
             >
               <ZapIcon className="size-3.5 text-amber-500" />
-              <span>Gói cước tài khoản</span>
+              <span>{t("billing.plansTab", "Subscription Plans")}</span>
             </button>
             <button
               type="button"
@@ -264,9 +266,9 @@ export function BillingView() {
               }`}
             >
               <CoinsIcon className="size-3.5 text-primary" />
-              <span>Nạp thêm Credits</span>
+              <span>{t("billing.buyCredits", "Top-Up Credits")}</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold ml-0.5">
-                Bonus tới 50%
+                {t("billing.creditPackages.bonusUpTo", "Bonus up to 50%")}
               </span>
             </button>
           </div>
@@ -296,10 +298,10 @@ export function BillingView() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold tracking-tight text-foreground">
-              Lịch sử giao dịch & Hóa đơn
+              {t("billing.historyTitle", "Transaction History & Invoices")}
             </h2>
             <p className="text-xs text-muted-foreground">
-              Xem lại toàn bộ các thanh toán chuyển khoản SePay VietQR đã thực hiện.
+              {t("billing.historySubtitle", "Audit all processed SePay VietQR bank payments and invoices.")}
             </p>
           </div>
         </div>

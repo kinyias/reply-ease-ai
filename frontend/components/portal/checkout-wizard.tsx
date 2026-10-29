@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useMemo, useState } from "react";
 import { ArrowLeftIcon, ArrowRightIcon, Loader2Icon, LockIcon } from "lucide-react";
 import { usePortalCheckout } from "@/hooks/portal/use-portal-checkout";
@@ -17,6 +19,7 @@ interface CheckoutWizardProps {
 }
 
 export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
+  const { t } = useI18n();
   const {
     data,
     isLoading,
@@ -46,21 +49,21 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
     if (data && data.questions.length > 0) {
       list.push({
         id: "qualify",
-        label: "Khảo sát",
-        description: "Thông tin khách hàng",
+        label: t("portal.stepSurveyLabel", "Survey"),
+        description: t("portal.stepSurveyDesc", "Customer details"),
       });
     }
 
     list.push(
       {
         id: "payment",
-        label: "Thanh toán",
-        description: "Chọn sản phẩm & phương thức",
+        label: t("portal.stepPaymentLabel", "Payment"),
+        description: t("portal.stepPaymentDesc", "Select product & method"),
       },
       {
         id: "success",
-        label: "Hoàn tất",
-        description: "Biên lai đơn hàng",
+        label: t("portal.stepCompleteLabel", "Complete"),
+        description: t("portal.stepCompleteDesc", "Order receipt"),
       }
     );
 
@@ -79,7 +82,7 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
         <Loader2Icon className="size-8 text-orange-600 animate-spin mb-3" />
         <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-          Đang tải thông tin đơn hàng & sản phẩm...
+          {t("portal.loadingCheckout", "Loading checkout & products...")}
         </p>
       </div>
     );
@@ -89,10 +92,10 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 text-center">
         <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
-          Không tìm thấy trang thanh toán
+          {t("portal.checkoutNotFound", "Checkout page not found")}
         </h2>
         <p className="text-sm text-zinc-500 max-w-sm">
-          Đường dẫn không hợp lệ hoặc thông tin khách hàng không tồn tại.
+          {t("portal.invalidLink", "Invalid URL or customer record does not exist.")}
         </p>
       </div>
     );
@@ -104,8 +107,8 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
       <PortalHeader
         domainName={data.domain_name}
         domainIcon={data.domain_icon}
-        subtitle="Cổng thanh toán đơn hàng trực tuyến"
-        badgeText="Bảo mật thanh toán SSL"
+        subtitle={t("portal.portalSubtitleCheckout", "Online product checkout portal")}
+        badgeText={t("portal.securityBadge", "256-bit SSL Secure")}
       />
 
       {/* Progress Stepper */}
@@ -145,7 +148,7 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
                       className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-zinc-600 hover:text-zinc-900 font-medium transition-colors"
                     >
                       <ArrowLeftIcon className="size-4" />
-                      <span>Xem lại khảo sát</span>
+                      <span>{t("portal.reviewSurvey", "Review survey")}</span>
                     </button>
                   ) : (
                     <div />
@@ -158,9 +161,7 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
                     className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs sm:text-sm shadow-xs transition-colors disabled:opacity-50"
                   >
                     <span>
-                      {isSubmitting
-                        ? "Đang khởi tạo đơn hàng..."
-                        : `Tiến hành thanh toán (${paymentMethod === "vietqr" ? "VietQR" : "Thẻ Quốc Tế"})`}
+                      {isSubmitting ? t("portal.creatingOrder", "Creating order...") : t("portal.proceedPayment", { method: paymentMethod === "vietqr" ? "VietQR" : "International Card" }, `Proceed to Payment (${paymentMethod === "vietqr" ? "VietQR" : "International Card"})`)}
                     </span>
                     <ArrowRightIcon className="size-4" />
                   </button>
@@ -176,7 +177,7 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
                     className="inline-flex items-center gap-1.5 text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 font-medium transition-colors"
                   >
                     <ArrowLeftIcon className="size-4" />
-                    <span>Thay đổi sản phẩm hoặc phương thức</span>
+                    <span>{t("portal.changeProductMethod", "Change products or payment method")}</span>
                   </button>
                 </div>
 
@@ -215,7 +216,7 @@ export function CheckoutWizard({ domainId, customerId }: CheckoutWizardProps) {
 
       {/* Footer */}
       <footer className="py-6 border-t border-zinc-200/80 dark:border-zinc-800 text-center text-xs text-zinc-400">
-        Được cung cấp bởi Reply Ease AI &bull; Cổng thanh toán tích hợp VietQR & Stripe Elements
+        {t("portal.poweredByCheckout", "Powered by ReplyEase AI • Integrated VietQR & Stripe Elements Checkout")}
       </footer>
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { CheckIcon } from "lucide-react";
 
 export interface StepItem {
@@ -14,12 +16,13 @@ interface PortalProgressProps {
 }
 
 export function PortalProgress({ steps, currentStepId }: PortalProgressProps) {
+  const { t } = useI18n();
   const currentIndex = steps.findIndex((s) => s.id === currentStepId);
 
   return (
     <div className="w-full py-4 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/30">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <nav aria-label="Tiến trình">
+        <nav aria-label={t("portal.progressAria", "Progress")}>
           <ol className="flex items-center justify-between w-full">
             {steps.map((step, idx) => {
               const isPassed = idx < currentIndex;

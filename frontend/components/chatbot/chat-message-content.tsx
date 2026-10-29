@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { ExternalLinkIcon, ImageIcon, Maximize2Icon, XIcon } from "lucide-react";
+import { useI18n } from "@/context/i18n-context";
 
 export interface MessageSegment {
   type: "text" | "image";
@@ -90,11 +91,11 @@ export function stripImageTagsForPreview(content: string): string {
   const cleaned = content
     .replace(
       /<Image\b(?:\s+src=["']([^"']+)["'])?[^>]*>([\s\S]*?)<\/Image>|<Image\b\s+src=["']([^"']+)["'][^>]*\/?>/gi,
-      "[Hình ảnh]"
+      "[Image]"
     )
     .replace(/\s+/g, " ")
     .trim();
-  return cleaned || "[Hình ảnh]";
+  return cleaned || "[Image]";
 }
 
 interface ProductImageBubbleProps {
@@ -103,7 +104,9 @@ interface ProductImageBubbleProps {
   isUser?: boolean;
 }
 
-function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: ProductImageBubbleProps) {
+function ProductImageBubble({ src, alt, isUser }: ProductImageBubbleProps) {
+  const { t } = useI18n();
+  const imageAlt = alt || t("chatbot.imagePreviewAlt", "Product Image");
   const [hasError, setHasError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
@@ -128,14 +131,14 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
         }`}
       >
         <ImageIcon className="size-4 shrink-0 opacity-60" />
-        <span className="truncate flex-1">Ảnh sản phẩm: {src}</span>
+        <span className="truncate flex-1">{t("chatbot.productImage", "Product Image")}: {src}</span>
         <a
           href={src}
           target="_blank"
           rel="noopener noreferrer"
           className="underline font-medium hover:opacity-80 shrink-0 inline-flex items-center gap-1"
         >
-          <span>Mở</span>
+          <span>{t("common.open", "Open")}</span>
           <ExternalLinkIcon className="size-3" />
         </a>
       </div>
@@ -164,11 +167,11 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
             }
           }}
           className="relative w-full aspect-4/3 cursor-pointer overflow-hidden bg-zinc-100 dark:bg-zinc-900"
-          title="Nhấn để phóng to ảnh"
+          title={t("chatbot.clickToZoom", "Click to zoom")}
         >
           <Image
             src={src}
-            alt={alt}
+            alt={imageAlt}
             fill
             sizes="(max-width: 640px) 280px, 320px"
             className={`object-cover transition-transform duration-300 group-hover:scale-105 ${
@@ -186,7 +189,7 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
           <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
             <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs flex items-center gap-1.5 shadow-sm">
               <Maximize2Icon className="size-3" />
-              <span>Phóng to</span>
+              <span>{t("chatbot.zoom", "Zoom")}</span>
             </span>
           </div>
         </div>
@@ -195,7 +198,7 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
         <div className="px-2.5 py-1.5 bg-white/95 dark:bg-zinc-900/95 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-600 dark:text-zinc-400">
           <span className="flex items-center gap-1 truncate font-medium">
             <ImageIcon className="size-3 text-orange-500 shrink-0" />
-            <span className="truncate">Hình ảnh sản phẩm</span>
+            <span className="truncate">{t("chatbot.imagePreviewAlt", "Product Image")}</span>
           </span>
         </div>
       </div>
@@ -222,14 +225,14 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
                   rel="noopener noreferrer"
                   className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 inline-flex items-center gap-1 text-[11px] transition-colors"
                 >
-                  <span>Mở tab mới</span>
+                  <span>{t("chatbot.openNewTab", "Open in new tab")}</span>
                   <ExternalLinkIcon className="size-3" />
                 </a>
                 <button
                   type="button"
                   onClick={() => setIsPreviewOpen(false)}
                   className="p-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
-                  aria-label="Đóng xem trước"
+                  aria-label={t("chatbot.closePreview", "Close preview")}
                 >
                   <XIcon className="size-4" />
                 </button>
@@ -240,7 +243,7 @@ function ProductImageBubble({ src, alt = "Ảnh sản phẩm", isUser }: Product
             <div className="relative w-full h-[60vh] max-h-[600px] bg-black flex items-center justify-center p-2">
               <Image
                 src={src}
-                alt={alt}
+                alt={imageAlt}
                 fill
                 className="object-contain"
                 sizes="(max-width: 768px) 100vw, 800px"

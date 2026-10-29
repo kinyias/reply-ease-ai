@@ -1,6 +1,8 @@
 "use client";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useI18n } from "@/context/i18n-context";
 
 import * as React from "react";
 import Image from "next/image";
@@ -37,6 +39,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
   const router = useRouter();
   const { data: user } = useCurrentUser();
   const { domains } = useDomainManagement();
+  const { t } = useI18n();
 
   const [isCollapsed, setIsCollapsed] = React.useState(false);
 
@@ -58,43 +61,43 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
 
   const NAV_ITEMS = [
     {
-      label: "Tổng quan",
+      label: t("nav.overview", "Overview"),
       href: "/dashboard",
       icon: LayoutDashboardIcon,
       isActive: pathname === "/dashboard",
     },
     {
-      label: "Hội thoại Live",
+      label: t("nav.conversations", "Live Conversations"),
       href: "/conversations",
       icon: MessageSquareIcon,
       isActive: pathname.startsWith("/conversations"),
     },
     {
-      label: "Lịch hẹn",
+      label: t("nav.appointments", "Appointments"),
       href: "/appointment",
       icon: CalendarIcon,
       isActive: pathname.startsWith("/appointment"),
     },
     {
-      label: "Cài đặt Domain & Bot",
+      label: t("nav.settings", "Domain & Bot Settings"),
       href: `/settings/${activeDomainName}`,
       icon: SettingsIcon,
       isActive: pathname.startsWith("/settings"),
     },
     {
-      label: "Email Marketing",
+      label: t("nav.marketing", "Email Marketing"),
       href: "/marketing",
       icon: MailIcon,
       isActive: pathname.startsWith("/marketing"),
     },
     {
-      label: "Gói cước & SePay",
+      label: t("nav.billing", "Plans & SePay"),
       href: "/billing",
       icon: CreditCardIcon,
       isActive: pathname.startsWith("/billing"),
     },
     {
-      label: "Tích hợp SePay Shop",
+      label: t("nav.integration", "Shop Integration"),
       href: "/integration",
       icon: ShieldCheckIcon,
       isActive: pathname.startsWith("/integration"),
@@ -104,10 +107,10 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
   const handleLogout = async () => {
     try {
       await authService.logout();
-      toast.success("Đã đăng xuất thành công");
+      toast.success(t("nav.logoutSuccess", "Signed out successfully"));
       router.push("/auth/sign-in");
     } catch {
-      toast.error("Có lỗi khi đăng xuất");
+      toast.error(t("nav.logoutError", "Error signing out"));
     }
   };
 
@@ -138,7 +141,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
                   ReplyEase <span className="text-primary font-bold">AI</span>
                 </span>
                 <span className="text-[11px] text-muted-foreground font-medium">
-                  Bán hàng & CSKH tự động
+                  {t("nav.brandTagline", "Autonomous Sales & Support")}
                 </span>
               </div>
             </Link>
@@ -161,7 +164,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
             size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="size-7 text-muted-foreground hover:text-sidebar-foreground hidden sm:flex"
-            title={isCollapsed ? "Mở rộng sidebar" : "Thu nhỏ sidebar"}
+            title={isCollapsed ? t("nav.expandSidebar", "Expand sidebar") : t("nav.collapseSidebar", "Collapse sidebar")}
           >
             {isCollapsed ? (
               <PanelLeftOpenIcon className="size-4" />
@@ -232,7 +235,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-xs font-semibold text-sidebar-foreground truncate">
-                    {user?.fullname || "Người dùng"}
+                    {user?.fullname || t("common.user", "User")}
                   </span>
                   {(user?.type === "demo" || user?.is_demo || user?.email?.startsWith("demo_")) && (
                     <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded shrink-0">
@@ -241,7 +244,7 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
                   )}
                 </div>
                 <span className="text-[11px] text-muted-foreground truncate">
-                  {user?.email || "Chưa đăng nhập"}
+                  {user?.email || t("nav.notLoggedIn", "Not signed in")}
                 </span>
               </div>
             )}
@@ -249,19 +252,21 @@ export function AppSidebar({ mobileOpen = false, onClose }: AppSidebarProps) {
 
           {!isCollapsed ? (
             <div className="flex items-center gap-1 shrink-0">
+              <LanguageToggle />
               <ThemeToggle />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleLogout}
                 className="size-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-                title="Đăng xuất"
+                title={t("nav.logout", "Sign Out")}
               >
                 <LogOutIcon className="size-3.5" />
               </Button>
             </div>
           ) : (
-            <div className="mt-2 flex justify-center">
+            <div className="mt-2 flex flex-col items-center gap-1">
+              <LanguageToggle />
               <ThemeToggle />
             </div>
           )}

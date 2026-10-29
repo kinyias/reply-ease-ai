@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useState } from "react";
 import Image from "next/image";
 import {
@@ -29,6 +31,7 @@ export function VietQRPaymentCard({
   onSimulatePayment,
   isSimulating,
 }: VietQRPaymentCardProps) {
+  const { t } = useI18n();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const formatVND = (val: number) => {
@@ -41,7 +44,7 @@ export function VietQRPaymentCard({
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
-    toast.success(`Đã sao chép ${fieldName}`);
+    toast.success(`${t("billing.sepayModal.copied", "Copied!")} (${fieldName})`);
     setTimeout(() => setCopiedField(null), 2000);
   };
 
@@ -55,17 +58,17 @@ export function VietQRPaymentCard({
           </div>
           <div>
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-base">
-              Quét mã VietQR SePay
+              {t("portal.scanVietqrTitle", "Scan SePay VietQR")}
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Mở App Ngân hàng bất kỳ để quét mã và chuyển khoản tức thì
+              {t("portal.scanVietqrDesc", "Open any banking app to scan and transfer immediately")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
           <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Tự động đối soát</span>
+          <span>{t("portal.autoReconcile", "Auto Reconciliation")}</span>
         </div>
       </div>
 
@@ -85,13 +88,13 @@ export function VietQRPaymentCard({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-zinc-400 text-xs">
-                Không thể tải mã QR
+                {t("portal.qrError", "Unable to load QR Code")}
               </div>
             )}
           </div>
 
           <p className="mt-3 text-xs text-center text-zinc-500 dark:text-zinc-400 font-medium">
-            Quét mã qua VNPAY, MoMo hoặc bất kỳ ứng dụng ngân hàng nào
+            {t("portal.scanHelp", "Scan via VNPAY, MoMo, or any banking app")}
           </p>
         </div>
 
@@ -101,14 +104,14 @@ export function VietQRPaymentCard({
           <div className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Ngân hàng thụ hưởng
+                {t("portal.beneficiaryBank", "Beneficiary Bank")}
               </span>
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {order.bank || "MBBank"}
               </p>
             </div>
             <span className="text-xs font-medium text-zinc-500">
-              Quân Đội (MB)
+              MBBank
             </span>
           </div>
 
@@ -116,7 +119,7 @@ export function VietQRPaymentCard({
           <div className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Số tài khoản
+                {t("billing.sepayModal.account", "Account Number")}
               </span>
               <p className="text-sm font-mono font-semibold text-zinc-900 dark:text-zinc-100">
                 {order.account_number || "0333888999"}
@@ -127,17 +130,17 @@ export function VietQRPaymentCard({
               onClick={() =>
                 copyToClipboard(
                   order.account_number || "0333888999",
-                  "Số tài khoản"
+                  t("billing.sepayModal.account", "Account Number")
                 )
               }
               className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-white text-zinc-600 dark:text-zinc-300 text-xs transition-colors flex items-center gap-1"
             >
-              {copiedField === "Số tài khoản" ? (
+              {copiedField === t("billing.sepayModal.account", "Account Number") ? (
                 <CheckIcon className="size-3.5 text-emerald-600" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
-              <span>Sao chép</span>
+              <span>{t("billing.sepayModal.copy", "Copy")}</span>
             </button>
           </div>
 
@@ -145,7 +148,7 @@ export function VietQRPaymentCard({
           <div className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Chủ tài khoản
+                {t("portal.accountHolder", "Account Holder")}
               </span>
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 uppercase">
                 {order.account_name || "REPLY EASE STORE"}
@@ -157,7 +160,7 @@ export function VietQRPaymentCard({
           <div className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Số tiền thanh toán
+                {t("portal.amountToPay", "Amount to Pay")}
               </span>
               <p className="text-base font-bold text-orange-600 dark:text-orange-400">
                 {formatVND(order.amount)}
@@ -166,16 +169,16 @@ export function VietQRPaymentCard({
             <button
               type="button"
               onClick={() =>
-                copyToClipboard(order.amount.toString(), "Số tiền")
+                copyToClipboard(order.amount.toString(), t("billing.sepayModal.amount", "Amount"))
               }
               className="p-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-white text-zinc-600 dark:text-zinc-300 text-xs transition-colors flex items-center gap-1"
             >
-              {copiedField === "Số tiền" ? (
+              {copiedField === t("billing.sepayModal.amount", "Amount") ? (
                 <CheckIcon className="size-3.5 text-emerald-600" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
-              <span>Sao chép</span>
+              <span>{t("billing.sepayModal.copy", "Copy")}</span>
             </button>
           </div>
 
@@ -183,7 +186,7 @@ export function VietQRPaymentCard({
           <div className="p-3 rounded-xl bg-orange-50/70 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/40 flex items-center justify-between">
             <div>
               <span className="text-[11px] font-medium text-orange-700 dark:text-orange-400 uppercase tracking-wider">
-                Nội dung chuyển khoản (Bắt buộc chính xác)
+                {t("portal.transferContentExact", "Transfer Content (Exact Match Required)")}
               </span>
               <p className="text-sm font-mono font-bold text-orange-900 dark:text-orange-200">
                 {order.content || order.order_code}
@@ -194,17 +197,17 @@ export function VietQRPaymentCard({
               onClick={() =>
                 copyToClipboard(
                   order.content || order.order_code,
-                  "Nội dung chuyển khoản"
+                  t("billing.sepayModal.content", "Transfer Content")
                 )
               }
               className="p-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 text-xs transition-colors flex items-center gap-1 font-medium shadow-2xs"
             >
-              {copiedField === "Nội dung chuyển khoản" ? (
+              {copiedField === t("billing.sepayModal.content", "Transfer Content") ? (
                 <CheckIcon className="size-3.5" />
               ) : (
                 <CopyIcon className="size-3.5" />
               )}
-              <span>Sao chép</span>
+              <span>{t("billing.sepayModal.copy", "Copy")}</span>
             </button>
           </div>
         </div>
@@ -215,7 +218,7 @@ export function VietQRPaymentCard({
         <div className="flex items-center gap-2.5 text-xs text-zinc-500 dark:text-zinc-400">
           <Loader2Icon className="size-4 animate-spin text-orange-600 shrink-0" />
           <span>
-            Hệ thống đang tự động kiểm tra giao dịch biến động số dư SePay...
+            {t("portal.listeningSePay", "System is automatically listening for SePay balance update...")}
           </span>
         </div>
 
@@ -228,7 +231,7 @@ export function VietQRPaymentCard({
         >
           <SparklesIcon className="size-3.5" />
           <span>
-            {isSimulating ? "Đang xử lý..." : "Mô phỏng thanh toán ngay (Demo / QA)"}
+            {isSimulating ? t("portal.processing", "Processing...") : t("portal.simulateCheckout", "Simulate Payment Now (Demo / QA)")}
           </span>
         </button>
       </div>

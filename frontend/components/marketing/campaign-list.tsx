@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/context/i18n-context";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ interface CampaignListProps {
 }
 
 export function CampaignList({
+
   campaigns,
   activeCampaignId,
   onSelectCampaign,
@@ -48,6 +50,7 @@ export function CampaignList({
   isCreating = false,
   isDeleting = false,
 }: CampaignListProps) {
+  const { t, locale } = useI18n();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState("");
@@ -88,7 +91,9 @@ export function CampaignList({
     await onCreateCampaign({
       name: newCampaignName.trim(),
       template:
-        "Xin chào {{email}},\n\nCảm ơn bạn đã quan tâm đến dịch vụ của chúng tôi! Chúng tôi xin gửi tới bạn thông tin cập nhật mới nhất...\n\nTrân trọng,\nĐội ngũ CSKH ReplyEase AI",
+        locale === "vi"
+          ? "Xin chào {{email}},\n\nCảm ơn bạn đã quan tâm đến dịch vụ của chúng tôi! Chúng tôi xin gửi tới bạn thông tin cập nhật mới nhất...\n\nTrân trọng,\nĐội ngũ CSKH ReplyEase AI"
+          : "Hello {{email}},\n\nThank you for your interest in our service! We would like to send you the latest updates...\n\nBest regards,\nReplyEase AI Support Team",
       customers: [],
     });
 
@@ -109,10 +114,10 @@ export function CampaignList({
         <div>
           <h2 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
             <MailIcon className="size-4 text-primary" />
-            Chiến dịch Email
+            {t("marketing.tabs.campaigns", "Email Campaigns")}
           </h2>
           <p className="text-[11px] text-muted-foreground">
-            {filteredCampaigns.length} chiến dịch {currentSearch ? `(tìm kiếm)` : `đã tạo`}
+            {t("marketing.campaignsCount", { count: filteredCampaigns.length, search: currentSearch ? t("marketing.searchSuffix", "(filtered)") : t("marketing.createdSuffix", "created") }, `${filteredCampaigns.length} campaigns`)}
           </p>
         </div>
 
@@ -122,7 +127,7 @@ export function CampaignList({
           className="h-8 px-2.5 text-xs font-medium cursor-pointer"
         >
           <PlusIcon className="size-3.5 mr-1" />
-          Tạo chiến dịch
+          {t("marketing.createCampaign", "Create Campaign")}
         </Button>
       </div>
 
@@ -131,7 +136,7 @@ export function CampaignList({
         <div className="relative">
           <SearchIcon className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Tìm theo tên chiến dịch..."
+            placeholder={t("marketing.searchCampaignPlaceholder", "Search by campaign name...")}
             value={currentSearch}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="h-8 pl-8 pr-7 text-xs bg-background"
@@ -154,12 +159,12 @@ export function CampaignList({
           <div className="rounded-lg border border-dashed border-border/80 p-6 text-center space-y-2 bg-muted/10">
             <MailIcon className="size-6 text-muted-foreground mx-auto" />
             <p className="text-xs font-medium text-foreground">
-              {currentSearch ? "Không tìm thấy chiến dịch nào" : "Chưa có chiến dịch nào"}
+              {currentSearch ? t("marketing.emptyCampaignTitle", "No campaigns found") : t("marketing.noCampaignsYet", "No campaigns created yet")}
             </p>
             <p className="text-[11px] text-muted-foreground max-w-xs mx-auto">
               {currentSearch
-                ? "Thử tìm kiếm với từ khóa khác hoặc xóa tìm kiếm để xem tất cả."
-                : "Nhấn \"Tạo chiến dịch\" để bắt đầu xây dựng chiến dịch email marketing đầu tiên."}
+                ? t("marketing.emptyCampaignSearchHelp", "Try a different search keyword or clear search to view all.")
+                : t("marketing.emptyCampaignHelp", "Click \"Create Campaign\" to start building your first marketing outreach.")}
             </p>
             {!currentSearch && (
               <Button
@@ -169,7 +174,7 @@ export function CampaignList({
                 className="text-xs h-7 mt-1 cursor-pointer"
               >
                 <PlusIcon className="size-3 mr-1" />
-                Tạo mới ngay
+                {t("marketing.createNewNow", "Create New Now")}
               </Button>
             )}
           </div>
@@ -210,7 +215,7 @@ export function CampaignList({
                     <div className="flex items-center gap-2.5 mt-1 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <UsersIcon className="size-3 text-muted-foreground" />
-                        {recipientCount} người nhận
+                        {t("marketing.recipients", { count: recipientCount }, `${recipientCount} recipients`)}
                       </span>
                       <span>&bull;</span>
                       <span className="flex items-center gap-1">
@@ -229,7 +234,7 @@ export function CampaignList({
                       setCampaignToDelete(c);
                     }}
                     className="size-7 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-opacity cursor-pointer"
-                    title="Xóa chiến dịch"
+                    title={t("marketing.deleteCampaignTitle", "Delete Campaign")}
                   >
                     <Trash2Icon className="size-3.5" />
                   </Button>
@@ -248,7 +253,7 @@ export function CampaignList({
           totalItems={filteredCampaigns.length}
           pageSize={pageSize}
           onPageChange={setPage}
-          itemLabel="chiến dịch"
+          itemLabel={t("marketing.tabs.campaigns", "campaigns")}
         />
       )}
 
@@ -259,19 +264,19 @@ export function CampaignList({
           <form onSubmit={handleCreate}>
             <DialogHeader>
               <DialogTitle className="text-lg font-bold">
-                Tạo chiến dịch Email mới
+                {t("marketing.newCampaignModalTitle", "Create New Email Campaign")}
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                Đặt tên cho chiến dịch để dễ dàng quản lý và theo dõi hiệu quả gửi thư.
+                {t("marketing.newCampaignModalDesc", "Name your campaign to easily manage and track email delivery performance.")}
               </DialogDescription>
             </DialogHeader>
 
             <div className="py-4 space-y-3">
               <label className="text-xs font-medium text-foreground block">
-                Tên chiến dịch <span className="text-destructive">*</span>
+                {t("marketing.campaignNameLabel", "Campaign Name")} <span className="text-destructive">*</span>
               </label>
               <Input
-                placeholder="VD: Khuyến mãi Black Friday 2026..."
+                placeholder={t("marketing.campaignNamePlaceholder", "e.g.: Black Friday Special Offer 2026...")}
                 value={newCampaignName}
                 onChange={(e) => setNewCampaignName(e.target.value)}
                 autoFocus
@@ -287,16 +292,14 @@ export function CampaignList({
                 size="sm"
                 onClick={() => setIsCreateModalOpen(false)}
                 className="text-xs"
-              >
-                Hủy
-              </Button>
+              >{t("common.cancel", "Cancel")}</Button>
               <Button
                 type="submit"
                 size="sm"
                 disabled={!newCampaignName.trim() || isCreating}
                 className="text-xs"
               >
-                {isCreating ? "Đang tạo..." : "Xác nhận tạo"}
+                {isCreating ? t("marketing.creating", "Creating...") : t("marketing.confirmCreate", "Confirm Create")}
               </Button>
             </DialogFooter>
           </form>
@@ -311,12 +314,10 @@ export function CampaignList({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-destructive">
-              Xác nhận xóa chiến dịch
+              {t("marketing.confirmDeleteTitle", "Confirm Delete Campaign")}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Bạn có chắc chắn muốn xóa chiến dịch &quot;
-              <strong className="text-foreground">{campaignToDelete?.name}</strong>
-              &quot;? Hành động này không thể hoàn tác.
+              {t("marketing.confirmDeleteDesc", { name: campaignToDelete?.name || "" }, `Are you sure you want to delete campaign "${campaignToDelete?.name}"? This action cannot be undone.`)}
             </DialogDescription>
           </DialogHeader>
 
@@ -327,7 +328,7 @@ export function CampaignList({
               onClick={() => setCampaignToDelete(null)}
               className="text-xs"
             >
-              Hủy
+              {t("common.cancel", "Cancel")}
             </Button>
             <Button
               variant="destructive"
@@ -336,7 +337,7 @@ export function CampaignList({
               disabled={isDeleting}
               className="text-xs"
             >
-              {isDeleting ? "Đang xóa..." : "Xóa vĩnh viễn"}
+              {isDeleting ? t("marketing.deleting", "Deleting...") : t("marketing.deletePermanently", "Delete Permanently")}
             </Button>
           </DialogFooter>
         </DialogContent>

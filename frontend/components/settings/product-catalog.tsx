@@ -34,6 +34,7 @@ import { Product } from "@/types/product";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { PaginationControl } from "@/components/ui/pagination-control";
 import uploadService from "@/services/upload-service";
+import { useI18n } from "@/context/i18n-context";
 
 
 interface ProductCatalogProps {
@@ -42,19 +43,19 @@ interface ProductCatalogProps {
 
 const PRESET_IMAGES = [
   {
-    label: "Công nghệ",
+    label: "Technology",
     url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=80",
   },
   {
-    label: "Đồng hồ",
+    label: "Watch",
     url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=80",
   },
   {
-    label: "Túi xách",
+    label: "Bags",
     url: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&auto=format&fit=crop&q=80",
   },
   {
-    label: "Khóa học / Dịch vụ",
+    label: "Courses / Services",
     url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=500&auto=format&fit=crop&q=80",
   },
 ];
@@ -63,6 +64,7 @@ type PriceFilter = "all" | "under500" | "500to2m" | "over2m";
 type SortOption = "newest" | "oldest" | "priceAsc" | "priceDesc" | "nameAsc";
 
 export function ProductCatalog({ domainId }: ProductCatalogProps) {
+  const { t } = useI18n();
   const {
     products,
     isLoading,
@@ -271,14 +273,14 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold text-foreground">
-              Sản phẩm & Dịch vụ của Website
+              {t("settingsProducts.title", "Products & Services Catalog")}
             </h3>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-              {products.length} sản phẩm
+              {t("settingsProducts.productCount", { count: products.length }, `${products.length} products`)}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Các mặt hàng hoặc dịch vụ mà ChatBot AI sẽ sử dụng để tư vấn giá và gửi liên kết thanh toán VietQR.
+            {t("settingsProducts.subtitle", "Manage product inventory, pricing, and automated VietQR checkout links.")}
           </p>
         </div>
 
@@ -287,7 +289,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
           className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-xs"
         >
           <PlusIcon className="size-4 mr-1.5" />
-          Thêm sản phẩm
+          {t("settingsProducts.addProduct", "Add Product")}
         </Button>
       </div>
 
@@ -301,7 +303,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               <Input
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="Tìm kiếm sản phẩm theo tên, mã ID hoặc mức giá..."
+                placeholder={t("settingsProducts.searchPlaceholder", "Search products by name, SKU or price...")}
                 className="pl-9 pr-9 h-9 text-xs sm:text-sm bg-background border-border/70 shadow-2xs focus-visible:ring-1 focus-visible:ring-primary"
               />
               {searchQuery && (
@@ -309,7 +311,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                   type="button"
                   onClick={() => handleSearchChange("")}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 rounded-sm transition-colors cursor-pointer"
-                  title="Xóa từ khóa tìm kiếm"
+                  title={t("common.clearSearch", "Clear search")}
                 >
                   <XIcon className="size-3.5" />
                 </button>
@@ -324,10 +326,10 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                 onChange={(e) => handlePriceFilterChange(e.target.value as PriceFilter)}
                 className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
               >
-                <option value="all">Tất cả mức giá</option>
-                <option value="under500">Dưới 500.000 ₫</option>
+                <option value="all">{t("common.allPrices", "All Prices")}</option>
+                <option value="under500">{t("common.under500k", "Under 500k")}</option>
                 <option value="500to2m">500.000 ₫ - 2.000.000 ₫</option>
-                <option value="over2m">Trên 2.000.000 ₫</option>
+                <option value="over2m">{t("common.over2m", "Over 2M")}</option>
               </select>
 
               {/* Sort selector */}
@@ -337,11 +339,11 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                   onChange={(e) => handleSortChange(e.target.value as SortOption)}
                   className="h-9 px-2.5 text-xs rounded-md border border-border/70 bg-background text-foreground shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-primary cursor-pointer hover:border-border transition-colors"
                 >
-                  <option value="newest">Mới nhất</option>
-                  <option value="oldest">Cũ nhất</option>
-                  <option value="priceAsc">Giá: Thấp đến Cao</option>
-                  <option value="priceDesc">Giá: Cao đến Thấp</option>
-                  <option value="nameAsc">Tên: A → Z</option>
+                  <option value="newest">{t("common.newest", "Newest")}</option>
+                  <option value="oldest">{t("common.oldest", "Oldest")}</option>
+                  <option value="priceAsc">{t("common.priceAsc", "Price: Low to High")}</option>
+                  <option value="priceDesc">{t("common.priceDesc", "Price: High to Low")}</option>
+                  <option value="nameAsc">{t("common.nameAsc", "Name: A → Z")}</option>
                 </select>
               </div>
             </div>
@@ -352,16 +354,16 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
             <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg border border-border/40">
               <div className="flex items-center gap-2 flex-wrap">
                 <span>
-                  Tìm thấy <strong className="text-foreground">{filteredProducts.length}</strong> / {products.length} sản phẩm
+                  Tìm thấy <strong className="text-foreground">{filteredProducts.length}</strong> / {t("settingsProducts.productCount", { count: products.length }, `${products.length} products`)}
                 </span>
                 {searchQuery && (
                   <span className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-foreground font-medium text-[11px]">
-                    Từ khóa: &quot;{searchQuery}&quot;
+                    {t("common.keyword", "Keyword")}: &quot;{searchQuery}&quot;
                   </span>
                 )}
                 {priceFilter !== "all" && (
                   <span className="inline-flex items-center gap-1 bg-muted px-2 py-0.5 rounded text-foreground font-medium text-[11px]">
-                    Mức giá: {priceFilter === "under500" ? "< 500k" : priceFilter === "500to2m" ? "500k - 2tr" : "> 2tr"}
+                    {t("common.price", "Price")}: {priceFilter === "under500" ? "< 500k" : priceFilter === "500to2m" ? "500k - 2M" : "> 2M"}
                   </span>
                 )}
               </div>
@@ -371,7 +373,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                 onClick={handleResetFilters}
                 className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                Đặt lại bộ lọc
+                {t("common.resetFilter", "Reset Filters")}
               </Button>
             </div>
           )}
@@ -382,7 +384,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
       {isLoading && (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-3">
           <Loader2Icon className="size-5 animate-spin text-primary" />
-          <span className="text-sm">Đang tải danh sách sản phẩm...</span>
+          <span className="text-sm">{t("settingsProducts.loading", "Loading products list...")}</span>
         </div>
       )}
 
@@ -394,14 +396,14 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               <PackageIcon className="size-6 stroke-[1.5]" />
             </div>
             <h4 className="text-base font-medium text-foreground">
-              Chưa có sản phẩm nào trong kho
+              {t("settingsProducts.emptyTitle", "No products in catalog yet")}
             </h4>
             <p className="text-sm text-muted-foreground max-w-sm mt-1.5 mb-5">
-              Thêm sản phẩm hoặc gói dịch vụ để trợ lý AI tự động nắm bắt bảng giá, thông số và hỗ trợ khách hàng chốt đơn tự động.
+              {t("settingsProducts.emptyDescription", "Add products or service packages so the AI assistant automatically learns pricing, specs, and helps close sales automatically.")}
             </p>
             <Button onClick={handleOpenAdd} variant="outline" className="gap-2">
               <PlusIcon className="size-4" />
-              Tạo sản phẩm đầu tiên
+              {t("settingsProducts.createFirst", "Create First Product")}
             </Button>
           </CardContent>
         </Card>
@@ -415,18 +417,18 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               <SearchIcon className="size-6 stroke-[1.5]" />
             </div>
             <h4 className="text-base font-medium text-foreground">
-              Không tìm thấy sản phẩm phù hợp
+              {t("settingsProducts.noMatchTitle", "No matching products found")}
             </h4>
             <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
-              Không có sản phẩm nào khớp với{" "}
+              {t("settingsProducts.noMatchDesc", "No products match your search query: ")}
               {searchQuery ? (
                 <>
-                  từ khóa <strong className="text-foreground">&quot;{searchQuery}&quot;</strong>
+                  {t("common.keyword", "keyword")} <strong className="text-foreground">&quot;{searchQuery}&quot;</strong>
                 </>
               ) : (
-                "tiêu chí bộ lọc hiện tại"
+                t("common.currentFilters", "current filters")
               )}
-              . Hãy thử kiểm tra lại chính tả hoặc đặt lại tìm kiếm.
+              . {t("common.checkSpellingReset", "Please check spelling or reset filters.")}
             </p>
             <Button
               variant="outline"
@@ -435,7 +437,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               className="gap-1.5 cursor-pointer"
             >
               <XIcon className="size-3.5" />
-              Đặt lại tìm kiếm
+              {t("common.resetSearch", "Reset search")}
             </Button>
           </CardContent>
         </Card>
@@ -498,7 +500,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                         size="icon"
                         onClick={() => handleOpenEdit(product)}
                         className="size-8 text-muted-foreground hover:text-foreground hover:bg-muted"
-                        title="Chỉnh sửa sản phẩm"
+                        title={t("settingsProducts.modalEditTitle", "Edit Product")}
                       >
                         <Edit2Icon className="size-3.5" />
                       </Button>
@@ -508,7 +510,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                         size="icon"
                         onClick={() => setDeleteConfirmId(product.id)}
                         className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        title="Xóa sản phẩm"
+                        title={t("settingsProducts.deleteConfirmTitle", "Delete product")}
                       >
                         <Trash2Icon className="size-3.5" />
                       </Button>
@@ -528,7 +530,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
             onPageChange={setPage}
             onPageSizeChange={setPageSize}
             pageSizeOptions={[6, 9, 12, 24]}
-            itemLabel="sản phẩm"
+            itemLabel="products"
           />
         </div>
       )}
@@ -538,22 +540,22 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+              {editingProduct ? t("settingsProducts.modalEditTitle", "Edit Product") : t("settingsProducts.modalAddTitle", "Add New Product")}
             </DialogTitle>
             <DialogDescription>
-              Cung cấp thông tin tên, đơn giá và hình ảnh đại diện cho sản phẩm của bạn.
+              {t("settingsProducts.dialogDesc", "Provide product name, pricing, and image representation for your inventory.")}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Tên sản phẩm */}
+            {/* {t("settingsProducts.nameLabel", "Product Name")} */}
             <div className="space-y-1.5">
               <Label htmlFor="name" className="text-xs font-medium">
-                Tên sản phẩm / Gói dịch vụ <span className="text-destructive">*</span>
+                {t("settingsProducts.nameLabel", "Product Name")} / Gói dịch vụ <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
-                placeholder="VD: Khóa học Python Pro, Tai nghe Bluetooth..."
+                placeholder={t("settingsProducts.namePlaceholder", "e.g.: Wireless Bluetooth Earbuds...")}
                 {...register("name")}
               />
               {errors.name && (
@@ -561,11 +563,11 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               )}
             </div>
 
-            {/* Giá bán */}
+            {/* Price */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="price" className="text-xs font-medium">
-                  Giá bán (VND) <span className="text-destructive">*</span>
+                  {t("settingsProducts.priceLabel", "Price (VND)")} <span className="text-destructive">*</span>
                 </Label>
                 <span className="text-xs font-semibold text-primary">
                   {formattedPrice}
@@ -584,15 +586,15 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               )}
             </div>
 
-            {/* URL & Upload Hình ảnh */}
+            {/* Image URL & Upload */}
             <div className="space-y-1.5">
               <ImageUploader
                 value={watchedImage}
                 onChange={(url) => setValue("image", url, { shouldValidate: true })}
                 onFileSelect={setSelectedImageFile}
                 isSaving={isUploadingImage || isCreating || isUpdating}
-                label="Hình ảnh sản phẩm / dịch vụ"
-                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                label={t("settingsProducts.colImage", "Product Image")}
+                description={t("ui.uploader.instantPreview", "Instant preview, uploads to Cloudinary upon submission")}
                 aspectRatio="video"
                 previewHeight="h-32"
                 presets={PRESET_IMAGES}
@@ -610,7 +612,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                 onClick={() => setIsOpen(false)}
                 disabled={isCreating || isUpdating || isUploadingImage}
               >
-                Hủy
+                {t("common.cancel", "Cancel")}
               </Button>
               <Button
                 type="submit"
@@ -621,10 +623,10 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
                   <Loader2Icon className="size-4 animate-spin mr-1.5" />
                 ) : null}
                 {isUploadingImage
-                  ? "Đang tải ảnh lên Cloudinary..."
+                  ? t("ui.uploader.uploading", "Uploading image to Cloudinary...")
                   : editingProduct
-                  ? "Lưu thay đổi"
-                  : "Thêm vào kho"}
+                  ? t("common.save", "Save Changes")
+                  : t("settingsProducts.addProduct", "Add to Inventory")}
               </Button>
             </DialogFooter>
           </form>
@@ -638,9 +640,9 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa sản phẩm</DialogTitle>
+            <DialogTitle>{t("settingsProducts.deleteConfirmTitle", "Confirm Delete Product")}</DialogTitle>
             <DialogDescription>
-              Hành động này sẽ xóa vĩnh viễn sản phẩm khỏi kho và gỡ bỏ dữ liệu khỏi bộ tri thức của ChatBot.
+              {t("settingsProducts.deleteWarning", "This action will permanently remove the product from inventory and AI chatbot knowledge.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -651,7 +653,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               onClick={() => setDeleteConfirmId(null)}
               disabled={isDeleting}
             >
-              Hủy
+              {t("common.cancel", "Cancel")}
             </Button>
             <Button
               type="button"
@@ -662,7 +664,7 @@ export function ProductCatalog({ domainId }: ProductCatalogProps) {
               {isDeleting ? (
                 <Loader2Icon className="size-4 animate-spin mr-1.5" />
               ) : null}
-              Xác nhận xóa
+              {t("common.confirmDelete", "Confirm Delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

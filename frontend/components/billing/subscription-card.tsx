@@ -5,6 +5,7 @@ import { CheckIcon, SparklesIcon, ZapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PaymentPlan } from "@/types/payment";
+import { useI18n } from "@/context/i18n-context";
 
 interface PlanTier {
   id: PaymentPlan;
@@ -19,65 +20,65 @@ interface PlanTier {
   features: string[];
 }
 
-const PLANS: PlanTier[] = [
+const getPlans = (t: (key: string, paramsOrFallback?: any, fallback?: string) => string): PlanTier[] => [
   {
     id: "STANDARD",
     name: "Standard",
-    tagline: "Dành cho cá nhân trải nghiệm và thử nghiệm AI Chatbot.",
+    tagline: t("billing.plans.standard.tagline", "For individuals testing autonomous AI chatbots."),
     price: "0",
-    period: "Miễn phí trọn đời",
+    period: t("billing.plans.standard.period", "Free forever"),
     domains: 1,
     credits: 100,
     features: [
-      "1 Website / Domain kết nối",
-      "100 AI Chat Credits khởi đầu",
-      "Chatbot AI trả lời tự động",
-      "Thu thập email khách hàng tiềm năng",
-      "Mã nhúng iframe widget đơn giản",
-      "Tự động tạo VietQR đơn hàng",
-      "Đối soát thanh toán thủ công",
-      "Hỗ trợ qua cộng đồng",
+      t("billing.plans.standard.f1", "1 Connected Website / Domain"),
+      t("billing.plans.standard.f2", "100 Initial AI Chat Credits"),
+      t("billing.plans.standard.f3", "Automated AI Bot responses"),
+      t("billing.plans.standard.f4", "Capture lead emails"),
+      t("billing.plans.standard.f5", "Simple iframe widget embed"),
+      t("billing.plans.standard.f6", "Automated order VietQR creation"),
+      t("billing.plans.standard.f7", "Manual payment reconciliation"),
+      t("billing.plans.standard.f8", "Community support"),
     ],
   },
   {
     id: "PRO",
     name: "Pro",
-    tagline: "Lựa chọn tốt nhất cho doanh nghiệp vừa và nhỏ bán hàng tự động.",
-    price: "350.000",
-    period: "VNĐ / tháng",
-    badge: "Phổ biến nhất",
+    tagline: t("billing.plans.pro.tagline", "Best choice for small & medium businesses automating sales."),
+    price: "350,000",
+    period: t("billing.plans.pro.period", "VND / month"),
+    badge: t("billing.plans.pro.badge", "Most Popular"),
     isPopular: true,
     domains: 5,
     credits: 500,
     features: [
-      "5 Websites / Domains kết nối",
-      "500 AI Chat Credits hàng tháng",
-      "AI Sales Bot + Pinecone Vector RAG",
-      "Huấn luyện FAQ HelpDesk chuyên sâu",
-      "Live Messenger & Human takeover tức thì",
-      "Cổng thanh toán SePay VietQR tự động",
-      "Quản lý đơn hàng & Đặt lịch hẹn",
-      "Hỗ trợ kỹ thuật ưu tiên qua email",
+      t("billing.plans.pro.f1", "5 Connected Websites / Domains"),
+      t("billing.plans.pro.f2", "500 AI Chat Credits monthly"),
+      t("billing.plans.pro.f3", "AI Sales Bot + Pinecone Vector RAG"),
+      t("billing.plans.pro.f4", "Advanced HelpDesk FAQ training"),
+      t("billing.plans.pro.f5", "Instant Live Messenger & Human Takeover"),
+      t("billing.plans.pro.f6", "Automated SePay VietQR payment gateway"),
+      t("billing.plans.pro.f7", "Order Management & Appointment Booking"),
+      t("billing.plans.pro.f8", "Priority technical support via email"),
     ],
   },
   {
     id: "ULTIMATE",
     name: "Ultimate",
-    tagline: "Dành cho các doanh nghiệp lớn cần tự động hoá tối đa quy mô.",
-    price: "850.000",
-    period: "VNĐ / tháng",
-    badge: "Tối ưu nhất",
+    tagline: t("billing.plans.ultimate.tagline", "For high-volume retail stores and e-commerce enterprises."),
+    price: "850,000",
+    period: t("billing.plans.ultimate.period", "VND / month"),
+    badge: t("billing.plans.ultimate.badge", "Enterprise Tier"),
     domains: 10,
     credits: 5000,
     features: [
-      "10 Websites / Domains kết nối",
-      "5000 AI Chat Credits dung lượng lớn",
-      "Pinecone Vector RAG không giới hạn tài liệu",
-      "Tích hợp SePay Connect tài khoản riêng của Shop",
-      "Nhận tiền bán hàng trực tiếp về tài khoản ngân hàng",
-      "Email Marketing hàng loạt tới Lead",
-      "Báo cáo thống kê tài chính và Pipeline",
-      "Hỗ trợ 24/7 & Hỗ trợ kỹ thuật trực tiếp",
+      t("billing.plans.ultimate.f1", "10 Connected Websites / Domains"),
+      t("billing.plans.ultimate.f2", "5,000 AI Chat Credits monthly"),
+      t("billing.plans.ultimate.f3", "Pinecone RAG Hybrid Search with maximum accuracy"),
+      t("billing.plans.ultimate.f4", "Unlimited FAQ & Lead qualifier questions"),
+      t("billing.plans.ultimate.f5", "Multi-agent real-time human chat queue"),
+      t("billing.plans.ultimate.f6", "Dedicated SePay Gateway with high-speed Webhook"),
+      t("billing.plans.ultimate.f7", "Real-time revenue analytics & CSV export"),
+      t("billing.plans.ultimate.f8", "24/7 dedicated support via hotline & Telegram"),
     ],
   },
 ];
@@ -89,13 +90,14 @@ interface SubscriptionCardProps {
 }
 
 export function SubscriptionCard({
-  currentPlan,
+  currentPlan = "STANDARD",
   onUpgrade,
   isLoading = false,
 }: SubscriptionCardProps) {
+  const { t, locale } = useI18n();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {PLANS.map((plan) => {
+      {getPlans(t).map((plan) => {
         const isCurrent = currentPlan === plan.id;
         const isUpgradeAvailable =
           (currentPlan === "STANDARD" && (plan.id === "PRO" || plan.id === "ULTIMATE")) ||
@@ -128,7 +130,7 @@ export function SubscriptionCard({
                 </h3>
                 {isCurrent && (
                   <Badge variant="outline" className="text-xs border-primary/50 text-primary bg-primary/5">
-                    Gói hiện tại
+                    {t("billing.plans.currentBadge", "Current Plan")}
                   </Badge>
                 )}
               </div>
@@ -147,16 +149,16 @@ export function SubscriptionCard({
                   </span>
                 </div>
                 <div className="mt-2 text-xs text-muted-foreground flex items-center gap-3">
-                  <span>Hạn mức: <strong className="text-foreground">{plan.domains} Website</strong></span>
+                  <span>{t("common.limit", "Limit")}: <strong className="text-foreground">{plan.domains} Websites</strong></span>
                   <span>•</span>
-                  <span>Credits: <strong className="text-foreground">{plan.credits} lượt</strong></span>
+                  <span>Credits: <strong className="text-foreground">{plan.credits}</strong></span>
                 </div>
               </div>
 
               {/* Features List */}
               <div className="space-y-3 mb-6">
                 <p className="text-xs font-semibold text-foreground">
-                  Tính năng bao gồm:
+                  {t("billing.plans.featuresIncluded", "Features included:")}
                 </p>
                 <ul className="space-y-2.5">
                   {plan.features.map((feature, idx) => (
@@ -177,7 +179,7 @@ export function SubscriptionCard({
                   variant="outline"
                   className="w-full text-xs font-medium cursor-not-allowed bg-muted/40"
                 >
-                  Đang sử dụng gói này
+                  {t("billing.plans.currentBadge", "Current Plan")}
                 </Button>
               ) : isUpgradeAvailable ? (
                 <Button
@@ -190,7 +192,7 @@ export function SubscriptionCard({
                   }`}
                 >
                   <ZapIcon className="size-3.5 fill-current" />
-                  <span>Nâng cấp lên {plan.name}</span>
+                  <span>{t("billing.plans.upgradeBtn", { plan: plan.name })}</span>
                 </Button>
               ) : (
                 <Button
@@ -199,7 +201,7 @@ export function SubscriptionCard({
                   disabled={isLoading}
                   className="w-full text-xs font-medium"
                 >
-                  Đổi sang {plan.name}
+                  {t("billing.plans.downgradeBtn", { plan: plan.name })}
                 </Button>
               )}
             </div>

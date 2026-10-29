@@ -1,5 +1,7 @@
 "use client"
 
+import { useI18n } from "@/context/i18n-context";
+
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -46,6 +48,7 @@ import { useAuth } from "@/context/auth-context"
 import { getApiErrorMessage } from "@/lib/api-error"
 
 export function SignUpForm() {
+  const { t } = useI18n();
   const router = useRouter()
   const { login } = useAuth()
 
@@ -400,7 +403,7 @@ export function SignUpForm() {
             onClick={handleProceedFromType}
             className="w-full h-10 mt-2 font-medium bg-[#c2410c] hover:bg-[#9a3412] text-white transition-all cursor-pointer shadow-xs active:translate-y-px"
           >
-            <span>Continue to Account Details</span>
+            <span>{t("auth.next", "Continue")}</span>
             <ArrowRight className="size-4 ml-1.5" />
           </Button>
         </div>
@@ -440,7 +443,7 @@ export function SignUpForm() {
                 id="fullname"
                 type="text"
                 autoComplete="name"
-                placeholder="Alex Morgan"
+                placeholder={t("auth.fullnamePlaceholder", "Alex Morgan")}
                 className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.fullname ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
@@ -464,7 +467,7 @@ export function SignUpForm() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="name@cuahang.vn"
+                placeholder={t("auth.emailPlaceholder", "name@store.com")}
                 className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.email ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
@@ -488,7 +491,7 @@ export function SignUpForm() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="At least 8 characters"
+                placeholder={t("auth.passwordPlaceholder", "At least 8 characters")}
                 className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.password ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
@@ -536,7 +539,7 @@ export function SignUpForm() {
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Re-enter password"
+                placeholder={t("auth.confirmPasswordPlaceholder", "Re-enter password")}
                 className={`pl-9 pr-10 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                   errorsStep.confirmPassword ? "border-red-500 focus-visible:ring-red-500/20" : ""
                 }`}
@@ -620,7 +623,7 @@ export function SignUpForm() {
                 </>
               ) : (
                 <>
-                  <span>Continue to Email Verification</span>
+                  <span>{t("auth.next", "Continue")}</span>
                   <ArrowRight className="size-4 ml-1.5" />
                 </>
               )}
@@ -634,7 +637,7 @@ export function SignUpForm() {
               className="w-full h-9 text-xs text-[#64748b] hover:text-[#0f172a]"
             >
               <ArrowLeft className="size-3.5 mr-1" />
-              <span>Back to role selection</span>
+              <span>{t("auth.back", "Back")}</span>
             </Button>
           </div>
         </form>
@@ -741,7 +744,7 @@ export function SignUpForm() {
               ) : (
                 <>
                   <KeyRound className="size-4 mr-1.5" />
-                  <span>Verify & Complete</span>
+                  <span>{t("auth.verifyAndStart", "Verify & Start Now")}</span>
                 </>
               )}
             </Button>
@@ -753,7 +756,7 @@ export function SignUpForm() {
               disabled={verifyAndRegisterMutation.isPending}
               className="w-full h-9 text-xs text-[#64748b] hover:text-[#0f172a]"
             >
-              Back to edit account details
+              {t("auth.back", "Back")}
             </Button>
           </div>
         </form>
@@ -762,7 +765,7 @@ export function SignUpForm() {
       {/* Switch to Sign In */}
       <div className="border-t border-[#f1f5f9] pt-4 text-center">
         <p className="text-xs text-[#64748b]">
-          Already have an account?{" "}
+          {t("auth.haveAccount", "Already have an account?")}{" "}
           <Link
             href="/auth/sign-in"
             className="font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors underline-offset-4 hover:underline"

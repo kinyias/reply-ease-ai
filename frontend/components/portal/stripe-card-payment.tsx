@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useState } from "react";
 import {
   CreditCardIcon,
@@ -19,6 +21,7 @@ export function StripeCardPayment({
   domainName,
   onSuccess,
 }: StripeCardPaymentProps) {
+  const { t } = useI18n();
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -58,19 +61,19 @@ export function StripeCardPayment({
     e.preventDefault();
 
     if (cardNumber.replace(/\s/g, "").length < 15) {
-      toast.error("Vui lòng nhập số thẻ thanh toán hợp lệ.");
+      toast.error(t("portal.reqValidCard", "Please enter a valid card number."));
       return;
     }
     if (expiry.length < 5) {
-      toast.error("Vui lòng nhập ngày hết hạn thẻ (MM/YY).");
+      toast.error(t("portal.reqValidExpiry", "Please enter card expiry date (MM/YY)."));
       return;
     }
     if (cvc.length < 3) {
-      toast.error("Vui lòng nhập mã bảo mật CVC hợp lệ.");
+      toast.error(t("portal.reqValidCvc", "Please enter a valid CVC code."));
       return;
     }
     if (!name.trim()) {
-      toast.error("Vui lòng nhập tên in trên thẻ.");
+      toast.error(t("portal.reqValidHolder", "Please enter name on card."));
       return;
     }
 
@@ -92,10 +95,10 @@ export function StripeCardPayment({
           </div>
           <div>
             <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-base">
-              Thẻ Quốc Tế (Stripe Elements)
+              {t("portal.stripeElements", "International Card (Stripe Elements)")}
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Hỗ trợ Visa, MasterCard, JCB, American Express
+              {t("portal.stripeSub", "Supports Visa, MasterCard, JCB, American Express")}
             </p>
           </div>
         </div>
@@ -114,7 +117,7 @@ export function StripeCardPayment({
             htmlFor="card-number"
             className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
           >
-            Số thẻ
+            {t("portal.cardNumber", "Card Number")}
           </label>
           <div className="relative">
             <input
@@ -138,7 +141,7 @@ export function StripeCardPayment({
               htmlFor="card-expiry"
               className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
             >
-              Hết hạn (MM/YY)
+              {t("portal.expiry", "Expiry (MM/YY)")}
             </label>
             <input
               id="card-expiry"
@@ -181,7 +184,7 @@ export function StripeCardPayment({
             htmlFor="card-name"
             className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300"
           >
-            Tên in trên thẻ
+            {t("portal.cardHolder", "Cardholder Name")}
           </label>
           <input
             id="card-name"
@@ -203,10 +206,10 @@ export function StripeCardPayment({
           {isProcessing ? (
             <>
               <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>Đang kết nối Stripe xác thực giao dịch...</span>
+              <span>{t("portal.connectingStripe", "Connecting to Stripe to authenticate...")}</span>
             </>
           ) : (
-            <span>Thanh toán ngay {formatVND(amount)}</span>
+            <span>{t("portal.payNowAmount", { amount: formatVND(amount) }, `Pay Now ${formatVND(amount)}`)}</span>
           )}
         </button>
       </form>

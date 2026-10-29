@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useState } from "react";
 import {
   CalendarDaysIcon,
@@ -19,6 +21,7 @@ interface StepConfirmationProps {
 }
 
 export function StepConfirmation({ booking, domainName }: StepConfirmationProps) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const formattedDate = new Date(booking.date).toLocaleDateString("vi-VN", {
@@ -46,7 +49,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
 
       const title = encodeURIComponent(`Cuộc hẹn tư vấn cùng ${domainName}`);
       const details = encodeURIComponent(
-        `Lịch hẹn được xác nhận qua Reply Ease AI.\nMã đặt lịch: ${booking.id}\nEmail: ${booking.email}`
+        `Appointment confirmed via ReplyEase AI.\nBooking ID: ${booking.id}\nEmail: ${booking.email}`
       );
       const dates = `${formatIso(d)}/${formatIso(endD)}`;
 
@@ -57,10 +60,10 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
   })();
 
   const handleCopy = () => {
-    const text = `Lịch hẹn với ${domainName}\nKhung giờ: ${booking.slot}\nNgày: ${formattedDate}\nMã cuộc hẹn: ${booking.id}\nEmail: ${booking.email}`;
+    const text = `Lịch hẹn với ${domainName}\n{t("portal.timeSlot", "Timeslot")}: ${booking.slot}\nNgày: ${formattedDate}\nMã cuộc hẹn: ${booking.id}\nEmail: ${booking.email}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success("Đã sao chép thông tin lịch hẹn!");
+    toast.success(t("portal.copiedBooking", "Copied booking details!"));
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -72,10 +75,10 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
           <CheckCircle2Icon className="size-8 stroke-[2.2]" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-          Đặt lịch hẹn thành công!
+          {t("portal.bookingSuccessTitle", "Consultation Booked Successfully!")}
         </h2>
         <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
-          Cảm ơn bạn. Chúng tôi đã gửi thông tin xác nhận và lời nhắc lịch hẹn đến email của bạn.
+          {t("portal.bookingSuccessDesc", "Thank you. We have sent confirmation details and reminders to your email.")}
         </p>
       </div>
 
@@ -86,7 +89,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
           <div className="flex items-center gap-2">
             <SparklesIcon className="size-4" />
             <span className="font-semibold text-sm tracking-wide">
-              THƯ XÁC NHẬN CUỘC HẸN
+              {t("portal.bookingConfirmationBadge", "APPOINTMENT CONFIRMATION")}
             </span>
           </div>
           <span className="text-[11px] font-mono tracking-wider opacity-90">
@@ -99,7 +102,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <div>
               <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">
-                Đơn vị tư vấn
+                {t("portal.consultant", "Consulting Specialist")}
               </span>
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5">
                 {domainName}
@@ -107,7 +110,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
             </div>
             <div>
               <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">
-                Email người nhận
+                {t("portal.recipientEmail", "Recipient Email")}
               </span>
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 truncate">
                 {booking.email}
@@ -120,7 +123,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
               <CalendarDaysIcon className="size-4 text-orange-600 mt-0.5 shrink-0" />
               <div>
                 <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">
-                  Ngày hẹn
+                  {t("portal.meetingDate", "Appointment Date")}
                 </span>
                 <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5 capitalize">
                   {formattedDate}
@@ -131,7 +134,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
               <ClockIcon className="size-4 text-orange-600 mt-0.5 shrink-0" />
               <div>
                 <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">
-                  Khung giờ
+                  {t("portal.timeSlot", "Timeslot")}
                 </span>
                 <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5">
                   {booking.slot}
@@ -144,7 +147,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
           <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-600 dark:text-zinc-400 flex items-start gap-2">
             <MailIcon className="size-4 text-zinc-400 mt-0.5 shrink-0" />
             <span>
-              Chúng tôi sẽ liên hệ hoặc gửi link phòng họp trực tuyến trước buổi hẹn 15 phút.
+              {t("portal.meetingRemindNotice", "We will contact you or email the meeting link 15 minutes before the session.")}
             </span>
           </div>
         </div>
@@ -158,7 +161,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
             className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs sm:text-sm shadow-xs transition-colors"
           >
             <CalendarDaysIcon className="size-4" />
-            <span>Thêm vào Google Calendar</span>
+            <span>{t("portal.addToGoogleCalendar", "Add to Google Calendar")}</span>
             <ExternalLinkIcon className="size-3.5 opacity-80" />
           </a>
 
@@ -168,7 +171,7 @@ export function StepConfirmation({ booking, domainName }: StepConfirmationProps)
             className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:bg-zinc-50 text-zinc-700 dark:text-zinc-300 font-medium text-xs sm:text-sm transition-colors"
           >
             <CopyIcon className="size-4" />
-            <span>{copied ? "Đã sao chép!" : "Sao chép thông tin"}</span>
+            <span>{copied ? t("portal.copiedInfo", "Copied!") : t("portal.copyInfo", "Copy details")}</span>
           </button>
         </div>
       </div>

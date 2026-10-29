@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardMetrics } from "@/types/dashboard";
 import { formatVND } from "@/lib/utils";
+import { useI18n } from "@/context/i18n-context";
 
 interface DashboardMetricsCardsProps {
   metrics?: DashboardMetrics;
@@ -21,40 +22,43 @@ export function DashboardMetricsCards({
   metrics,
   isLoading,
 }: DashboardMetricsCardsProps) {
+  const { t, locale } = useI18n();
+  const numLocale = locale === "vi" ? "vi-VN" : "en-US";
+
   const cards = [
     {
       id: "potential_clients",
-      label: "Potential Clients",
-      subLabel: "Khách hàng tiềm năng",
-      value: metrics ? metrics.potential_clients.toLocaleString("vi-VN") : "0",
-      description: "Leads thu thập từ Chatbot & Widget",
+      label: t("dashboard.metrics.potentialClients", "Potential Clients"),
+      subLabel: t("dashboard.metrics.potentialClientsSub", "Captured Leads"),
+      value: metrics ? metrics.potential_clients.toLocaleString(numLocale) : "0",
+      description: t("dashboard.metrics.potentialClientsDesc", "Leads collected from Chatbot & Widget"),
       icon: UsersIcon,
-      unit: "khách hàng",
+      unit: t("dashboard.metrics.clientsUnit", "clients"),
     },
     {
       id: "pipeline_value",
-      label: "Pipeline Value",
-      subLabel: "Giá trị cơ hội",
+      label: t("dashboard.metrics.pipelineValue", "Pipeline Value"),
+      subLabel: t("dashboard.metrics.pipelineValueSub", "Opportunity Value"),
       value: metrics ? formatVND(metrics.pipeline_value) : "0 ₫",
-      description: "Tổng giá trị sản phẩm x số lead",
+      description: t("dashboard.metrics.pipelineValueDesc", "Total product value x total captured leads"),
       icon: TrendingUpIcon,
       unit: "VND",
     },
     {
       id: "appointments",
-      label: "Appointments",
-      subLabel: "Lịch hẹn tư vấn",
-      value: metrics ? metrics.appointments.toLocaleString("vi-VN") : "0",
-      description: "Cuộc hẹn đã được khách xác nhận",
+      label: t("dashboard.metrics.appointments", "Appointments"),
+      subLabel: t("dashboard.metrics.appointmentsSub", "Consultation Bookings"),
+      value: metrics ? metrics.appointments.toLocaleString(numLocale) : "0",
+      description: t("dashboard.metrics.appointmentsDesc", "Confirmed consultation slots booked by clients"),
       icon: CalendarIcon,
-      unit: "cuộc hẹn",
+      unit: t("dashboard.metrics.appointmentsUnit", "bookings"),
     },
     {
       id: "total_sales",
-      label: "Total Sales",
-      subLabel: "Doanh thu thực tế",
+      label: t("dashboard.metrics.totalSales", "Total Sales"),
+      subLabel: t("dashboard.metrics.totalSalesSub", "Gross Revenue"),
       value: metrics ? formatVND(metrics.total_sales) : "0 ₫",
-      description: "Doanh thu từ đơn hàng qua SePay",
+      description: t("dashboard.metrics.totalSalesDesc", "Revenue received via SePay VietQR payments"),
       icon: CreditCardIcon,
       unit: "VND",
     },

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardTransaction } from "@/types/dashboard";
 import { formatDate, formatVND } from "@/lib/utils";
+import { useI18n } from "@/context/i18n-context";
 
 interface RecentTransactionsTableProps {
   transactions?: DashboardTransaction[];
@@ -21,6 +22,7 @@ export function RecentTransactionsTable({
   isLoading,
   onRefresh,
 }: RecentTransactionsTableProps) {
+  const { t } = useI18n();
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
       case "SUCCESS":
@@ -29,7 +31,7 @@ export function RecentTransactionsTable({
             variant="outline"
             className="border-emerald-600/30 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-medium text-[11px]"
           >
-            Thành công
+            {t("billingHistory.statusSuccess", "Success")}
           </Badge>
         );
       case "PENDING":
@@ -38,7 +40,7 @@ export function RecentTransactionsTable({
             variant="outline"
             className="border-amber-600/30 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-medium text-[11px]"
           >
-            Đang chờ
+            {t("billingHistory.statusPending", "Pending")}
           </Badge>
         );
       case "FAILED":
@@ -48,7 +50,7 @@ export function RecentTransactionsTable({
             variant="outline"
             className="border-rose-600/30 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-medium text-[11px]"
           >
-            Thất bại
+            {t("billingHistory.statusFailed", "Failed")}
           </Badge>
         );
     }
@@ -57,9 +59,9 @@ export function RecentTransactionsTable({
   const getTypeText = (type: string) => {
     switch (type.toUpperCase()) {
       case "SUBSCRIPTION":
-        return "Nâng cấp Gói cước";
+        return t("billingHistory.typePlan", "Plan Subscription");
       case "PRODUCT_CHECKOUT":
-        return "Khách mua hàng";
+        return t("billingHistory.typeOrder", "Product Order");
       default:
         return type;
     }
@@ -72,10 +74,10 @@ export function RecentTransactionsTable({
           <div>
             <CardTitle className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
               <CreditCardIcon className="size-4 text-muted-foreground" />
-              <span>Giao dịch Thanh toán SePay gần nhất</span>
+              <span>{t("dashboard.recentTransactions.title", "Recent SePay Transactions")}</span>
             </CardTitle>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Lịch sử biến động thanh toán subscription và đơn hàng qua VietQR
+              {t("dashboard.recentTransactions.subtitle")}
             </p>
           </div>
 
@@ -86,7 +88,7 @@ export function RecentTransactionsTable({
                 size="icon"
                 onClick={onRefresh}
                 className="size-8 text-muted-foreground hover:text-foreground"
-                title="Làm mới danh sách"
+                title={t("dashboard.recentTransactions.refresh", "Refresh list")}
               >
                 <RefreshCwIcon className="size-3.5" />
               </Button>
@@ -97,7 +99,7 @@ export function RecentTransactionsTable({
                 size="sm"
                 className="h-8 text-xs text-primary hover:text-primary/90 font-medium hover:bg-primary/5 gap-1"
               >
-                <span>Xem tất cả</span>
+                <span>{t("common.view", "View all")}</span>
                 <ArrowUpRightIcon className="size-3.5" />
               </Button>
             </Link>
@@ -125,15 +127,15 @@ export function RecentTransactionsTable({
               <CreditCardIcon className="size-5" />
             </div>
             <h4 className="text-sm font-medium text-foreground">
-              Chưa có giao dịch phát sinh
+              {t("dashboard.recentTransactions.noTransactions", "No transactions recorded yet")}
             </h4>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Khi khách hàng quét mã VietQR mua hàng hoặc bạn nâng cấp gói cước qua SePay, thông tin đối soát sẽ hiển thị tự động tại đây.
+              {t("dashboard.recentTransactions.noTransactionsDesc")}
             </p>
             <div className="pt-2">
               <Link href="/integration">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
-                  Cấu hình SePay Merchant
+                  {t("integrations.title", "SePay Connect Integration")}
                 </Button>
               </Link>
             </div>
@@ -143,12 +145,12 @@ export function RecentTransactionsTable({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border/60 bg-muted/20 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  <th className="py-2.5 px-4">Mã giao dịch</th>
-                  <th className="py-2.5 px-4">Loại thanh toán</th>
-                  <th className="py-2.5 px-4">Kênh / Domain</th>
-                  <th className="py-2.5 px-4">Thời gian</th>
-                  <th className="py-2.5 px-4 text-right">Số tiền</th>
-                  <th className="py-2.5 px-4 text-center">Trạng thái</th>
+                  <th className="py-2.5 px-4">{t("dashboard.recentTransactions.colOrder", "Order ID")}</th>
+                  <th className="py-2.5 px-4">{t("dashboard.recentTransactions.colType", "Type")}</th>
+                  <th className="py-2.5 px-4">{t("dashboard.recentTransactions.colCustomer", "Channel / Domain")}</th>
+                  <th className="py-2.5 px-4">{t("dashboard.recentTransactions.colDate", "Date")}</th>
+                  <th className="py-2.5 px-4 text-right">{t("dashboard.recentTransactions.colAmount", "Amount")}</th>
+                  <th className="py-2.5 px-4 text-center">{t("dashboard.recentTransactions.colStatus", "Status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 text-xs">
@@ -167,7 +169,7 @@ export function RecentTransactionsTable({
                       {tx.domain_name ? (
                         <span className="font-medium text-foreground">{tx.domain_name}</span>
                       ) : (
-                        <span className="text-muted-foreground italic">Hệ thống</span>
+                        <span className="text-muted-foreground italic">{t("common.system", "System")}</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-muted-foreground tabular-nums whitespace-nowrap">

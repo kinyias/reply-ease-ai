@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { MessageSquarePlusIcon, PackageIcon, ShoppingBagIcon, SearchIcon, XIcon } from "lucide-react";
 import { ChatbotProductItem } from "@/types/chatbot";
+import { useI18n } from "@/context/i18n-context";
 
 interface ProductsTabProps {
   products: ChatbotProductItem[];
@@ -16,6 +17,7 @@ export function ProductsTab({
   themeColor,
   onInquireProduct,
 }: ProductsTabProps) {
+  const { t, locale } = useI18n();
   const [searchQuery, setSearchQuery] = React.useState("");
   const accentColor = themeColor || "#ff7a00";
 
@@ -35,7 +37,7 @@ export function ProductsTab({
       <div className="p-3 bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200">
           <ShoppingBagIcon className="size-3.5 text-orange-500" />
-          <span>Danh mục Sản phẩm & Dịch vụ ({filteredProducts.length}{searchQuery ? `/${products.length}` : ""})</span>
+          <span>{t("chatbot.productsTitle", { filtered: filteredProducts.length, total: searchQuery ? `/${products.length}` : "" })}</span>
         </div>
       </div>
 
@@ -48,7 +50,7 @@ export function ProductsTab({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm sản phẩm, dịch vụ..."
+              placeholder={t("chatbot.productsSearchPlaceholder", "Search products, services...")}
               className="w-full pl-8 pr-7 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-orange-500/50"
             />
             {searchQuery && (
@@ -56,7 +58,7 @@ export function ProductsTab({
                 type="button"
                 onClick={() => setSearchQuery("")}
                 className="absolute right-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
-                title="Xóa tìm kiếm"
+                title={t("chatbot.productsClearSearch", "Clear search")}
               >
                 <XIcon className="size-3.5" />
               </button>
@@ -71,27 +73,27 @@ export function ProductsTab({
           <div className="flex flex-col items-center justify-center text-center p-8 space-y-2">
             <PackageIcon className="size-8 text-zinc-300 dark:text-zinc-600" />
             <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Chưa có sản phẩm nào được thiết lập.
+              {t("chatbot.productsEmptyAll", "No products configured yet.")}
             </p>
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              Chủ website có thể thêm sản phẩm trong trang Cài đặt Domain.
+              {t("chatbot.productsEmptyAllHint")}
             </p>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center p-8 space-y-2">
             <SearchIcon className="size-8 text-zinc-300 dark:text-zinc-600" />
             <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Không tìm thấy sản phẩm phù hợp.
+              {t("chatbot.productsEmptySearch", "No products match your query.")}
             </p>
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              Không có sản phẩm nào khớp với từ khóa &quot;{searchQuery}&quot;.
+              {t("chatbot.productsEmptySearchHint", { query: searchQuery })}
             </p>
             <button
               type="button"
               onClick={() => setSearchQuery("")}
               className="mt-2 text-xs text-orange-600 dark:text-orange-400 hover:underline cursor-pointer font-medium"
             >
-              Xóa tìm kiếm
+              {t("chatbot.productsClearSearch", "Clear search")}
             </button>
           </div>
         ) : (
@@ -136,13 +138,13 @@ export function ProductsTab({
                     type="button"
                     onClick={() =>
                       onInquireProduct(
-                        `Tôi quan tâm đến sản phẩm "${product.name}" với giá ${product.price.toLocaleString("vi-VN")} đ. Tư vấn thêm giúp tôi!`
+                        t("chatbot.productsInquirePrompt", { name: product.name, price: `${product.price.toLocaleString(locale === "vi" ? "vi-VN" : "en-US")} đ` })
                       )
                     }
                     className="w-full mt-1 py-1.5 px-2.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 hover:bg-orange-50 hover:border-orange-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors flex items-center justify-center gap-1.5"
                   >
                     <MessageSquarePlusIcon className="size-3" />
-                    <span>Hỏi tư vấn</span>
+                    <span>{t("chatbot.productsInquireBtn", "Inquire")}</span>
                   </button>
                 </div>
               </div>

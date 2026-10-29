@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useState } from "react";
 import {
   CheckCircle2Icon,
@@ -25,6 +27,7 @@ export function OrderSuccess({
   products,
   selectedProductIds,
 }: OrderSuccessProps) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const formatVND = (val: number) => {
@@ -41,7 +44,7 @@ export function OrderSuccess({
   const handleCopyOrder = () => {
     navigator.clipboard.writeText(order.order_code);
     setCopied(true);
-    toast.success("Đã sao chép mã đơn hàng!");
+    toast.success(t("portal.copiedOrderId", "Copied order code!"));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -53,10 +56,10 @@ export function OrderSuccess({
           <CheckCircle2Icon className="size-8 stroke-[2.2]" />
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
-          Thanh toán đơn hàng thành công!
+          {t("portal.orderSuccessTitle", "Order Completed Successfully!")}
         </h2>
         <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
-          Giao dịch đã được hệ thống xác nhận và ghi nhận thành công.
+          {t("portal.orderSuccessDesc", "Transaction has been verified and recorded by the system.")}
         </p>
       </div>
 
@@ -67,11 +70,11 @@ export function OrderSuccess({
           <div className="flex items-center gap-2">
             <ReceiptIcon className="size-4" />
             <span className="font-semibold text-sm tracking-wide">
-              BIÊN LAI ĐƠN HÀNG
+              {t("portal.orderReceiptBadge", "ORDER RECEIPT")}
             </span>
           </div>
           <span className="text-xs font-mono font-bold bg-white/20 px-2 py-0.5 rounded">
-            ĐÃ THANH TOÁN
+            {t("portal.paidBadge", "PAID")}
           </span>
         </div>
 
@@ -80,7 +83,7 @@ export function OrderSuccess({
           <div className="grid grid-cols-2 gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Mã đơn hàng
+                {t("portal.orderCode", "Order Code")}
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <p className="text-sm font-mono font-bold text-zinc-900 dark:text-zinc-100">
@@ -90,7 +93,7 @@ export function OrderSuccess({
                   type="button"
                   onClick={handleCopyOrder}
                   className="text-zinc-400 hover:text-zinc-600"
-                  aria-label="Sao chép mã đơn"
+                  aria-label={t("portal.copiedOrderId", "Copied order code!")}
                 >
                   <CopyIcon className="size-3.5" />
                 </button>
@@ -99,7 +102,7 @@ export function OrderSuccess({
 
             <div>
               <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-                Đơn vị bán
+                {t("portal.seller", "Seller")}
               </span>
               <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-0.5">
                 {domainName}
@@ -110,7 +113,7 @@ export function OrderSuccess({
           {/* Items breakdown */}
           <div className="space-y-2.5 pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">
-              Sản phẩm đã mua ({selectedItems.length})
+              {t("portal.itemsPurchased", { count: selectedItems.length }, `Purchased Items (${selectedItems.length})`)}
             </span>
             <div className="space-y-2">
               {selectedItems.map((item) => (
@@ -132,7 +135,7 @@ export function OrderSuccess({
           {/* Total Amount */}
           <div className="flex items-center justify-between pt-1">
             <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-              Tổng số tiền đã thanh toán
+              {t("portal.totalPaid", "Total Amount Paid")}
             </span>
             <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
               {formatVND(order.amount)}
@@ -143,7 +146,7 @@ export function OrderSuccess({
         {/* Footer actions */}
         <div className="bg-zinc-50/70 dark:bg-zinc-800/30 px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-center">
           <p className="text-xs text-zinc-500 text-center">
-            Một email xác nhận đơn hàng đã được gửi đến hộp thư của bạn.
+            {t("portal.emailConfirmationNotice", "An order confirmation receipt has been sent to your email inbox.")}
           </p>
         </div>
       </div>

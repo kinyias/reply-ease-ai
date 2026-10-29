@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlanUsage } from "@/types/dashboard";
+import { useI18n } from "@/context/i18n-context";
 
 interface PlanUsageCardProps {
   planUsage?: PlanUsage;
@@ -15,6 +16,7 @@ interface PlanUsageCardProps {
 }
 
 export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
+  const { t } = useI18n();
   if (isLoading) {
     return (
       <Card className="border border-border/80 bg-card shadow-none">
@@ -49,13 +51,13 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
-              Hạn mức Gói cước & Tài nguyên
+              {t("dashboard.planUsage.title", "Plan Quota & Resources")}
             </CardTitle>
             <Badge
               variant="outline"
               className="text-[11px] font-medium border-border/80 uppercase px-2 py-0.5"
             >
-              Gói {planName}
+              {t("dashboard.planUsage.planBadge", { plan: planName })}
             </Badge>
           </div>
 
@@ -65,7 +67,7 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
               size="sm"
               className="h-8 px-2 text-xs text-primary hover:text-primary/90 font-medium hover:bg-primary/5 gap-1 self-start sm:self-auto"
             >
-              <span>Quản lý gói & Nâng cấp</span>
+              <span>{t("dashboard.planUsage.manageUpgrade", "Manage Plan & Upgrade")}</span>
               <ArrowUpRightIcon className="size-3.5" />
             </Button>
           </Link>
@@ -78,10 +80,10 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
           <div className="flex items-center justify-between text-xs">
             <span className="font-medium text-foreground flex items-center gap-1.5">
               <GlobeIcon className="size-3.5 text-muted-foreground" />
-              <span>Domain đang kết nối</span>
+              <span>{t("dashboard.planUsage.connectedDomains", "Connected Domains")}</span>
             </span>
             <span className="tabular-nums text-muted-foreground font-medium">
-              <strong className="text-foreground font-semibold">{domainsUsed}</strong> / {maxDomains} domains ({percentage}%)
+              {t("dashboard.planUsage.quotaCount", { used: domainsUsed, max: maxDomains, percent: percentage })}
             </span>
           </div>
 
@@ -99,7 +101,7 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
 
           {isAtLimit && (
             <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-              Bạn đã sử dụng tối đa số lượng domain cho phép của gói {planName}. Nâng cấp để kết nối thêm domain.
+              {t("dashboard.planUsage.limitReached", { plan: planName })}
             </p>
           )}
         </div>
@@ -110,10 +112,10 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
             <div className="space-y-0.5">
               <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <SparklesIcon className="size-3.5 text-muted-foreground" />
-                <span>Credits AI & Email</span>
+                <span>{t("dashboard.planUsage.creditsTitle", "AI & Email Credits")}</span>
               </span>
               <p className="text-[11px] text-muted-foreground">
-                Dùng cho chiến dịch marketing và AI trả lời
+                {t("dashboard.planUsage.creditsDesc")}
               </p>
             </div>
             <div className="text-xl font-semibold tabular-nums text-foreground">
@@ -125,10 +127,10 @@ export function PlanUsageCard({ planUsage, isLoading }: PlanUsageCardProps) {
             <div className="space-y-0.5">
               <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <UsersIcon className="size-3.5 text-muted-foreground" />
-                <span>Khách hàng tích lũy</span>
+                <span>{t("dashboard.planUsage.leadsTitle", "Accumulated Leads")}</span>
               </span>
               <p className="text-[11px] text-muted-foreground">
-                Tổng số lead ghi nhận qua tất cả chatbot
+                {t("dashboard.planUsage.leadsDesc")}
               </p>
             </div>
             <div className="text-xl font-semibold tabular-nums text-foreground">

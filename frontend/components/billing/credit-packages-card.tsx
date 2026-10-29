@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CreditPackageItem } from "@/types/payment";
+import { useI18n } from "@/context/i18n-context";
 
 interface CreditPackagesCardProps {
   packages: CreditPackageItem[];
@@ -26,6 +27,7 @@ export function CreditPackagesCard({
   onSelectPackage,
   isLoading = false,
 }: CreditPackagesCardProps) {
+  const { t } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<"ALL" | "STARTER" | "BUSINESS">("ALL");
   const [loadingPkgId, setLoadingPkgId] = useState<string | null>(null);
 
@@ -52,11 +54,11 @@ export function CreditPackagesCard({
           <div className="flex items-center gap-2">
             <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
             <h3 className="text-sm font-semibold text-foreground">
-              Nạp Credits Trả Trước (Pay as you go)
+              {t("billing.creditPackages.title", "Prepaid Credits")}
             </h3>
           </div>
           <p className="text-xs text-muted-foreground">
-            Credits không bao giờ hết hạn. Tự động cộng ngay sau khi chuyển khoản SePay VietQR.
+            {t("billing.creditPackages.subtitle")}
           </p>
         </div>
 
@@ -70,7 +72,7 @@ export function CreditPackagesCard({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Tất cả gói ({packages.length})
+            {t("billing.creditPackages.filterAll", "All Packages")} ({packages.length})
           </button>
           <button
             type="button"
@@ -81,7 +83,7 @@ export function CreditPackagesCard({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Phổ thông (100 - 1.000)
+            {t("billing.creditPackages.filterStarter", "Starter (< 1k)")}
           </button>
           <button
             type="button"
@@ -92,7 +94,7 @@ export function CreditPackagesCard({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Doanh nghiệp (2.000 - 100.000)
+            {t("billing.creditPackages.filterBusiness", "Business (> 2k)")}
           </button>
         </div>
       </div>
@@ -101,7 +103,7 @@ export function CreditPackagesCard({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {filteredPackages.map((pkg) => {
           const isItemLoading = isLoading && loadingPkgId === pkg.id;
-          const priceFormatted = `${pkg.price.toLocaleString("vi-VN")} đ`;
+          const priceFormatted = `${pkg.price.toLocaleString("vi-VN")} ${t("billing.creditPackages.priceUnit", "VND")}`;
           const unitPrice = Math.round(pkg.price / pkg.total_credits);
 
           return (
@@ -120,16 +122,16 @@ export function CreditPackagesCard({
                 {pkg.popular ? (
                   <Badge className="bg-primary text-primary-foreground text-[10px] font-semibold gap-1 px-2 py-0.5 shadow-2xs">
                     <FlameIcon className="size-3" />
-                    Phổ biến nhất
+                    {t("billing.creditPackages.popular", "Popular")}
                   </Badge>
                 ) : pkg.best_value ? (
                   <Badge className="bg-amber-600 text-white text-[10px] font-semibold gap-1 px-2 py-0.5 shadow-2xs">
                     <SparklesIcon className="size-3" />
-                    Ưu đãi tối đa
+                    {t("billing.creditPackages.bestValue", "Best Value")}
                   </Badge>
                 ) : (
                   <span className="text-[11px] font-medium text-muted-foreground">
-                    Gói nạp
+                    {t("billing.creditPackages.popular", "Popular")}
                   </span>
                 )}
 
@@ -141,7 +143,7 @@ export function CreditPackagesCard({
                     +{pkg.bonus_percentage}% Bonus
                   </Badge>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground">Cơ bản</span>
+                  <span className="text-[10px] text-muted-foreground">{t("billing.creditPackages.filterStarter", "Starter")}</span>
                 )}
               </div>
 
@@ -164,7 +166,7 @@ export function CreditPackagesCard({
                   </div>
                 ) : (
                   <div className="text-[11px] text-muted-foreground">
-                    Gói cơ bản không có bonus
+                    {t("billing.creditPackages.filterStarter", "Starter")}
                   </div>
                 )}
               </div>
@@ -175,8 +177,8 @@ export function CreditPackagesCard({
                   {priceFormatted}
                 </div>
                 <div className="text-[10px] text-muted-foreground flex justify-between">
-                  <span>Giá mỗi credit:</span>
-                  <span className="font-medium text-foreground">~{unitPrice} đ/lượt</span>
+                  <span>{t("billing.creditPackages.costPerCredit", { cost: unitPrice }, `~${unitPrice} VND / credit`)}</span>
+                  
                 </div>
               </div>
 
@@ -196,12 +198,12 @@ export function CreditPackagesCard({
                 {isItemLoading ? (
                   <>
                     <Loader2Icon className="size-3.5 animate-spin mr-1.5" />
-                    <span>Đang tạo đơn...</span>
+                    <span>{t("billing.creditPackages.processing", "Initiating payment...")}</span>
                   </>
                 ) : (
                   <>
                     <CoinsIcon className="size-3.5 mr-1.5" />
-                    <span>Nạp ngay</span>
+                    <span>{t("billing.creditPackages.buyBtn", "Top-up Now")}</span>
                   </>
                 )}
               </Button>
@@ -215,24 +217,24 @@ export function CreditPackagesCard({
         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground">
           <ZapIcon className="size-4 text-primary shrink-0 mt-0.5" />
           <div>
-            <strong className="text-foreground block mb-0.5">Kích hoạt tức thì</strong>
-            Hệ thống đối soát SePay VietQR cập nhật số dư credits tự động chỉ sau 3 - 5 giây.
+            <strong className="text-foreground block mb-0.5">{t("billing.creditPackages.f1Title", "Instant Activation")}</strong>
+            {t("billing.creditPackages.f1Desc", "SePay VietQR automatically verifies and credits your account in 3-5 seconds.")}
           </div>
         </div>
 
         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground">
           <CoinsIcon className="size-4 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <strong className="text-foreground block mb-0.5">Không giới hạn thời gian</strong>
-            Credits không bao giờ hết hạn, được cộng dồn vĩnh viễn vào tài khoản của bạn.
+            <strong className="text-foreground block mb-0.5">{t("billing.creditPackages.f2Title", "Never Expires")}</strong>
+            {t("billing.creditPackages.f2Desc", "Credits never expire and roll over permanently in your account.")}
           </div>
         </div>
 
         <div className="flex items-start gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground">
           <ShieldCheckIcon className="size-4 text-emerald-500 shrink-0 mt-0.5" />
           <div>
-            <strong className="text-foreground block mb-0.5">Đa mục đích sử dụng</strong>
-            1 credit = 1 tin nhắn AI Chatbot thông minh hoặc 1 email gửi trong chiến dịch Marketing.
+            <strong className="text-foreground block mb-0.5">{t("billing.creditPackages.f3Title", "Multi-purpose Use")}</strong>
+            {t("billing.creditPackages.f3Desc", "1 credit = 1 intelligent AI Chat message or 1 Marketing campaign email sent.")}
           </div>
         </div>
       </div>

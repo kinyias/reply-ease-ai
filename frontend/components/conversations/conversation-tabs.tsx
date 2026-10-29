@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ConversationTab } from "@/types/conversation";
+import { useI18n } from "@/context/i18n-context";
 
 interface ConversationTabsProps {
   activeTab: ConversationTab;
@@ -19,12 +20,14 @@ export function ConversationTabs({
   onTabChange,
   counts,
 }: ConversationTabsProps) {
+  const { t } = useI18n();
+
   const tabs: { key: ConversationTab; label: string; count?: number }[] = [
-    { key: "all", label: "Tất cả", count: counts.total },
-    { key: "unread", label: "Chưa đọc", count: counts.unread },
-    { key: "urgent", label: "Khẩn cấp", count: counts.urgent },
-    { key: "live", label: "Live Mode", count: counts.live },
-    { key: "expired", label: "Hết hạn" },
+    { key: "all", label: t("conversations.tabs.all", "All"), count: counts.total },
+    { key: "unread", label: t("conversations.tabs.unread", "Unread"), count: counts.unread },
+    { key: "urgent", label: t("conversations.tabs.urgent", "Urgent"), count: counts.urgent },
+    { key: "live", label: t("conversations.tabs.live", "Live Mode"), count: counts.live },
+    { key: "expired", label: t("conversations.tabs.expired", "Expired") },
   ];
 
   return (

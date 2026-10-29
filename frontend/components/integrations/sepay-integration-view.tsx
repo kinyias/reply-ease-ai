@@ -22,10 +22,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/context/i18n-context";
 import { paymentService } from "@/services/payment-service";
 import { UpdateSepayMerchantPayload } from "@/types/payment";
 
 export function SepayIntegrationView() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
 
   // Form state
@@ -60,21 +62,21 @@ export function SepayIntegrationView() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sepay-merchant-config"] });
       setSecretKey("");
-      toast.success("Đã lưu cấu hình SePay Merchant thành công!");
+      toast.success(t("integrations.savedSuccess", "SePay Merchant settings saved successfully!"));
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.detail || "Không thể lưu cấu hình SePay.");
+      toast.error(err.response?.data?.detail || t("integrations.saveError", "Failed to save SePay configuration."));
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!merchantId.trim()) {
-      toast.error("Vui lòng nhập SePay Merchant ID.");
+      toast.error(t("integrations.reqMerchant", "Please enter SePay Merchant ID."));
       return;
     }
     if (!secretKey.trim() && !config?.is_configured) {
-      toast.error("Vui lòng nhập SePay Secret Key.");
+      toast.error(t("integrations.reqSecret", "Please enter SePay Secret Key."));
       return;
     }
 
@@ -91,7 +93,7 @@ export function SepayIntegrationView() {
     if (config?.webhook_url) {
       navigator.clipboard.writeText(config.webhook_url);
       setCopiedWebhook(true);
-      toast.success("Đã sao chép Webhook URL!");
+      toast.success(t("integrations.copiedWebhook", "Copied Webhook URL!"));
       setTimeout(() => setCopiedWebhook(false), 2000);
     }
   };
@@ -100,7 +102,7 @@ export function SepayIntegrationView() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <Loader2Icon className="size-8 animate-spin text-primary" />
-        <p className="text-xs text-muted-foreground">Đang tải cấu hình SePay Connect...</p>
+        <p className="text-xs text-muted-foreground">{t("integrations.loading", "Loading SePay Connect configuration...")}</p>
       </div>
     );
   }
@@ -114,14 +116,14 @@ export function SepayIntegrationView() {
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Tích hợp SePay Connect
+              {t("integrations.title", "SePay Connect Integration")}
             </h1>
             <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
               Custom Merchant Onboarding
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground">
-            Kết nối tài khoản SePay của riêng bạn để nhận tiền bán sản phẩm trực tiếp từ khách hàng về tài khoản ngân hàng của bạn.
+            {t("integrations.desc", "Connect your own SePay merchant account to receive product payments directly to your personal bank account.")}
           </p>
         </div>
 
@@ -130,12 +132,12 @@ export function SepayIntegrationView() {
           {isConfigured ? (
             <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-medium px-3 py-1 flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-emerald-500 " />
-              <span>Đang hoạt động</span>
+              <span>{t("integrations.active", "Active")}</span>
             </Badge>
           ) : (
             <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border/80 font-medium px-3 py-1 flex items-center gap-1.5">
               <UnplugIcon className="size-3" />
-              <span>Chưa kết nối</span>
+              <span>{t("integrations.notConnected", "Not Connected")}</span>
             </Badge>
           )}
         </div>
@@ -154,20 +156,16 @@ export function SepayIntegrationView() {
           <div>
             <h3 className="text-sm font-semibold text-foreground">
               {isConfigured
-                ? "Tài khoản SePay đã sẵn sàng nhận tiền"
-                : "Chưa kết nối tài khoản SePay"}
+                ? t("integrations.readyToReceive", "SePay account is ready to receive funds")
+                : t("integrations.needConnection", "SePay account not connected yet")}
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
               {isConfigured ? (
                 <>
-                  Hệ thống đã liên kết với Merchant ID:{" "}
-                  <code className="font-mono font-medium text-foreground px-1 py-0.5 rounded bg-muted">
-                    {config?.sepay_merchant_id}
-                  </code>
-                  . Khách hàng khi mua hàng qua Portal Checkout sẽ quét mã VietQR tự động chuyển tiền trực tiếp vào tài khoản ngân hàng của bạn.
+                  {t("integrations.connectedDetails", { id: config?.sepay_merchant_id || "" }, `System is connected with Merchant ID: ${config?.sepay_merchant_id}. Customer checkout payments will automatically transfer directly to your bank account.`)}
                 </>
               ) : (
-                "Khi kết nối SePay, tiền thanh toán đơn hàng từ khách mua hàng trên ChatBot sẽ chuyển thẳng vào số tài khoản ngân hàng của bạn, không cần thông qua trung gian."
+                t("integrations.unconnectedDetails", "When connecting SePay, customer order payments on ChatBot will be transferred straight to your bank account without transaction fees.")
               )}
             </p>
           </div>
@@ -178,21 +176,21 @@ export function SepayIntegrationView() {
         {/* Main Settings Form (2 cols) */}
         <div className="md:col-span-2 rounded-2xl border border-border bg-card p-6 ">
           <h2 className="text-base font-semibold text-foreground mb-1">
-            Thông tin kết nối SePay
+            {t("integrations.formTitle", "SePay Connection Credentials")}
           </h2>
           <p className="text-xs text-muted-foreground mb-6">
-            Lấy Merchant ID và Secret Key tại trang quản trị SePay (my.sepay.vn).
+            {t("integrations.formSubtitle", "Retrieve your Merchant ID and Secret Key at SePay Admin (my.sepay.vn).")}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Merchant ID */}
             <div className="space-y-1.5">
               <Label htmlFor="merchantId" className="text-xs font-medium">
-                SePay Merchant ID <span className="text-destructive">*</span>
+                {t("integrations.merchantIdLabel", "SePay Merchant ID")} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="merchantId"
-                placeholder="Ví dụ: SP-MERCHANT-12345"
+                placeholder="SP-MERCHANT-12345"
                 value={merchantId}
                 onChange={(e) => setMerchantId(e.target.value)}
                 className="text-xs font-mono"
@@ -204,12 +202,12 @@ export function SepayIntegrationView() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="secretKey" className="text-xs font-medium">
-                  SePay Secret Key{" "}
+                  {t("integrations.secretKeyLabel", "SePay Secret Key")}{" "}
                   {!isConfigured && <span className="text-destructive">*</span>}
                 </Label>
                 {config?.sepay_secret_key_masked && (
                   <span className="text-[11px] text-muted-foreground font-mono">
-                    Hiện tại: {config.sepay_secret_key_masked}
+                    {t("integrations.currentKeyMasked", { key: config.sepay_secret_key_masked }, `Current: ${config.sepay_secret_key_masked}`)}
                   </span>
                 )}
               </div>
@@ -219,8 +217,8 @@ export function SepayIntegrationView() {
                   type={showSecretKey ? "text" : "password"}
                   placeholder={
                     isConfigured
-                      ? "Nhập khóa bí mật mới để thay đổi..."
-                      : "Ví dụ: sec_live_abcdef123456..."
+                      ? t("integrations.secretKeyPlaceholder", "Enter new secret key to change...")
+                      : t("integrations.secretKeyExample", "e.g.: sec_live_abcdef123456...")
                   }
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
@@ -244,7 +242,7 @@ export function SepayIntegrationView() {
             <div className="pt-2 border-t border-border/50 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="bankName" className="text-xs font-medium">
-                  Ngân hàng nhận tiền
+                  {t("integrations.bankLabel", "Receiving Bank")}
                 </Label>
                 <Input
                   id="bankName"
@@ -257,11 +255,11 @@ export function SepayIntegrationView() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="bankAccount" className="text-xs font-medium">
-                  Số tài khoản nhận tiền
+                  {t("integrations.accountNumberLabel", "Receiving Account Number")}
                 </Label>
                 <Input
                   id="bankAccount"
-                  placeholder="Ví dụ: 0333888999"
+                  placeholder="0333888999"
                   value={bankAccount}
                   onChange={(e) => setBankAccount(e.target.value)}
                   className="text-xs font-mono"
@@ -271,11 +269,11 @@ export function SepayIntegrationView() {
 
             <div className="space-y-1.5">
               <Label htmlFor="bankHolder" className="text-xs font-medium">
-                Tên chủ tài khoản (In hoa không dấu)
+                {t("integrations.accountHolderLabel", "Account Holder Name (Uppercase without accents)")}
               </Label>
               <Input
                 id="bankHolder"
-                placeholder="Ví dụ: NGUYEN VAN A"
+                placeholder="NGUYEN VAN A"
                 value={bankHolder}
                 onChange={(e) => setBankHolder(e.target.value)}
                 className="text-xs uppercase"
@@ -292,12 +290,12 @@ export function SepayIntegrationView() {
                 {saveMutation.isPending ? (
                   <>
                     <Loader2Icon className="size-3.5 animate-spin" />
-                    <span>Đang lưu...</span>
+                    <span>{t("integrations.saving", "Saving...")}</span>
                   </>
                 ) : (
                   <>
                     <SaveIcon className="size-3.5" />
-                    <span>Lưu cấu hình SePay</span>
+                    <span>{t("integrations.saveConfig", "Save SePay Configuration")}</span>
                   </>
                 )}
               </Button>
@@ -314,7 +312,7 @@ export function SepayIntegrationView() {
               <h3 className="font-semibold text-foreground">Webhook URL</h3>
             </div>
             <p className="text-muted-foreground text-[11px] leading-relaxed">
-              Cài đặt URL này vào mục <strong>Webhooks</strong> tại SePay để hệ thống tự động nhận biến động số dư:
+              {t("integrations.webhookHelp", "Configure this URL in the Webhooks section at SePay so the system receives balance updates in real-time:")}
             </p>
             <div className="p-2 rounded-lg bg-muted/60 border border-border font-mono text-[11px] break-all select-all text-foreground">
               {config?.webhook_url || "http://localhost:8000/api/v1/payments/sepay/webhook"}
@@ -329,12 +327,12 @@ export function SepayIntegrationView() {
               {copiedWebhook ? (
                 <>
                   <CheckIcon className="size-3 text-emerald-500" />
-                  <span className="text-emerald-500">Đã sao chép</span>
+                  <span className="text-emerald-500">{t("integrations.copied", "Copied")}</span>
                 </>
               ) : (
                 <>
                   <CopyIcon className="size-3" />
-                  <span>Sao chép Webhook URL</span>
+                  <span>{t("integrations.copyWebhook", "Copy Webhook URL")}</span>
                 </>
               )}
             </Button>
@@ -344,13 +342,13 @@ export function SepayIntegrationView() {
           <div className="rounded-2xl border border-border bg-card p-5  text-xs space-y-3">
             <div className="flex items-center gap-2">
               <HelpCircleIcon className="size-4 text-primary shrink-0" />
-              <h3 className="font-semibold text-foreground">Hướng dẫn tích hợp</h3>
+              <h3 className="font-semibold text-foreground">{t("integrations.guideTitle", "Integration Guide")}</h3>
             </div>
             <ol className="space-y-2 text-[11px] text-muted-foreground list-decimal list-inside leading-relaxed">
-              <li>Đăng ký tài khoản tại <a href="https://my.sepay.vn" target="_blank" rel="noreferrer" className="text-primary hover:underline font-medium">my.sepay.vn</a>.</li>
-              <li>Thêm tài khoản ngân hàng và kích hoạt quét biến động số dư.</li>
-              <li>Vào mục <strong>Tích hợp Web & API</strong> để copy Merchant ID và Secret Key.</li>
-              <li>Dán vào form bên cạnh và lưu để kích hoạt thanh toán VietQR cho Chatbot.</li>
+              <li>{t("integrations.step1", "Register an account at my.sepay.vn")}</li>
+              <li>{t("integrations.step2", "Add your bank account and enable transaction notifications.")}</li>
+              <li>{t("integrations.step3", "Go to Web & API Integration to copy your Merchant ID and Secret Key.")}</li>
+              <li>{t("integrations.step4", "Paste into this form and save to activate VietQR checkout on Chatbot.")}</li>
             </ol>
           </div>
         </div>

@@ -11,8 +11,8 @@ interface AppointmentPortalPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Đặt lịch hẹn tư vấn | Reply Ease AI Portal",
-  description: "Cổng thông tin đặt lịch hẹn tư vấn trực tuyến và chọn khung giờ trống tiện lợi.",
+  title: "Book a Consultation Call | ReplyEase AI Portal",
+  description: "Online consultation booking portal with convenient real-time available time slots.",
 };
 
 export default function AppointmentPortalPage({

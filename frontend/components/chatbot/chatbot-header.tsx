@@ -4,6 +4,8 @@ import * as React from "react";
 import Image from "next/image";
 import { BotIcon, MinusIcon, RotateCcwIcon, RadioIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useI18n } from "@/context/i18n-context";
 
 interface ChatbotHeaderProps {
   domainName: string;
@@ -24,6 +26,7 @@ export function ChatbotHeader({
   onReset,
   onClose,
 }: ChatbotHeaderProps) {
+  const { t } = useI18n();
   const bgStyle = themeColor ? { backgroundColor: themeColor } : undefined;
   const fgColor = textColor || "#ffffff";
 
@@ -79,9 +82,9 @@ export function ChatbotHeader({
             className="text-[11px] font-medium flex items-center gap-1"
           >
             {isLive ? (
-              <span className="text-red-200">Đang nối máy nhân viên</span>
+              <span className="text-red-200">{t("chatbot.liveConnecting", "Connecting to human agent")}</span>
             ) : (
-              <span>Trợ lý Bán hàng AI &bull; Sẵn sàng 24/7</span>
+              <span>{t("chatbot.liveReady", "AI Sales Assistant • Ready 24/7")}</span>
             )}
           </p>
         </div>
@@ -89,11 +92,12 @@ export function ChatbotHeader({
 
       {/* Header Actions */}
       <div className="flex items-center gap-1">
+        <LanguageToggle className="text-white hover:text-white hover:bg-white/20" />
         <Button
           variant="ghost"
           size="icon"
           onClick={onReset}
-          title="Làm mới cuộc trò chuyện"
+          title={t("chatbot.resetChat", "Reset chat")}
           style={{ color: fgColor }}
           className="size-8 rounded-full hover:bg-white/20 transition-colors"
         >
@@ -104,7 +108,7 @@ export function ChatbotHeader({
           variant="ghost"
           size="icon"
           onClick={onClose}
-          title="Thu nhỏ cửa sổ"
+          title={t("chatbot.minimize", "Minimize window")}
           style={{ color: fgColor }}
           className="size-8 rounded-full hover:bg-white/20 transition-colors"
         >

@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -33,6 +35,7 @@ import { useMarketing } from "@/hooks/marketing/use-marketing";
 import { useDomainManagement } from "@/hooks/sidebar/use-domain-management";
 
 export function MarketingView() {
+  const { t } = useI18n();
   const {
     isUserLoading,
     currentCredits,
@@ -100,15 +103,15 @@ export function MarketingView() {
 
   const handleOpenSendModal = () => {
     if (!activeCampaign) {
-      toast.error("Vui lòng chọn hoặc tạo một chiến dịch trước.");
+      toast.error(t("marketing.chooseOrCampaignFirst", "Please select or create a campaign first."));
       return;
     }
     if (!activeCampaign.template || !activeCampaign.template.trim()) {
-      toast.error("Chiến dịch chưa có nội dung email template. Vui lòng soạn thảo và lưu trước khi gửi.");
+      toast.error(t("marketing.noTemplateContent", "Campaign has no email template content. Please compose and save before sending."));
       return;
     }
     if (totalRecipientsCount === 0) {
-      toast.error("Vui lòng chọn ít nhất 1 khách hàng từ bảng bên phải để gửi chiến dịch.");
+      toast.error(t("marketing.selectAtLeastOne", "Please select at least 1 customer lead from the list to send the campaign."));
       return;
     }
     setIsSendConfirmOpen(true);
@@ -139,14 +142,14 @@ export function MarketingView() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Email Marketing & Quản lý Leads
+              {t("marketing.title", "Email Marketing & Leads")}
             </h1>
             <Badge variant="outline" className="text-xs font-semibold text-primary border-primary/30">
               Phase 8
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Sàng lọc câu trả lời của khách hàng tiềm năng, soạn thảo mẫu thư và gửi email hàng loạt trừ credits tự động.
+            {t("marketing.subtitle", "Filter prospective customer responses, compose email templates, and broadcast campaigns using credits.")}
           </p>
         </div>
 
@@ -157,7 +160,7 @@ export function MarketingView() {
           </div>
           <div>
             <div className="text-[11px] font-medium text-muted-foreground">
-              AI Credits khả dụng
+              {t("marketing.availableCredits", "Available AI Credits")}
             </div>
             <div className="text-lg font-bold text-foreground flex items-center gap-1.5">
               <span>{currentCredits}</span>
@@ -169,7 +172,7 @@ export function MarketingView() {
             className="inline-flex items-center justify-center h-8 px-2.5 rounded-lg border border-border bg-background text-xs font-medium hover:bg-muted text-foreground transition-colors ml-2"
           >
             <CreditCardIcon className="size-3.5 mr-1 text-primary" />
-            Nạp thêm
+            {t("marketing.topup", "Top-Up")}
           </Link>
         </div>
       </div>
@@ -243,18 +246,17 @@ export function MarketingView() {
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-foreground truncate">
-                Chiến dịch:{" "}
+                {t("marketing.campaignLabel", "Campaign:")}{" "}
                 <span className="text-primary font-bold">
-                  {activeCampaign?.name || "Chưa chọn"}
+                  {activeCampaign?.name || t("marketing.unselected", "Unselected")}
                 </span>
               </span>
               <Badge variant="outline" className="text-[10px]">
-                {totalRecipientsCount} người nhận
+                {t("marketing.recipients", { count: totalRecipientsCount }, `${totalRecipientsCount} recipients`)}
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground truncate">
-              Chi phí dự kiến: <strong className="text-foreground">{totalRecipientsCount} credits</strong>{" "}
-              (Còn lại: {currentCredits} credits)
+              {t("marketing.estimatedCost", { count: totalRecipientsCount, credits: currentCredits }, `Estimated cost: ${totalRecipientsCount} credits (Remaining: ${currentCredits} credits)`)}
             </p>
           </div>
         </div>
@@ -264,13 +266,13 @@ export function MarketingView() {
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-destructive font-medium flex items-center gap-1">
                 <AlertCircleIcon className="size-3.5" />
-                Không đủ credits
+                {t("marketing.insufficientCredits", "Insufficient credits")}
               </span>
               <Link
                 href="/billing?tab=credits"
                 className="text-[11px] underline font-semibold text-primary hover:text-primary/80"
               >
-                Nạp ngay
+                {t("marketing.topupNow", "Top-up Now")}
               </Link>
             </div>
           )}
@@ -282,7 +284,7 @@ export function MarketingView() {
             className="h-9 px-4 text-xs font-semibold shadow-xs"
           >
             <SendIcon className="size-3.5 mr-1.5" />
-            {isSendingCampaign ? "Đang gửi..." : "Gửi chiến dịch ngay"}
+            {isSendingCampaign ? t("marketing.sending", "Sending...") : t("marketing.sendNow", "Send Campaign Now")}
           </Button>
         </div>
       </div>
@@ -304,30 +306,29 @@ export function MarketingView() {
               <MailIcon className="size-5" />
             </div>
             <DialogTitle className="text-lg font-bold text-foreground">
-              Xác nhận gửi chiến dịch Email Marketing
+              {t("marketing.confirmModalTitle", "Confirm Email Campaign Broadcast")}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Bạn đang chuẩn bị phát động chiến dịch &quot;
-              <strong className="text-foreground">{activeCampaign?.name}</strong>&quot;.
+              {t("marketing.confirmModalDesc", { name: activeCampaign?.name || "" }, `You are about to launch campaign "${activeCampaign?.name}".`)}
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-4 space-y-3 text-xs">
             <div className="rounded-lg border border-border/70 p-3 bg-muted/20 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Số lượng người nhận:</span>
+                <span className="text-muted-foreground">{t("marketing.recipientCountLabel", "Recipient count:")}</span>
                 <span className="font-semibold text-foreground">
-                  {totalRecipientsCount} khách hàng
+                  {t("marketing.recipientsUnit", { count: totalRecipientsCount }, `${totalRecipientsCount} customers`)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Credits cần trừ:</span>
+                <span className="text-muted-foreground">{t("marketing.creditsToDeduct", "Credits to deduct:")}</span>
                 <span className="font-semibold text-destructive">
                   -{totalRecipientsCount} credits
                 </span>
               </div>
               <div className="flex items-center justify-between border-t border-border/50 pt-1.5">
-                <span className="text-muted-foreground">Credits còn lại sau khi gửi:</span>
+                <span className="text-muted-foreground">{t("marketing.creditsRemaining", "Remaining credits after sending:")}</span>
                 <span className="font-bold text-foreground">
                   {creditsAfterSend} credits
                 </span>
@@ -335,8 +336,7 @@ export function MarketingView() {
             </div>
 
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              * Tác vụ gửi thư sẽ được thực thi ngầm qua FastAPI <code>BackgroundTasks</code>.
-              Hệ thống sẽ đảm bảo không làm nghẽn tiến trình và gửi email lần lượt đến từng khách hàng.
+              {t("marketing.backgroundNotice", "Broadcast will be executed in the background via FastAPI BackgroundTasks to ensure smooth sequential delivery.")}
             </p>
           </div>
 
@@ -347,7 +347,7 @@ export function MarketingView() {
               onClick={() => setIsSendConfirmOpen(false)}
               className="text-xs"
             >
-              Hủy
+              {t("common.cancel", "Cancel")}
             </Button>
             <Button
               size="sm"
@@ -356,7 +356,7 @@ export function MarketingView() {
               className="text-xs font-semibold"
             >
               <ZapIcon className="size-3.5 mr-1" />
-              {isSendingCampaign ? "Đang phát động..." : "Xác nhận gửi ngay"}
+              {isSendingCampaign ? t("marketing.sending", "Sending...") : t("marketing.confirmSend", "Confirm Send Now")}
             </Button>
           </DialogFooter>
         </DialogContent>

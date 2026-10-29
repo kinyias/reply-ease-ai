@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatbotPreview } from "./chatbot-preview";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { useI18n } from "@/context/i18n-context";
 
 interface ChatbotCustomizerProps {
   domainId: string;
@@ -37,6 +38,7 @@ export function ChatbotCustomizer({
   domainName = "yourstore.vn",
   initialData,
 }: ChatbotCustomizerProps) {
+  const { t } = useI18n();
   const {
     form,
     isSaving,
@@ -98,7 +100,7 @@ export function ChatbotCustomizer({
                 className="text-sm font-semibold flex items-center gap-1.5"
               >
                 <Bot className="size-4 text-primary" />
-                <span>Lời chào mở đầu (Welcome Greeting)</span>
+                <span>{t("settingsCustomizer.greetingLabel", "Welcome Message")}</span>
               </Label>
               <span className="text-xs text-muted-foreground font-mono">
                 {welcomeMessageValue.length}/1000
@@ -108,7 +110,7 @@ export function ChatbotCustomizer({
             <Textarea
               id="welcome_message"
               rows={3}
-              placeholder="Nhập câu chào khi khách mở widget..."
+              placeholder={t("settingsCustomizer.greetingPlaceholder", "Enter greeting message...")}
               className="resize-none leading-relaxed text-sm"
               {...register("welcome_message")}
             />
@@ -121,7 +123,7 @@ export function ChatbotCustomizer({
             {/* Presets for Welcome Message */}
             <div className="space-y-1.5">
               <span className="text-xs text-muted-foreground">
-                Gợi ý kịch bản mở đầu:
+                {t("settingsCustomizer.scriptSuggestions", "Script suggestions:")}
               </span>
               <div className="flex flex-wrap gap-2">
                 {WELCOME_MESSAGE_PRESETS.map((preset, idx) => (
@@ -141,11 +143,10 @@ export function ChatbotCustomizer({
           <div className="border-t border-border pt-5 space-y-3">
             {/* 2. Bot Avatar & Identity */}
             <Label className="text-sm font-semibold flex items-center gap-1.5">
-              <span>Avatar & Hình đại diện Bot</span>
+              <span>{t("settingsCustomizer.botIconLabel", "Chatbot Avatar / Icon")}</span>
             </Label>
             <p className="text-xs text-muted-foreground">
-              Chọn ảnh đại diện có sẵn hoặc dán URL hình ảnh logo thương hiệu của
-              bạn.
+              {t("settingsCustomizer.avatarHelp", "Select a preset avatar or paste your brand logo image URL.")}
             </p>
 
             <div className="flex items-center gap-3">
@@ -190,8 +191,8 @@ export function ChatbotCustomizer({
                 }
                 onFileSelect={setSelectedAvatarFile}
                 isSaving={isSaving}
-                label="Avatar nhận diện Chatbot:"
-                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                label={t("settingsCustomizer.avatarLabel", "Chatbot Avatar:")}
+                description={t("settingsCustomizer.avatarDesc", "Instant preview, uploads to Cloudinary upon saving")}
                 aspectRatio="square"
                 previewHeight="h-28"
                 placeholder="https://cuahang.vn/bot-avatar.png"
@@ -208,10 +209,10 @@ export function ChatbotCustomizer({
           <div className="border-t border-border pt-5 space-y-3">
             <Label className="text-sm font-semibold flex items-center gap-1.5">
               <Palette className="size-4 text-primary" />
-              <span>Bảng màu giao diện (Header Background)</span>
+              <span>{t("settingsCustomizer.colorLabel", "Header Background Palette")}</span>
             </Label>
             <p className="text-xs text-muted-foreground">
-              Màu thanh tiêu đề và điểm nhấn chính của chatbot widget.
+              {t("settingsCustomizer.colorDesc", "Header bar background and primary accent color for the chatbot widget.")}
             </p>
 
             <div className="flex flex-wrap items-center gap-2.5">
@@ -259,9 +260,9 @@ export function ChatbotCustomizer({
             {/* Text Color Option */}
             <div className="pt-2 flex items-center justify-between">
               <div>
-                <Label className="text-xs font-medium">Màu chữ Header</Label>
+                <Label className="text-xs font-medium">{t("settingsCustomizer.textColorLabel", "Header Text Color")}</Label>
                 <p className="text-xs text-muted-foreground">
-                  Điều chỉnh tương phản sáng/tối cho chữ trên thanh tiêu đề.
+                  {t("settingsCustomizer.textColorDesc", "Adjust light/dark contrast for text on the header bar.")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -274,7 +275,7 @@ export function ChatbotCustomizer({
                       : "bg-muted text-muted-foreground border-border hover:text-foreground"
                   }`}
                 >
-                  Sáng (Trắng)
+                  {t("settingsCustomizer.lightWhite", "Light (White)")}
                 </button>
                 <button
                   type="button"
@@ -285,7 +286,7 @@ export function ChatbotCustomizer({
                       : "bg-muted text-muted-foreground border-border hover:text-foreground"
                   }`}
                 >
-                  Tối (Đen)
+                  {t("settingsCustomizer.darkBlack", "Dark (Black)")}
                 </button>
               </div>
             </div>
@@ -301,12 +302,11 @@ export function ChatbotCustomizer({
                     htmlFor="helpdesk-switch"
                     className="text-sm font-semibold cursor-pointer"
                   >
-                    Hiển thị HelpDesk FAQ trong Chat
+                    {t("settingsCustomizer.showFaqLabel", "Show HelpDesk FAQ in Chat")}
                   </Label>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Khách hàng có thể bấm xem trực tiếp các câu hỏi thường gặp
-                  ngay trong widget để tự giải đáp trước khi chat.
+                  {t("settingsCustomizer.showFaqDesc", "Customers can browse FAQ items directly in the widget to self-serve before chatting.")}
                 </p>
               </div>
               <Switch
@@ -329,7 +329,7 @@ export function ChatbotCustomizer({
               className="h-9 px-4 text-xs gap-1.5"
             >
               <RefreshCw className="size-3.5" />
-              <span>Hủy thay đổi</span>
+              <span>{t("common.cancel", "Cancel")}</span>
             </Button>
             <Button
               type="submit"
@@ -339,12 +339,12 @@ export function ChatbotCustomizer({
               {isSaving ? (
                 <>
                   <RefreshCw className="size-3.5 animate-spin" />
-                  <span>Đang lưu...</span>
+                  <span>{t("common.saving", "Saving...")}</span>
                 </>
               ) : (
                 <>
                   <Save className="size-3.5" />
-                  <span>Lưu cấu hình Chatbot</span>
+                  <span>{t("settingsCustomizer.saveChanges", "Save Customizations")}</span>
                 </>
               )}
             </Button>
@@ -355,10 +355,10 @@ export function ChatbotCustomizer({
         <div className="lg:col-span-5 sticky top-6 space-y-3">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-sm font-semibold text-foreground">
-              Xem trước thực tế (Real-time Preview)
+              {t("settingsCustomizer.previewTitle", "Live Widget Preview")}
             </h3>
             <span className="text-xs text-muted-foreground">
-              Mọi thay đổi cập nhật tức thì
+              {t("settingsCustomizer.instantSyncNotice", "All changes sync in real-time")}
             </span>
           </div>
 

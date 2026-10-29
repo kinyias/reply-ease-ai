@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import * as React from "react";
 import Image from "next/image";
 import {
@@ -50,8 +52,8 @@ export function ImageUploader({
   onChange,
   onFileSelect,
   isSaving = false,
-  label = "Hình ảnh",
-  description = "Hỗ trợ PNG, JPG, JPEG, WEBP tối đa 2MB",
+  label = "Image",
+  description = "Supports PNG, JPG, JPEG, WEBP up to 2MB",
   aspectRatio = "video",
   previewHeight = "h-36",
   className = "",
@@ -59,6 +61,9 @@ export function ImageUploader({
   presets = [],
   placeholder = "https://example.com/image.png",
 }: ImageUploaderProps) {
+  const { t } = useI18n();
+  const resolvedLabel = label === "Hình ảnh" ? t("ui.uploader.label", "Image") : (label || t("ui.uploader.label", "Image"));
+  const resolvedDescription = description === "Hỗ trợ PNG, JPG, JPEG, WEBP tối đa 2MB" ? t("ui.uploader.desc", "Supports PNG, JPG, JPEG, WEBP up to 2MB") : (description || t("ui.uploader.desc", "Supports PNG, JPG, JPEG, WEBP up to 2MB"));
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<"upload" | "url">("upload");
   const [inputUrl, setInputUrl] = React.useState(value || "");
@@ -88,8 +93,8 @@ export function ImageUploader({
 
     // 1. Client-side format validation
     if (!ALLOWED_TYPES.includes(file.type.toLowerCase())) {
-      toast.error("Định dạng file không được hỗ trợ", {
-        description: "Vui lòng chọn ảnh PNG, JPG, JPEG, WEBP hoặc GIF.",
+      toast.error(t("ui.uploader.unsupportedFormat", "File format not supported"), {
+        description: t("ui.uploader.unsupportedDesc", "Please select a PNG, JPG, JPEG, WEBP or GIF image."),
       });
       return;
     }
@@ -97,8 +102,8 @@ export function ImageUploader({
     // 2. Client-side size validation (max 2MB)
     if (file.size > MAX_SIZE_BYTES) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      toast.error("Kích thước file vượt quá 2MB", {
-        description: `File hiện tại ${sizeMB}MB. Vui lòng chọn ảnh dưới 2MB.`,
+      toast.error(t("ui.uploader.fileTooLarge", "File size exceeds 2MB"), {
+        description: t("ui.uploader.fileTooLargeDesc", { size: sizeMB }, `Current file is ${sizeMB}MB. Please choose an image under 2MB.`),
       });
       return;
     }
@@ -118,8 +123,8 @@ export function ImageUploader({
     setInputUrl(blobUrl);
     onFileSelect?.(file);
 
-    toast.info("Đã chọn ảnh xem trước", {
-      description: "Ảnh sẽ được tự động tải lên Cloudinary khi bạn bấm Lưu.",
+    toast.info(t("ui.uploader.previewSelected", "Image preview selected"), {
+      description: t("ui.uploader.previewDesc", "Image will be uploaded to Cloudinary when you save."),
     });
 
     if (fileInputRef.current) {
@@ -181,7 +186,7 @@ export function ImageUploader({
       }
       onChange(inputUrl.trim());
       onFileSelect?.(null);
-      toast.success("Đã áp dụng URL ảnh");
+      toast.success(t("ui.uploader.appliedUrl", "Image URL applied"));
     }
   };
 
@@ -211,7 +216,7 @@ export function ImageUploader({
                   className="text-[10px] font-medium px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 gap-1"
                 >
                   <SparklesIcon className="size-2.5" />
-                  Chờ lưu Cloudinary
+                  {t("ui.uploader.pendingUpload", "Pending Cloudinary Upload")}
                 </Badge>
               ) : isCloudinary ? (
                 <Badge
@@ -239,7 +244,7 @@ export function ImageUploader({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Chọn file
+            {t("ui.uploader.selectFile", "Select File")}
           </button>
           <button
             type="button"
@@ -250,7 +255,7 @@ export function ImageUploader({
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Nhập URL
+            {t("ui.uploader.enterUrl", "Enter URL")}
           </button>
         </div>
       </div>
@@ -291,9 +296,9 @@ export function ImageUploader({
                 <Loader2Icon className="size-5.5 animate-spin" />
               </div>
               <p className="text-xs font-semibold text-foreground mb-0.5">
-                Đang tải ảnh lên Cloudinary...
+                {t("ui.uploader.uploading", "Uploading image to Cloudinary...")}
               </p>
-              <p className="text-[10px] text-muted-foreground">Vui lòng chờ trong giây lát</p>
+              <p className="text-[10px] text-muted-foreground">{t("ui.uploader.waitMoment", "Please wait a moment")}</p>
             </div>
           ) : (
             /* Action Overlay on Hover */
@@ -307,7 +312,7 @@ export function ImageUploader({
                 disabled={disabled || isSaving}
               >
                 <RefreshCwIcon className="size-3.5 mr-1.5" />
-                Đổi ảnh
+                {t("ui.uploader.changeImage", "Change")}
               </Button>
               <Button
                 type="button"
@@ -318,7 +323,7 @@ export function ImageUploader({
                 disabled={disabled || isSaving}
               >
                 <Trash2Icon className="size-3.5 mr-1.5" />
-                Xóa
+                {t("ui.uploader.remove", "Remove")}
               </Button>
             </div>
           )}
@@ -351,11 +356,11 @@ export function ImageUploader({
             </div>
             <div className="space-y-0.5">
               <p className="text-xs font-medium text-foreground">
-                Kéo thả ảnh vào đây hoặc{" "}
-                <span className="text-primary underline font-semibold">chọn từ máy</span>
+                {t("ui.uploader.dropHereOr", "Drag and drop image here or ")}
+                <span className="text-primary underline font-semibold">{t("ui.uploader.browse", "browse from computer")}</span>
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Xem trước tức thì (ảnh sẽ lưu lên Cloudinary khi gửi form)
+                {t("ui.uploader.instantPreview", "Instant preview (image uploads to Cloudinary upon submission)")}
               </p>
             </div>
           </div>
@@ -385,7 +390,7 @@ export function ImageUploader({
               onClick={handleApplyUrl}
               className="h-9 px-3 text-xs"
             >
-              Áp dụng
+              {t("ui.uploader.apply", "Apply")}
             </Button>
           </div>
         </div>
@@ -395,7 +400,7 @@ export function ImageUploader({
       {presets.length > 0 && !value && !isSaving && (
         <div className="pt-1">
           <span className="text-[11px] text-muted-foreground block mb-1">
-            Gợi ý ảnh mẫu nhanh:
+            {t("ui.uploader.samples", "Quick sample avatars:")}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {presets.map((preset) => (

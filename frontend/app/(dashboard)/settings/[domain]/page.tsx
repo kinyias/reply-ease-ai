@@ -1,37 +1,21 @@
-import React, { Suspense } from "react";
-import type { Metadata } from "next";
-import { Loader2 } from "lucide-react";
+import { Metadata } from "next";
 import { DomainSettingsView } from "@/components/settings/domain-settings-view";
 
 export const metadata: Metadata = {
-  title: "Cấu hình Chatbot & Domain | ReplyEase AI",
+  title: "Chatbot and Domain Settings | ReplyEase AI",
   description:
-    "Tùy biến lời chào, avatar, màu sắc theme và FAQ HelpDesk cho Chatbot của bạn.",
+    "Customize welcome messages, bot avatar, theme colors, and FAQ HelpDesk knowledge for your AI Chatbot.",
 };
 
-interface PageProps {
-  params: Promise<{ domain: string }>;
+interface DomainSettingsPageProps {
+  params: Promise<{
+    domain: string;
+  }>;
 }
 
-async function SettingsContent({
+export default async function DomainSettingsPage({
   params,
-}: {
-  params: Promise<{ domain: string }>;
-}) {
+}: DomainSettingsPageProps) {
   const { domain } = await params;
   return <DomainSettingsView domainIdentifier={domain} />;
-}
-
-export default function DomainSettingsPage({ params }: PageProps) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="size-8 animate-spin text-brand-accent" />
-        </div>
-      }
-    >
-      <SettingsContent params={params} />
-    </Suspense>
-  );
 }

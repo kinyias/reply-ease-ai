@@ -23,12 +23,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddDomainModal } from "@/components/sidebar/add-domain-modal";
+import { useI18n } from "@/context/i18n-context";
 import { DashboardMetricsCards } from "@/components/dashboard/dashboard-metrics-cards";
 import { PlanUsageCard } from "@/components/dashboard/plan-usage-card";
 import { RecentTransactionsTable } from "@/components/dashboard/recent-transactions-table";
 
 export default function DashboardPage() {
   const { data: user } = useCurrentUser();
+  const { t, locale } = useI18n();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Queries for Dashboard data
@@ -74,20 +76,20 @@ export default function DashboardPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Tổng quan Dashboard
+              {t("dashboard.overviewTitle", "Dashboard Overview")}
             </h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleRefreshAll}
               className="size-8 text-muted-foreground hover:text-foreground"
-              title="Làm mới toàn bộ chỉ số"
+              title={t("dashboard.refreshTitle", "Refresh all metrics")}
             >
               <RefreshCwIcon className="size-3.5" />
             </Button>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Xin chào {user?.fullname || "Chủ doanh nghiệp"} — Giám sát hiệu quả bán hàng AI, chỉ số tăng trưởng và giao dịch SePay.
+            {t("dashboard.greeting", { name: user?.fullname || t("dashboard.businessOwner", "Business Owner") })}
           </p>
         </div>
 
@@ -97,7 +99,7 @@ export default function DashboardPage() {
             className="bg-primary hover:bg-[#9a3412] text-primary-foreground text-xs font-semibold h-9 px-4 gap-1.5 shrink-0"
           >
             <PlusIcon className="size-4" />
-            <span>Thêm Domain mới</span>
+            <span>{t("dashboard.addNewDomain", "Add New Domain")}</span>
           </Button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export default function DashboardPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground">
-            Chỉ số hiệu quả kinh doanh
+            {t("dashboard.kpiTitle", "Business Performance Metrics")}
           </h2>
         </div>
         <DashboardMetricsCards
@@ -133,10 +135,10 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold text-foreground">
-              Danh sách Website & ChatBot AI ({domains.length})
+              {t("dashboard.domainSectionTitle", { count: domains.length })}
             </h2>
             <p className="text-xs text-muted-foreground">
-              Quản lý cài đặt giao diện, đào tạo tri thức RAG và lấy mã nhúng script cho từng trang web.
+              {t("dashboard.domainSectionSubtitle")}
             </p>
           </div>
 
@@ -148,7 +150,7 @@ export default function DashboardPage() {
               className="text-xs h-8 gap-1.5 hidden sm:flex"
             >
               <PlusIcon className="size-3.5" />
-              <span>Thêm domain</span>
+              <span>{t("dashboard.addDomainShort", "Add domain")}</span>
             </Button>
           )}
         </div>
@@ -157,7 +159,7 @@ export default function DashboardPage() {
         {isLoadingDomains && (
           <div className="flex items-center justify-center py-12 gap-3 text-muted-foreground">
             <Loader2Icon className="size-5 animate-spin text-primary" />
-            <span className="text-xs">Đang tải danh sách domains...</span>
+            <span className="text-xs">{t("dashboard.loadingDomains", "Loading domains...")}</span>
           </div>
         )}
 
@@ -169,17 +171,17 @@ export default function DashboardPage() {
                 <GlobeIcon className="size-6 stroke-[1.5]" />
               </div>
               <h3 className="text-sm font-semibold text-foreground">
-                Chưa có website nào được kết nối
+                {t("dashboard.noDomainsTitle", "No websites connected yet")}
               </h3>
               <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-5">
-                Thêm domain đầu tiên để bắt đầu tạo Trợ lý bán hàng tự động và tùy biến giao diện widget nhúng.
+                {t("dashboard.noDomainsDesc")}
               </p>
               <Button
                 onClick={() => setIsAddModalOpen(true)}
                 className="gap-1.5 text-xs font-semibold bg-primary hover:bg-[#9a3412] text-primary-foreground h-9"
               >
                 <PlusIcon className="size-4" />
-                <span>Thêm Domain đầu tiên</span>
+                <span>{t("dashboard.addFirstDomain", "Add your first domain")}</span>
               </Button>
             </CardContent>
           </Card>
@@ -218,7 +220,7 @@ export default function DashboardPage() {
                           {dom.name}
                         </h3>
                         <span className="text-[11px] text-muted-foreground block truncate">
-                          Tạo ngày {new Date(dom.created_at).toLocaleDateString("vi-VN")}
+                          {t("dashboard.createdOn", { date: new Date(dom.created_at).toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US") })}
                         </span>
                       </div>
                     </div>
@@ -231,19 +233,19 @@ export default function DashboardPage() {
                   {/* Micro stats */}
                   <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded bg-muted/30 border border-border/50 text-center text-xs">
                     <div>
-                      <span className="text-muted-foreground block text-[10px]">Sản phẩm</span>
+                      <span className="text-muted-foreground block text-[10px]">{t("dashboard.productsCount", "Products")}</span>
                       <span className="font-semibold text-foreground tabular-nums">
                         {dom.products?.length ?? 0}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground block text-[10px]">FAQ</span>
+                      <span className="text-muted-foreground block text-[10px]">{t("dashboard.faqCount", "FAQ")}</span>
                       <span className="font-semibold text-foreground tabular-nums">
                         {dom.helpdesk?.length ?? 0}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground block text-[10px]">Câu lọc</span>
+                      <span className="text-muted-foreground block text-[10px]">{t("dashboard.filterCount", "Filter Qs")}</span>
                       <span className="font-semibold text-foreground tabular-nums">
                         {dom.filter_questions?.length ?? 0}
                       </span>
@@ -255,7 +257,7 @@ export default function DashboardPage() {
                 <div className="px-4 py-2.5 bg-muted/20 border-t border-border/60 flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <BotIcon className="size-3.5 text-primary" />
-                    <span>Chatbot sẵn sàng</span>
+                    <span>{t("dashboard.chatbotReady", "Chatbot ready")}</span>
                   </div>
 
                   <Link href={`/settings/${dom.name}`}>
@@ -264,7 +266,7 @@ export default function DashboardPage() {
                       size="sm"
                       className="h-7 text-xs font-semibold gap-1 text-primary hover:text-[#9a3412] hover:bg-primary/10"
                     >
-                      <span>Cài đặt</span>
+                      <span>{t("common.settings", "Settings")}</span>
                       <ArrowRightIcon className="size-3" />
                     </Button>
                   </Link>

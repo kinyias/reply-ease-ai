@@ -8,12 +8,14 @@ import { ChatTab } from "./chat-tab";
 import { FAQTab } from "./faq-tab";
 import { ProductsTab } from "./products-tab";
 import { useChatbot } from "@/hooks/chatbot/use-chatbot";
+import { useI18n } from "@/context/i18n-context";
 
 interface ChatbotWindowProps {
   initialDomainId?: string;
 }
 
 export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
+  const { t } = useI18n();
   const {
     domainId,
     setDomainId,
@@ -38,7 +40,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
     }
   }, [initialDomainId, domainId, setDomainId]);
 
-  const botName = config?.domain_name || "Trợ lý AI";
+  const botName = config?.domain_name || t("chatbot.defaultBotName", "AI Assistant");
   const themeColor = config?.background || "#ff7a00";
   const textColor = config?.text_color || "#ffffff";
   const botIcon = config?.icon || null;
@@ -70,7 +72,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
             className="size-8 rounded-full border-2 animate-spin"
           />
           <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Đang tải Trợ lý AI...
+            {t("chatbot.loadingAssistant", "Loading AI Assistant...")}
           </p>
         </div>
       </div>
@@ -83,13 +85,13 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
       <div className="flex h-screen w-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
         <div className="max-w-sm w-full p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-900/50 shadow-md text-center space-y-3">
           <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-            Không tìm thấy Chatbot
+            {t("chatbot.notFoundTitle", "Chatbot Not Found")}
           </p>
           <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
             {configError}
           </p>
           <p className="text-[11px] text-zinc-400">
-            Vui lòng kiểm tra lại tham số <code>domain_id</code> trên đường dẫn.
+            {t("chatbot.notFoundHelp", "Please verify the domain_id parameter in your URL.")}
           </p>
         </div>
       </div>
@@ -136,7 +138,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
             }`}
           >
             <MessageSquareIcon className="size-3.5" />
-            <span>Trò chuyện</span>
+            <span>{t("chatbot.tabChat", "Chat")}</span>
           </button>
 
           {hasHelpDesk && (
@@ -155,7 +157,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
               }`}
             >
               <HelpCircleIcon className="size-3.5" />
-              <span>Hỏi đáp ({config?.faqs.length})</span>
+              <span>{t("chatbot.tabFaq", { count: config?.faqs.length || 0 })}</span>
             </button>
           )}
 
@@ -175,7 +177,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
               }`}
             >
               <ShoppingBagIcon className="size-3.5" />
-              <span>Sản phẩm ({config?.products.length})</span>
+              <span>{t("chatbot.tabProducts", { count: config?.products.length || 0 })}</span>
             </button>
           )}
         </div>
@@ -201,7 +203,7 @@ export function ChatbotWindow({ initialDomainId }: ChatbotWindowProps) {
             themeColor={themeColor}
             onAskFAQ={(question) => {
               setActiveTab("chat");
-              sendMessage(`Tôi muốn hỏi: ${question}`);
+              sendMessage(t("chatbot.askFaqPrefix", { question }));
             }}
           />
         )}

@@ -57,7 +57,7 @@ function DialogContent({
           {children}
           <DialogPrimitive.Close
             className="absolute top-4 right-4 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Đóng"
+            aria-label="Close"
           >
             <XIcon className="size-4" />
           </DialogPrimitive.Close>

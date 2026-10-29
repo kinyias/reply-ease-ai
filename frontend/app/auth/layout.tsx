@@ -2,6 +2,7 @@ import * as React from "react"
 import Link from "next/link"
 import { AuthLogo } from "@/components/auth/auth-logo"
 import { AuthShowcase } from "@/components/auth/auth-showcase"
+import { LanguageToggle } from "@/components/language-toggle"
 
 export default function AuthLayout({
   children,
@@ -18,12 +19,15 @@ export default function AuthLayout({
         {/* Top Navbar */}
         <div className="flex items-center justify-between w-full max-w-xl mx-auto">
           <AuthLogo />
-          <Link
-            href="/"
-            className="text-xs text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline"
-          >
-            ← Back to Home
-          </Link>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <Link
+              href="/"
+              className="text-xs text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline"
+            >
+              ← Back to Home
+            </Link>
+          </div>
         </div>
 
         {/* Center Auth Form - Direct on full-width canvas */}

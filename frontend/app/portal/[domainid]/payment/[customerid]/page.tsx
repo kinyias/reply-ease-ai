@@ -11,8 +11,8 @@ interface PaymentPortalPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Thanh toán đơn hàng | Reply Ease AI Portal",
-  description: "Cổng thanh toán đơn hàng trực tuyến hỗ trợ VietQR SePay và Thẻ quốc tế Stripe Elements.",
+  title: "Instant Product Checkout | ReplyEase AI Portal",
+  description: "Online product checkout supporting instant VietQR SePay and Stripe Elements cards.",
 };
 
 export default function PaymentPortalPage({

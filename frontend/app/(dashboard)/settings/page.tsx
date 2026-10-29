@@ -7,8 +7,10 @@ import { GlobeIcon, Loader2Icon, PlusIcon } from "lucide-react";
 import domainService from "@/services/domain-service";
 import { Button } from "@/components/ui/button";
 import { AddDomainModal } from "@/components/sidebar/add-domain-modal";
+import { useI18n } from "@/context/i18n-context";
 
 export default function SettingsIndexPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -28,7 +30,7 @@ export default function SettingsIndexPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader2Icon className="size-8 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">Đang tải cài đặt domain...</p>
+        <p className="text-sm text-muted-foreground">{t("settingsPage.loading", "Loading domain settings...")}</p>
       </div>
     );
   }
@@ -40,17 +42,17 @@ export default function SettingsIndexPage() {
         <GlobeIcon className="size-8 stroke-[1.5]" />
       </div>
       <h2 className="text-xl font-bold tracking-tight text-foreground">
-        Chưa có Website / Domain nào
+        {t("settingsPage.noDomainsTitle", "No Websites / Domains Yet")}
       </h2>
       <p className="text-sm text-muted-foreground max-w-md mx-auto mt-2 mb-6">
-        Bạn chưa kết nối domain nào với hệ thống ReplyEase AI. Hãy thêm domain đầu tiên để bắt đầu tạo ChatBot bán hàng và huấn luyện AI.
+        {t("settingsPage.noDomainsDesc", "You have not connected any domain to ReplyEase AI. Add your first domain to start creating autonomous AI ChatBots.")}
       </p>
       <Button
         onClick={() => setIsAddModalOpen(true)}
         className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-medium"
       >
         <PlusIcon className="size-4" />
-        <span>Thêm Domain đầu tiên</span>
+        <span>{t("settingsPage.addFirst", "Add First Domain")}</span>
       </Button>
 
       <AddDomainModal

@@ -1,11 +1,10 @@
-import React from "react";
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { SepayIntegrationView } from "@/components/integrations/sepay-integration-view";
 
 export const metadata: Metadata = {
-  title: "Tích hợp SePay Connect | ReplyEase AI",
+  title: "SePay Connect Integration | ReplyEase AI",
   description:
-    "Cấu hình tài khoản SePay Merchant của riêng bạn để nhận tiền bán sản phẩm và thanh toán đơn hàng qua VietQR trực tiếp về ngân hàng.",
+    "Configure your personal SePay Merchant account to receive customer product checkout payments directly into your bank account.",
 };
 
 export default function IntegrationPage() {

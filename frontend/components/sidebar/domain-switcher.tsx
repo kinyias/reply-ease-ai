@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useDomainManagement } from "@/hooks/sidebar/use-domain-management";
 import { AddDomainModal } from "@/components/sidebar/add-domain-modal";
+import { useI18n } from "@/context/i18n-context";
 
 interface DomainSwitcherProps {
   isCollapsed?: boolean;
@@ -22,6 +23,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { domains, quota, isLoading } = useDomainManagement();
+  const { t } = useI18n();
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -74,7 +76,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
         className={`w-full flex items-center justify-between gap-2.5 p-2 rounded-xl border border-sidebar-border bg-sidebar hover:bg-sidebar-accent transition-colors text-left outline-none focus-visible:ring-2 focus-visible:ring-ring ${
           isCollapsed ? "justify-center px-2" : ""
         }`}
-        title={activeDomain ? activeDomain.name : "Chọn domain"}
+        title={activeDomain ? activeDomain.name : t("domainSwitcher.selectDomain", "Select domain")}
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="relative size-7 rounded-lg overflow-hidden bg-muted/80 border border-sidebar-border shrink-0 flex items-center justify-center">
@@ -94,10 +96,10 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 text-left">
               <span className="text-xs font-semibold text-sidebar-foreground truncate">
-                {activeDomain ? activeDomain.name : "Chưa có domain"}
+                {activeDomain ? activeDomain.name : t("domainSwitcher.noDomain", "No domain")}
               </span>
               <span className="text-[11px] text-muted-foreground truncate">
-                {quota ? `Gói ${quota.plan}` : "Quản lý website"}
+                {quota ? t("dashboard.planUsage.planBadge", { plan: quota.plan }) : t("domainSwitcher.manageWebsite", "Manage website")}
               </span>
             </div>
           )}
@@ -114,7 +116,7 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
           {/* Header & Quota */}
           <div className="px-2 py-1.5 border-b border-border/40 space-y-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Domain khả dụng</span>
+              <span className="text-muted-foreground">{t("domainSwitcher.availableDomains", "Available Domains")}</span>
               {quota && (
                 <span className="font-semibold text-foreground">
                   {quota.used_domains}/{quota.max_domains}
@@ -189,13 +191,13 @@ export function DomainSwitcher({ isCollapsed }: DomainSwitcherProps) {
               className="w-full justify-start text-xs h-8 text-primary hover:text-primary hover:bg-primary/10 gap-1.5 font-medium"
             >
               <PlusIcon className="size-3.5" />
-              <span>Thêm Domain mới</span>
+              <span>{t("domainSwitcher.addNewDomain", "Add New Domain")}</span>
             </Button>
 
             {quota && !quota.can_create_domain && (
               <div className="mt-1 px-2 py-1 rounded-md bg-muted/40 text-[10px] text-muted-foreground flex items-center gap-1">
                 <SparklesIcon className="size-3 text-primary shrink-0" />
-                <span>Nâng cấp gói để mở thêm domain</span>
+                <span>{t("domainSwitcher.upgradeToUnlock", "Upgrade plan to add more domains")}</span>
               </div>
             )}
           </div>

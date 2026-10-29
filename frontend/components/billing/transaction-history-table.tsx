@@ -4,6 +4,7 @@ import React from "react";
 import { ClockIcon, ReceiptIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PaymentTransactionItem } from "@/types/payment";
+import { useI18n } from "@/context/i18n-context";
 
 interface TransactionHistoryTableProps {
   transactions: PaymentTransactionItem[];
@@ -14,11 +15,12 @@ export function TransactionHistoryTable({
   transactions,
   isLoading = false,
 }: TransactionHistoryTableProps) {
+  const { t } = useI18n();
   if (isLoading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center">
         <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto mb-2" />
-        <p className="text-xs text-muted-foreground">Đang tải lịch sử giao dịch...</p>
+        <p className="text-xs text-muted-foreground">{t("billingHistory.loading", "Loading transaction history...")}</p>
       </div>
     );
   }
@@ -29,9 +31,9 @@ export function TransactionHistoryTable({
         <div className="size-12 rounded-xl bg-muted/50 text-muted-foreground flex items-center justify-center mx-auto mb-3">
           <ReceiptIcon className="size-6 stroke-[1.5]" />
         </div>
-        <h4 className="text-sm font-semibold text-foreground">Chưa có giao dịch nào</h4>
+        <h4 className="text-sm font-semibold text-foreground">{t("billingHistory.emptyTitle", "No transactions yet")}</h4>
         <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1">
-          Các giao dịch nâng cấp gói cước và thanh toán SePay VietQR sẽ hiển thị tại đây sau khi bạn thực hiện thanh toán.
+          {t("billingHistory.emptyDesc", "Subscription upgrades and SePay VietQR payments will appear here once processed.")}
         </p>
       </div>
     );
@@ -43,12 +45,12 @@ export function TransactionHistoryTable({
         <table className="w-full text-left text-xs">
           <thead className="bg-muted/40 border-b border-border text-muted-foreground font-medium uppercase tracking-wider text-[11px]">
             <tr>
-              <th className="py-3 px-4">Mã đơn hàng</th>
-              <th className="py-3 px-4">Loại giao dịch</th>
-              <th className="py-3 px-4 text-right">Số tiền</th>
-              <th className="py-3 px-4 text-center">Trạng thái</th>
-              <th className="py-3 px-4">Mã SePay / Tham chiếu</th>
-              <th className="py-3 px-4 text-right">Thời gian</th>
+              <th className="py-3 px-4">{t("billingHistory.colOrderId", "Order ID")}</th>
+              <th className="py-3 px-4">{t("billingHistory.colType", "Type")}</th>
+              <th className="py-3 px-4 text-right">{t("billingHistory.colAmount", "Amount")}</th>
+              <th className="py-3 px-4 text-center">{t("billingHistory.colStatus", "Status")}</th>
+              <th className="py-3 px-4">{t("billingHistory.colRef", "SePay Reference")}</th>
+              <th className="py-3 px-4 text-right">{t("billingHistory.colTime", "Date & Time")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
@@ -74,11 +76,11 @@ export function TransactionHistoryTable({
                   {/* Payment Type */}
                   <td className="py-3 px-4 text-muted-foreground">
                     {tx.payment_type === "SUBSCRIPTION" ? (
-                      <span className="text-foreground font-medium">Nâng cấp gói cước</span>
+                      <span className="text-foreground font-medium">{t("billingHistory.typePlan", "Plan Subscription")}</span>
                     ) : tx.payment_type === "CREDIT_PURCHASE" ? (
-                      <span className="text-primary font-medium">Nạp thêm Credits</span>
+                      <span className="text-primary font-medium">{t("billingHistory.typeCredit", "Credit Top-Up")}</span>
                     ) : (
-                      <span>Đơn hàng sản phẩm</span>
+                      <span>{t("billingHistory.typeOrder", "Product Order")}</span>
                     )}
                   </td>
 
@@ -91,16 +93,16 @@ export function TransactionHistoryTable({
                   <td className="py-3 px-4 text-center">
                     {isSuccess ? (
                       <Badge variant="outline" className="text-[11px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
-                        Thành công
+                        {t("billingHistory.statusSuccess", "Success")}
                       </Badge>
                     ) : isPending ? (
                       <Badge variant="outline" className="text-[11px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 flex items-center gap-1 mx-auto w-fit">
                         <ClockIcon className="size-2.5" />
-                        <span>Chờ thanh toán</span>
+                        <span>{t("billingHistory.statusPending", "Pending")}</span>
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-[11px] bg-destructive/10 text-destructive border-destructive/30">
-                        Thất bại
+                        {t("billingHistory.statusFailed", "Failed")}
                       </Badge>
                     )}
                   </td>

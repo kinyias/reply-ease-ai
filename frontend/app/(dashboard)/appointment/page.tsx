@@ -6,8 +6,10 @@ import { useAppointments } from "@/hooks/dashboard/use-dashboard";
 import { Button } from "@/components/ui/button";
 import { AppointmentList } from "@/components/appointment/appointment-list";
 import { TodayBookingsCard } from "@/components/appointment/today-bookings-card";
+import { useI18n } from "@/context/i18n-context";
 
 export default function AppointmentPage() {
+  const { t } = useI18n();
   const {
     data,
     isLoading,
@@ -46,7 +48,7 @@ export default function AppointmentPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
               <CalendarIcon className="size-6 text-primary" />
-              <span>Quản lý Lịch hẹn & Cuộc gọi Tư vấn</span>
+              <span>{t("appointment.title", "Appointments & Consultation Calls")}</span>
             </h1>
             <Button
               variant="ghost"
@@ -54,7 +56,7 @@ export default function AppointmentPage() {
               onClick={() => refetch()}
               disabled={isLoading || isRefetching}
               className="size-8 text-muted-foreground hover:text-foreground"
-              title="Làm mới lịch hẹn"
+              title={t("appointment.refresh", "Refresh appointments")}
             >
               <RefreshCwIcon
                 className={`size-3.5 ${isRefetching ? "animate-spin" : ""}`}
@@ -62,7 +64,7 @@ export default function AppointmentPage() {
             </Button>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Theo dõi danh sách các cuộc hẹn được khách hàng đặt trước thông qua trợ lý ảo AI và Customer Portal.
+            {t("appointment.subtitle")}
           </p>
         </div>
       </div>

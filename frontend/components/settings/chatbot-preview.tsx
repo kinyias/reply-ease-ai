@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import {
@@ -29,6 +31,7 @@ export function ChatbotPreview({
   preview,
   domainName = "store.vn",
 }: ChatbotPreviewProps) {
+  const { t, locale } = useI18n();
   const [testInput, setTestInput] = useState("");
   const [openFaqId, setOpenFaqId] = useState<number | null>(null);
   const [testMessages, setTestMessages] = useState<TestMessage[]>([]);
@@ -43,18 +46,18 @@ export function ChatbotPreview({
   const sampleFaqs = [
     {
       id: 1,
-      q: "Chính sách đổi trả & hoàn tiền?",
-      a: "Hỗ trợ 1 đổi 1 trong vòng 7 ngày cho mọi sản phẩm có lỗi từ nhà sản xuất.",
+      q: "Return & refund policy?",
+      a: "1-to-1 replacement within 7 days for any manufacturer defects.",
     },
     {
       id: 2,
-      q: "Thời gian giao hàng dự kiến?",
-      a: "Nội thành nhận hàng trong 24h, các tỉnh thành khác từ 2-3 ngày làm việc.",
+      q: "Estimated delivery time?",
+      a: "Within 24h for city center, 2-3 business days nationwide.",
     },
     {
       id: 3,
-      q: "Phương thức thanh toán hỗ trợ?",
-      a: "Thanh toán tự động qua SePay VietQR quét mã hoặc chuyển khoản ngân hàng.",
+      q: "Accepted payment methods?",
+      a: "Automated instant checkout via SePay VietQR or bank transfer.",
     },
   ];
 
@@ -67,7 +70,7 @@ export function ChatbotPreview({
       id: String(Date.now()),
       sender: "user",
       text: trimmed,
-      time: "Vừa xong",
+      time: t("chatbot.justNow", "Just now"),
     };
 
     setTestMessages((prev) => [...prev, newMsg]);
@@ -76,24 +79,31 @@ export function ChatbotPreview({
     // Simulate instant autonomous bot response
     setTimeout(() => {
       const lower = trimmed.toLowerCase();
-      let replyText = `Cảm ơn bạn! Em đã ghi nhận câu hỏi "${trimmed}". Em có thể hỗ trợ kiểm tra đơn hàng hoặc tư vấn thêm cho bạn ngay ạ!`;
-      
+      const isVi = locale === "vi";
+      let replyText = isVi
+        ? `Cảm ơn bạn! Em đã ghi nhận câu hỏi "${trimmed}". Em có thể hỗ trợ kiểm tra đơn hàng hoặc tư vấn thêm cho bạn ngay ạ!`
+        : `Thank you! I have recorded your question "${trimmed}". I can help check orders or provide more product recommendations right away!`;
+
       if (
         lower.includes("sản phẩm") ||
         lower.includes("áo") ||
         lower.includes("giá") ||
         lower.includes("ảnh") ||
         lower.includes("hình") ||
-        lower.includes("product")
+        lower.includes("product") ||
+        lower.includes("price") ||
+        lower.includes("shirt")
       ) {
-        replyText = `Dạ bên em xin gửi bạn thông tin sản phẩm Áo thun Oversize cao cấp với giá 250.000 đ ạ:\n<Image>https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80</Image>\nBạn có muốn đặt mua mẫu này không ạ?`;
+        replyText = isVi
+          ? `Dạ bên em xin gửi bạn thông tin sản phẩm Áo thun Oversize cao cấp với giá 250.000 đ ạ:\n<Image>https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80</Image>\nBạn có muốn đặt mua mẫu này không ạ?`
+          : `Here is the product info for Premium Oversized T-Shirt ($15.00):\n<Image>https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80</Image>\nWould you like to place an order?`;
       }
 
       const botReply: TestMessage = {
         id: String(Date.now() + 1),
         sender: "bot",
         text: replyText,
-        time: "Vừa xong",
+        time: t("chatbot.justNow", "Just now"),
       };
       setTestMessages((prev) => [...prev, botReply]);
     }, 600);
@@ -156,7 +166,7 @@ export function ChatbotPreview({
               <Sparkles className="size-3.5 opacity-80" />
             </div>
             <p className="text-xs opacity-85 leading-tight mt-0.5">
-              {domainName} • Trực tuyến 24/7
+              {domainName} • {t("chatbot.onlineStatus", "Online 24/7")}
             </p>
           </div>
         </div>
@@ -181,7 +191,7 @@ export function ChatbotPreview({
               {welcomeText}
             </div>
             <span className="text-[10px] text-muted-foreground px-1">
-              Hôm nay • ReplyEase AI
+              {t("chatbot.todayNotice", "Today • ReplyEase AI")}
             </span>
           </div>
         </div>
@@ -191,7 +201,7 @@ export function ChatbotPreview({
           <div className="rounded-xl border border-border bg-card p-3 shadow-2xs space-y-2 my-2 animate-in fade-in-50 duration-200">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
               <HelpCircle className="size-3.5 text-brand-accent" />
-              <span>Câu hỏi thường gặp (FAQ)</span>
+              <span>{t("chatbot.faqTitle", "Frequently Asked Questions")}</span>
             </div>
             <div className="divide-y divide-border/60 text-xs">
               {sampleFaqs.map((faq) => {
@@ -252,7 +262,7 @@ export function ChatbotPreview({
           type="text"
           value={testInput}
           onChange={(e) => setTestInput(e.target.value)}
-          placeholder="Thử gõ tin nhắn để test bot..."
+          placeholder={t("chatbot.testInputPlaceholder", "Type a message to test the bot...")}
           className="flex-1 text-xs bg-muted/50 rounded-lg px-3 py-2 outline-none focus:ring-1 focus:ring-ring border border-input transition-colors text-foreground placeholder:text-muted-foreground"
         />
         <button

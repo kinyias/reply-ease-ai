@@ -17,11 +17,13 @@ import { LoginFormValues, loginSchema } from "@/schemas/auth"
 import { useSignIn } from "@/hooks/auth/use-sign-in"
 import { useDemoSession } from "@/hooks/auth/use-demo-session"
 import { useAuth } from "@/context/auth-context"
+import { useI18n } from "@/context/i18n-context"
 import { getApiErrorMessage } from "@/lib/api-error"
 
 export function SignInForm() {
   const router = useRouter()
   const { login } = useAuth()
+  const { t } = useI18n()
   const [showPassword, setShowPassword] = React.useState(false)
 
   const {
@@ -58,13 +60,13 @@ export function SignInForm() {
   const demoSessionMutation = useDemoSession({
     onSuccess: (data) => {
       login(data.tokens, data.user)
-      toast.success("Bắt đầu phiên trải nghiệm Demo 30 phút!", {
-        description: "Chào mừng bạn đến với môi trường dùng thử của ReplyEase AI.",
+      toast.success(t("auth.demoSuccess", "Started 30-minute Demo session!"), {
+        description: t("auth.demoSuccessDesc", "Welcome to the ReplyEase AI trial environment."),
       })
       router.push("/dashboard")
     },
     onError: (err) => {
-      toast.error(getApiErrorMessage(err, "Không thể khởi tạo phiên Demo. Vui lòng thử lại sau."))
+      toast.error(getApiErrorMessage(err, t("auth.demoError", "Could not start Demo session. Please try again.")))
     },
   })
 
@@ -83,7 +85,7 @@ export function SignInForm() {
     <div className="space-y-6">
       <div className="space-y-1.5 text-left">
         <h1 className="font-semibold text-2xl tracking-tight text-[#0f172a]">
-          Sign in to ReplyEase AI
+          {t("auth.signInTitle", "Sign in to ReplyEase AI")}
         </h1>
         <p className="text-sm text-[#64748b]">
           Manage your chatbots, track orders, and view real-time conversation analytics.
@@ -103,7 +105,7 @@ export function SignInForm() {
         {/* Email Field */}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-medium text-[#334155]">
-            Account email
+            {t("auth.email", "Account email")}
           </Label>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
@@ -111,7 +113,7 @@ export function SignInForm() {
               id="email"
               type="email"
               autoComplete="email"
-              placeholder="name@company.com"
+              placeholder={t("auth.emailPlaceholder", "name@company.com")}
               className={`pl-9 h-10 bg-white border-[#cbd5e1] text-[#0f172a] placeholder:text-[#94a3b8] focus-visible:border-[#c2410c] focus-visible:ring-2 focus-visible:ring-[#c2410c]/20 shadow-2xs ${
                 errors.email ? "border-red-500 focus-visible:ring-red-500/20" : ""
               }`}
@@ -128,13 +130,13 @@ export function SignInForm() {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <Label htmlFor="password" className="text-xs font-medium text-[#334155]">
-              Password
+              {t("auth.password", "Password")}
             </Label>
             <Link
               href="/auth/forgot-password"
               className="text-xs text-[#64748b] hover:text-[#0f172a] transition-colors underline-offset-4 hover:underline"
             >
-              Forgot password?
+              {t("auth.forgotPassword", "Forgot password?")}
             </Link>
           </div>
           <div className="relative">
@@ -182,7 +184,7 @@ export function SignInForm() {
             htmlFor="rememberMe"
             className="text-xs font-normal text-[#64748b] cursor-pointer select-none"
           >
-            Remember me on this device
+            {t("auth.rememberMe", "Remember me on this device")}
           </Label>
         </div>
 
@@ -199,7 +201,7 @@ export function SignInForm() {
             </>
           ) : (
             <>
-              <span>Sign In</span>
+              <span>{t("auth.signIn", "Sign In")}</span>
               <ArrowRight className="size-4 ml-1.5" />
             </>
           )}
@@ -211,7 +213,7 @@ export function SignInForm() {
             <span className="w-full border-t border-[#e2e8f0] dark:border-slate-800" />
           </div>
           <span className="relative bg-white dark:bg-slate-900 px-3 text-[11px] uppercase tracking-wider text-[#94a3b8]">
-            hoặc trải nghiệm ngay
+            {t("common.or", "or explore immediately")}
           </span>
         </div>
 
@@ -226,12 +228,12 @@ export function SignInForm() {
           {demoSessionMutation.isPending ? (
             <>
               <Loader2 className="size-4 animate-spin mr-2 text-orange-600" />
-              <span>Đang khởi tạo sandbox 30 phút...</span>
+              <span>{t("auth.startingDemo", "Starting 30m sandbox...")}</span>
             </>
           ) : (
             <>
               <Sparkles className="size-4 mr-2 text-orange-600 animate-pulse" />
-              <span>Dùng thử Demo 30 phút (Không cần đăng ký)</span>
+              <span>{t("auth.demoBtn", "Try 30-Minute Demo (No Sign Up Required)")}</span>
             </>
           )}
         </Button>
@@ -245,7 +247,7 @@ export function SignInForm() {
             href="/auth/sign-up"
             className="font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors underline-offset-4 hover:underline"
           >
-            Create an account for free
+            {t("auth.signUp", "Create an account")} for free
           </Link>
         </p>
       </div>

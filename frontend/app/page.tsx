@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { LandingHeader } from "@/components/layout/landing-header";
+import { useI18n } from "@/context/i18n-context";
 import Link from "next/link";
 import {
   Bot,
@@ -36,79 +38,100 @@ interface Scenario {
   latencyMs: number;
 }
 
-const SCENARIOS: Scenario[] = [
+const getScenarios = (isVi: boolean): Scenario[] => [
   {
     id: "blazer",
-    name: "Size Consultation & Stock Check",
-    category: "Women's Apparel",
-    customerQuery: "Hi! Do you have the beige wool blazer in size L? How long does express delivery take within the city?",
+    name: isVi ? "Tư vấn kích cỡ & Kiểm tra tồn kho" : "Size Consultation & Stock Check",
+    category: isVi ? "Thời trang Nữ" : "Women's Apparel",
+    customerQuery: isVi
+      ? "Shop ơi áo blazer dạ màu be size L còn không? Giao hỏa tốc nội thành mất bao lâu?"
+      : "Hi! Do you have the beige wool blazer in size L? How long does express delivery take within the city?",
     time: "02:14:18",
-    ragMatches: "autumn-winter-catalog-2026.pdf (Page 14)",
+    ragMatches: isVi ? "catalog-thu-dong-2026.pdf (Trang 14)" : "autumn-winter-catalog-2026.pdf (Page 14)",
     confidence: "99.4%",
-    inventoryStatus: "Size L: 2 items in stock, Central Warehouse",
-    botReply: "Yes! We currently have exactly 2 beige wool blazers in size L at our Central Warehouse. Express city delivery arrives within 2 hours. I have generated a VietQR code below so you can reserve yours right away!",
+    inventoryStatus: isVi ? "Size L: Còn 2 chiếc tại Kho Tổng" : "Size L: 2 items in stock, Central Warehouse",
+    botReply: isVi
+      ? "Dạ còn ạ! Bên em hiện còn đúng 2 chiếc áo blazer dạ màu be size L tại Kho Tổng. Giao hỏa tốc nội thành trong 2 giờ. Em gửi mã VietQR bên dưới để mình giữ hàng ngay nhé!"
+      : "Yes! We currently have exactly 2 beige wool blazers in size L at our Central Warehouse. Express city delivery arrives within 2 hours. I have generated a VietQR code below so you can reserve yours right away!",
     orderNumber: "RE-8841",
     amount: "650,000",
     account: "RE8841",
     bank: "MBBank",
-    productName: "Wool Blend Blazer Beige - Size L",
+    productName: isVi ? "Áo Blazer Dạ Phối Nút Màu Be - Size L" : "Wool Blend Blazer Beige - Size L",
     latencyMs: 240,
   },
   {
     id: "serum",
-    name: "Ingredients & Promo Inquiry",
-    category: "Cosmetics & Skincare",
-    customerQuery: "Is the B5 serum greasy for acne-prone oily skin? Are there any active discount codes?",
+    name: isVi ? "Hỏi thành phần & Ưu đãi hôm nay" : "Ingredients & Promo Inquiry",
+    category: isVi ? "Mỹ phẩm & Chăm sóc da" : "Cosmetics & Skincare",
+    customerQuery: isVi
+      ? "Serum B5 da dầu mụn dùng có bị bí không shop? Hôm nay có mã giảm giá nào không?"
+      : "Is the B5 serum greasy for acne-prone oily skin? Are there any active discount codes?",
     time: "23:45:02",
-    ragMatches: "b5-product-guide.pdf & october-promotions.docx",
+    ragMatches: isVi ? "huong-dan-b5.pdf & khuyen-mai-thang-10.docx" : "b5-product-guide.pdf & october-promotions.docx",
     confidence: "98.9%",
-    inventoryStatus: "In Stock (54 units), includes complimentary toner pad",
-    botReply: "The B5 Recovery Serum features a lightweight watery-gel texture that absorbs in 30 seconds without clogging pores. Today's orders qualify for promo code SAVE50K plus a free 30-sheet Toner Pad valued at 120,000 VND!",
+    inventoryStatus: isVi ? "Còn hàng (54 chai), tặng kèm toner pad" : "In Stock (54 units), includes complimentary toner pad",
+    botReply: isVi
+      ? "Serum Phục hồi B5 có kết cấu dạng gel nước thấm nhanh sau 30 giây, không gây bí tắc lỗ chân lông. Đơn hàng hôm nay được áp mã SAVE50K và tặng kèm hộp Toner Pad 30 miếng trị giá 120.000đ ạ!"
+      : "The B5 Recovery Serum features a lightweight watery-gel texture that absorbs in 30 seconds without clogging pores. Today's orders qualify for promo code SAVE50K plus a free 30-sheet Toner Pad valued at 120,000 VND!",
     orderNumber: "RE-8842",
     amount: "420,000",
     account: "RE8842",
     bank: "Techcombank",
-    productName: "B5 Recovery Serum 50ml + Toner Pad",
+    productName: isVi ? "Serum Phục Hồi B5 50ml + Quà Tặng" : "B5 Recovery Serum 50ml + Toner Pad",
     latencyMs: 228,
   },
   {
     id: "camera",
-    name: "Technical Specs & VAT Invoice",
-    category: "Tech & Hardware",
-    customerQuery: "Does this outdoor camera include a memory card? My company needs an electronic VAT invoice.",
+    name: isVi ? "Thông số kỹ thuật & Xuất hóa đơn VAT" : "Technical Specs & VAT Invoice",
+    category: isVi ? "Công nghệ & Phần cứng" : "Tech & Hardware",
+    customerQuery: isVi
+      ? "Camera ngoài trời này có kèm thẻ nhớ không shop? Công ty mình cần xuất hóa đơn VAT điện tử."
+      : "Does this outdoor camera include a memory card? My company needs an electronic VAT invoice.",
     time: "01:28:44",
-    ragMatches: "vat-invoice-policy.pdf & specs-camera-pro.pdf",
+    ragMatches: isVi ? "chinh-sach-vat.pdf & thong-so-camera-pro.pdf" : "vat-invoice-policy.pdf & specs-camera-pro.pdf",
     confidence: "99.7%",
-    inventoryStatus: "In Stock (18 units), e-VAT supported",
-    botReply: "The AI Pro Outdoor Camera includes a SanDisk 64GB card with a 24-month warranty. We automatically issue e-VAT invoices to your company email right after payment reconciliation.",
+    inventoryStatus: isVi ? "Còn hàng (18 bộ), hỗ trợ xuất hóa đơn e-VAT" : "In Stock (18 units), e-VAT supported",
+    botReply: isVi
+      ? "Camera AI Pro Ngoài Trời kèm thẻ SanDisk 64GB bảo hành 24 tháng chính hãng. Bên em tự động xuất hóa đơn VAT điện tử gửi về email công ty ngay sau khi đối soát thanh toán thành công ạ."
+      : "The AI Pro Outdoor Camera includes a SanDisk 64GB card with a 24-month warranty. We automatically issue e-VAT invoices to your company email right after payment reconciliation.",
     orderNumber: "RE-8843",
     amount: "1,290,000",
     account: "RE8843",
     bank: "Vietcombank",
-    productName: "Camera AI Smart outdoor 2K + 64GB",
+    productName: isVi ? "Camera AI Smart ngoài trời 2K + Thẻ 64GB" : "Camera AI Smart outdoor 2K + 64GB",
     latencyMs: 252,
   },
   {
     id: "warranty",
-    name: "Exchange & Warranty Policy",
-    category: "Customer Support",
-    customerQuery: "If I ordered the wrong size, what is your exchange procedure?",
+    name: isVi ? "Chính sách đổi trả & Bảo hành" : "Exchange & Warranty Policy",
+    category: isVi ? "Hỗ trợ khách hàng" : "Customer Support",
+    customerQuery: isVi
+      ? "Nếu mua về mặc không vừa size thì quy trình đổi trả như thế nào?"
+      : "If I ordered the wrong size, what is your exchange procedure?",
     time: "03:10:12",
-    ragMatches: "return-exchange-policy.pdf (Clause 3)",
+    ragMatches: isVi ? "chinh-sach-doi-tra.pdf (Điều 3)" : "return-exchange-policy.pdf (Clause 3)",
     confidence: "99.1%",
-    inventoryStatus: "Free size exchange within 7 days",
-    botReply: "We offer 100% free doorstep size exchanges within 7 days of delivery. The courier will bring the new size and collect the original item at your door simultaneously—no post office visit required.",
+    inventoryStatus: isVi ? "Đổi size miễn phí tận nhà trong 7 ngày" : "Free size exchange within 7 days",
+    botReply: isVi
+      ? "Dạ bên em hỗ trợ đổi size miễn phí tận nơi trong 7 ngày kể từ khi nhận hàng. Shipper sẽ mang size mới đến và thu hồi lại sản phẩm cũ cùng lúc tại nhà mình, mình không cần phải mang ra bưu cục đâu ạ."
+      : "We offer 100% free doorstep size exchanges within 7 days of delivery. The courier will bring the new size and collect the original item at your door simultaneously—no post office visit required.",
     orderNumber: "RE-8844",
     amount: "0",
     account: "SUPPORT-RE",
     bank: "MBBank",
-    productName: "Doorstep Exchange Service",
+    productName: isVi ? "Dịch vụ Đổi Size Tận Nhà" : "Doorstep Exchange Service",
     latencyMs: 215,
   },
 ];
 
 export default function HomePage() {
-  const [activeScenario, setActiveScenario] = useState<Scenario>(SCENARIOS[0]);
+  const { t, locale } = useI18n();
+  const isVi = locale === "vi";
+  const scenarios = getScenarios(isVi);
+
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string>("blazer");
+  const activeScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
   const [isPaid, setIsPaid] = useState<boolean>(false);
   const [inputEmail, setInputEmail] = useState<string>("");
   const [ctaSubmitted, setCtaSubmitted] = useState<boolean>(false);
@@ -117,7 +140,7 @@ export default function HomePage() {
     // Choreographed entrance and scroll motion
     const animateAll = () => {
       const items = document.querySelectorAll<HTMLElement>(".motion-target");
-      items.forEach((item, idx) => {
+      items.forEach((item) => {
         const rect = item.getBoundingClientRect();
         if (rect.top <= window.innerHeight * 0.95) {
           // Trigger style mutation for inspector
@@ -137,7 +160,7 @@ export default function HomePage() {
   }, []);
 
   const handleSelectScenario = (sc: Scenario) => {
-    setActiveScenario(sc);
+    setSelectedScenarioId(sc.id);
     setIsPaid(false);
   };
 
@@ -155,76 +178,7 @@ export default function HomePage() {
   return (
     <div className="min-h-[100svh] bg-[#ffffff] text-[#0f172a] selection:bg-[#c2410c] selection:text-white overflow-x-clip">
       {/* 1. Header / Navigation */}
-      <header className="sticky top-0 z-50 bg-[#ffffff] overflow-x-clip">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between motion-target">
-          {/* Wordmark */}
-          <Link href="/" className="inline-flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg overflow-hidden bg-slate-100 border border-slate-200/60 shadow-xs shrink-0">
-              <Image
-                src="/icons/logo.png"
-                alt="ReplyEase AI"
-                width={36}
-                height={36}
-                className="size-full object-contain"
-                priority
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-xl tracking-tight text-[#0f172a]">
-                ReplyEase
-              </span>
-              <span className="rounded bg-[#f1f5f9] px-2 py-0.5 text-sm font-semibold text-[#c2410c]">
-                AI
-              </span>
-            </div>
-          </Link>
-
-          {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-base font-medium text-[#475569]">
-            <a href="#showcase" className="hover:text-[#0f172a] transition-colors">
-              Experience
-            </a>
-            <a href="#how-it-works" className="hover:text-[#0f172a] transition-colors">
-              Process
-            </a>
-            <a href="#features" className="hover:text-[#0f172a] transition-colors">
-              Architecture
-            </a>
-            <a href="#stats" className="hover:text-[#0f172a] transition-colors">
-              Performance
-            </a>
-            <a href="#pricing" className="hover:text-[#0f172a] transition-colors">
-              Pricing
-            </a>
-            <a href="#faq" className="hover:text-[#0f172a] transition-colors">
-              FAQ
-            </a>
-          </nav>
-
-          {/* Primary Action */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <Link
-              href="/auth/sign-in"
-              className="inline-flex h-9 items-center justify-center rounded-md border border-orange-200 bg-orange-50/80 px-3.5 text-xs font-semibold text-orange-700 hover:bg-orange-100/90 transition-colors shadow-xs"
-            >
-              <Sparkles className="size-3 mr-1.5 text-orange-600" />
-              <span>Dùng thử Demo 30p</span>
-            </Link>
-            <Link
-              href="/auth/sign-in"
-              className="text-sm font-medium text-[#475569] hover:text-[#0f172a] hidden sm:block"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/auth/sign-up"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[#c2410c] px-5 text-sm font-medium text-white hover:bg-[#9a3412] active:scale-[0.98] transition-colors"
-            >
-              Start Free Trial
-            </Link>
-          </div>
-        </div>
-      </header>
+      <LandingHeader />
 
       <main>
         {/* 2. Hero Section: Sentence split by frame */}
@@ -234,23 +188,23 @@ export default function HomePage() {
               {/* First Half */}
               <div className="lg:col-span-4 text-left motion-target">
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#0f172a] leading-[1.12]">
-                  Smart conversations,
+                  {t("landing.headline1", "Smart conversations,")}
                 </h1>
                 <p className="mt-5 text-lg text-[#475569] leading-relaxed max-w-[50ch]">
-                  ReplyEase AI is an autonomous conversational sales agent for e-commerce, reconciling live inventory and triggering instant VietQR checkouts 24/7 without overnight staff.
+                  {t("landing.description", "ReplyEase AI is an autonomous conversational sales agent for e-commerce, reconciling live inventory and triggering instant VietQR checkouts 24/7 without overnight staff.")}
                 </p>
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   <Link
                     href="/auth/sign-up"
                     className="inline-flex h-12 items-center justify-center rounded-md bg-[#c2410c] px-6 text-base font-medium text-white hover:bg-[#9a3412] active:scale-[0.98] transition-colors"
                   >
-                    Start 14-day free trial
+                    {t("landing.startTrial", "Start 14-day free trial")}
                   </Link>
                   <a
                     href="#showcase"
                     className="inline-flex h-12 items-center justify-center rounded-md bg-[#f1f5f9] px-6 text-base font-medium text-[#0f172a] hover:bg-[#e2e8f0] transition-colors"
                   >
-                    Explore live simulation
+                    {t("landing.hero.exploreSimulation", "Explore live simulation")}
                   </a>
                 </div>
               </div>
@@ -270,18 +224,18 @@ export default function HomePage() {
                       </span>
                     </div>
                     <span className="text-sm font-medium text-[#166534] bg-[#dcfce7] px-2.5 py-0.5 rounded">
-                      Online, 240ms
+                      {t("landing.hero.online240ms", "Online, 240ms")}
                     </span>
                   </div>
 
                   {/* Customer Question */}
                   <div className="mt-2 p-4 rounded-lg bg-[#ffffff]">
                     <div className="flex items-center justify-between text-sm text-[#64748b] mb-1">
-                      <span>Customer #3928</span>
+                      <span>{t("landing.hero.customerTitle", { id: "3928" }, "Customer #3928")}</span>
                       <span>02:14:10</span>
                     </div>
                     <p className="text-sm text-[#1e293b] leading-relaxed">
-                      &ldquo;Hi! Do you have the beige wool blazer in size L? How long does express delivery take?&rdquo;
+                      &ldquo;{t("landing.hero.heroDemoQuery", "Hi! Do you have the beige wool blazer in size L? How long does express delivery take?")}&rdquo;
                     </p>
                   </div>
 
@@ -289,22 +243,22 @@ export default function HomePage() {
                   <div className="mt-4 p-3.5 rounded-lg bg-[#f1f5f9] text-sm text-[#475569] space-y-1.5">
                     <div className="flex items-center gap-1.5 text-[#166534]">
                       <Check className="size-3.5 text-[#166534]" />
-                      <span>RAG: Matched 2 passages in catalog-2026.pdf (0.94)</span>
+                      <span>{t("landing.hero.ragTrace", "RAG: Matched 2 passages in catalog-2026.pdf (0.94)")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#0f172a] font-medium">
                       <CornerDownRight className="size-3.5 text-[#c2410c]" />
-                      <span>Inventory: 2 remaining, generated SePay VietQR 650,000 VND</span>
+                      <span>{t("landing.hero.inventoryTrace", "Inventory: 2 remaining, generated SePay VietQR 650,000 VND")}</span>
                     </div>
                   </div>
 
                   {/* Bot Reply */}
                   <div className="mt-4 p-4 rounded-lg bg-[#ffffff]">
                     <div className="flex items-center justify-between text-sm text-[#64748b] mb-1">
-                      <span className="font-semibold text-[#c2410c]">ReplyEase Assistant</span>
+                      <span className="font-semibold text-[#c2410c]">{t("landing.hero.botTitle", "ReplyEase Assistant")}</span>
                       <span>02:14:11</span>
                     </div>
                     <p className="text-sm text-[#334155] leading-relaxed">
-                      Yes! We currently have exactly 2 beige wool blazers in size L at our Central Warehouse. Express city delivery arrives within 2 hours. Here is your VietQR code to reserve yours right away:
+                      {t("landing.hero.heroDemoReply", "Yes! We currently have exactly 2 beige wool blazers in size L at our Central Warehouse. Express city delivery arrives within 2 hours. Here is your VietQR code to reserve yours right away:")}
                     </p>
 
                     {/* Dynamic VietQR Badge */}
@@ -313,15 +267,15 @@ export default function HomePage() {
                         <QrCode className="size-4 text-[#c2410c]" />
                         <div className="text-left">
                           <div className="text-sm font-semibold text-[#0f172a]">
-                            VietQR 650,000 VND
+                            {t("landing.hero.vietqrBadge", "VietQR 650,000 VND")}
                           </div>
                           <div className="text-[13px] text-[#475569]">
-                            MBBank, Memo: RE8841
+                            {t("landing.hero.bankMemo", "MBBank, Memo: RE8841")}
                           </div>
                         </div>
                       </div>
                       <span className="text-sm font-medium text-[#166534] bg-[#dcfce7] px-2.5 py-0.5 rounded">
-                        Auto-reconciled
+                        {t("landing.hero.autoReconciled", "Auto-reconciled")}
                       </span>
                     </div>
                   </div>
@@ -331,20 +285,20 @@ export default function HomePage() {
               {/* Second Half */}
               <div className="lg:col-span-3 text-left lg:text-right motion-target">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-[#0f172a] leading-[1.12]">
-                  instant checkout.
+                  {t("landing.headline2", "instant checkouts.")}
                 </h2>
                 <div className="mt-5 space-y-3.5 text-base text-[#475569] lg:text-right">
                   <div className="flex items-center lg:justify-end gap-2 text-[#0f172a] font-medium">
                     <CheckCircle2 className="size-4 text-[#15803d]" />
-                    <span>0 abandoned orders at 2:00 AM</span>
+                    <span>{t("landing.hero.benefit1", "0 abandoned orders at 2:00 AM")}</span>
                   </div>
                   <div className="flex items-center lg:justify-end gap-2 text-[#0f172a] font-medium">
                     <CheckCircle2 className="size-4 text-[#15803d]" />
-                    <span>Under 300 millisecond response</span>
+                    <span>{t("landing.hero.benefit2", "Under 300 millisecond response")}</span>
                   </div>
                   <div className="flex items-center lg:justify-end gap-2 text-[#0f172a] font-medium">
                     <CheckCircle2 className="size-4 text-[#15803d]" />
-                    <span>5-minute SePay integration</span>
+                    <span>{t("landing.hero.benefit3", "5-minute SePay integration")}</span>
                   </div>
                 </div>
               </div>
@@ -357,10 +311,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-3xl mb-12 motion-target">
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                Live Verification
+                {t("landing.showcase.title", "Live Verification")}
               </h2>
               <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                Test real-time 240ms response latency and dynamic VietQR payment generation across actual retail customer scenarios.
+                {t("landing.showcase.subtitle", "Test real-time 240ms response latency and dynamic VietQR payment generation across actual retail customer scenarios.")}
               </p>
             </div>
 
@@ -380,10 +334,10 @@ export default function HomePage() {
                       </div>
                       <div>
                         <div className="text-base font-semibold text-[#0f172a]">
-                          ReplyEase Agent Runtime
+                          {t("landing.showcase.runtimeTitle", "ReplyEase Agent Runtime")}
                         </div>
                         <div className="text-sm text-[#64748b]">
-                          {activeScenario.category}, Session #{activeScenario.orderNumber}
+                          {t("landing.showcase.sessionLabel", { category: activeScenario.category, id: activeScenario.orderNumber }, `${activeScenario.category}, Session #${activeScenario.orderNumber}`)}
                         </div>
                       </div>
                     </div>
@@ -400,7 +354,7 @@ export default function HomePage() {
                     {/* Customer Message */}
                     <div className="rounded-lg bg-[#f8fafc] p-4">
                       <div className="flex items-center justify-between text-sm text-[#64748b] mb-1.5">
-                        <span className="font-medium text-[#0f172a]">Website Visitor</span>
+                        <span className="font-medium text-[#0f172a]">{t("landing.showcase.visitor", "Website Visitor")}</span>
                         <span>{activeScenario.time}</span>
                       </div>
                       <p className="text-sm text-[#1e293b] leading-relaxed">
@@ -411,22 +365,22 @@ export default function HomePage() {
                     {/* RAG Knowledge Matching Engine Trace */}
                     <div className="p-3.5 rounded-lg bg-[#f1f5f9] text-sm space-y-1.5">
                       <div className="flex items-center justify-between text-[#475569]">
-                        <span className="font-medium">RAG Matching Source:</span>
-                        <span className="text-[#15803d] font-medium">Confidence {activeScenario.confidence}</span>
+                        <span className="font-medium">{t("landing.showcase.ragSource", "RAG Matching Source:")}</span>
+                        <span className="text-[#15803d] font-medium">{t("landing.showcase.confidence", { rate: activeScenario.confidence }, `Confidence ${activeScenario.confidence}`)}</span>
                       </div>
                       <div className="text-[#334155]">
                         {activeScenario.ragMatches}
                       </div>
                       <div className="text-sm text-[#0f172a] font-medium pt-1">
-                        Inventory: {activeScenario.inventoryStatus}
+                        {t("landing.showcase.inventory", { status: activeScenario.inventoryStatus }, `Inventory: ${activeScenario.inventoryStatus}`)}
                       </div>
                     </div>
 
                     {/* AI Agent Response */}
                     <div className="rounded-lg bg-[#ffffff] p-4 space-y-3">
                       <div className="flex items-center justify-between text-sm text-[#64748b]">
-                        <span className="font-semibold text-[#c2410c]">ReplyEase Assistant</span>
-                        <span>Delivered ({activeScenario.latencyMs}ms)</span>
+                        <span className="font-semibold text-[#c2410c]">{t("landing.hero.botTitle", "ReplyEase Assistant")}</span>
+                        <span>{t("landing.showcase.delivered", { latency: activeScenario.latencyMs }, `Delivered (${activeScenario.latencyMs}ms)`)}</span>
                       </div>
                       <p className="text-sm text-[#1e293b] leading-relaxed">
                         {activeScenario.botReply}
@@ -439,7 +393,7 @@ export default function HomePage() {
                             <div className="flex items-center gap-2">
                               <QrCode className="size-4 text-[#c2410c]" />
                               <span className="text-sm font-semibold text-[#0f172a]">
-                                VietQR SePay Payment
+                                {t("landing.showcase.vietqrPayment", "VietQR SePay Payment")}
                               </span>
                             </div>
                             <span
@@ -449,31 +403,33 @@ export default function HomePage() {
                                   : "bg-[#fef3c7] text-[#b45309]"
                               }`}
                             >
-                              {isPaid ? "Auto-Reconciled via SePay" : "Awaiting Transfer"}
+                              {isPaid
+                                ? t("landing.showcase.autoReconciledSePay", "Auto-Reconciled via SePay")
+                                : t("landing.showcase.awaitingTransfer", "Awaiting Transfer")}
                             </span>
                           </div>
 
                           <div className="pt-3 grid grid-cols-2 gap-3 text-sm">
                             <div>
-                              <div className="text-[#64748b]">Product</div>
+                              <div className="text-[#64748b]">{t("landing.showcase.colProduct", "Product")}</div>
                               <div className="font-medium text-[#0f172a] truncate">
                                 {activeScenario.productName}
                               </div>
                             </div>
                             <div>
-                              <div className="text-[#64748b]">Transfer Amount</div>
+                              <div className="text-[#64748b]">{t("landing.showcase.colAmount", "Transfer Amount")}</div>
                               <div className="font-semibold text-[#c2410c]">
                                 {activeScenario.amount} VND
                               </div>
                             </div>
                             <div>
-                              <div className="text-[#64748b]">Bank</div>
+                              <div className="text-[#64748b]">{t("landing.showcase.colBank", "Bank")}</div>
                               <div className="font-medium text-[#0f172a]">
                                 {activeScenario.bank}
                               </div>
                             </div>
                             <div>
-                              <div className="text-[#64748b]">Transfer Memo</div>
+                              <div className="text-[#64748b]">{t("landing.showcase.colMemo", "Transfer Memo")}</div>
                               <div className="font-medium text-[#0f172a]">
                                 {activeScenario.account}
                               </div>
@@ -483,7 +439,7 @@ export default function HomePage() {
                           {/* Simulation Trigger inside the Card */}
                           <div className="mt-4 pt-3 flex items-center justify-between">
                             <span className="text-sm text-[#64748b]">
-                              Bank Webhook Simulation:
+                              {t("landing.showcase.webhookSimulation", "Bank Webhook Simulation:")}
                             </span>
                             <button
                               type="button"
@@ -495,7 +451,9 @@ export default function HomePage() {
                                   : "bg-[#0f172a] text-white hover:bg-[#334155] active:scale-[0.98]"
                               }`}
                             >
-                              {isPaid ? "Ding ding! Payment received" : "Simulate 2s Payment"}
+                              {isPaid
+                                ? t("landing.showcase.simulatingSuccess", "Ding ding! Payment received")
+                                : t("landing.showcase.simulateBtn", "Simulate 2s Payment")}
                             </button>
                           </div>
                         </div>
@@ -504,7 +462,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="pt-2 text-sm text-[#64748b]">
-                    Embedded widget script: <code className="bg-[#f1f5f9] px-2 py-0.5 rounded text-[#0f172a]">replyease.embed(&apos;{activeScenario.id}&apos;)</code>
+                    {t("landing.showcase.widgetScript", "Embedded widget script:")} <code className="bg-[#f1f5f9] px-2 py-0.5 rounded text-[#0f172a]">replyease.embed(&apos;{activeScenario.id}&apos;)</code>
                   </div>
                 </div>
               </div>
@@ -512,10 +470,10 @@ export default function HomePage() {
               {/* Right Area (38%): Interactive Scenario Switchers */}
               <div className="lg:col-span-5 space-y-4 motion-target">
                 <div className="text-base font-semibold text-[#0f172a] mb-2">
-                  Select interactive scenario:
+                  {t("landing.showcase.selectScenario", "Select interactive scenario:")}
                 </div>
 
-                {SCENARIOS.map((sc) => {
+                {scenarios.map((sc) => {
                   const isSelected = activeScenario.id === sc.id;
                   return (
                     <button
@@ -548,10 +506,10 @@ export default function HomePage() {
 
                 <div className="p-5 rounded-xl bg-[#ffffff] text-sm text-[#475569] leading-relaxed motion-target">
                   <div className="font-semibold text-[#0f172a] mb-1">
-                    How SePay Webhook Operates
+                    {t("landing.showcase.webhookTitle", "How SePay Webhook Operates")}
                   </div>
                   <p className="max-w-[55ch]">
-                    When a shopper scans the VietQR, SePay detects balance fluctuations immediately and triggers a webhook to ReplyEase AI within 2 seconds to confirm the order directly in the chat window.
+                    {t("landing.showcase.webhookDesc", "When a shopper scans the VietQR, SePay detects balance fluctuations immediately and triggers a webhook to ReplyEase AI within 2 seconds to confirm the order directly in the chat window.")}
                   </p>
                 </div>
               </div>
@@ -564,10 +522,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-3xl mb-14 motion-target">
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                4-Step Activation Workflow
+                {t("landing.process.title", "4-Step Activation Workflow")}
               </h2>
               <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                Launch an AI assistant that deeply understands your catalog and settles orders on your website in under 10 minutes.
+                {t("landing.process.subtitle", "Launch an AI assistant that deeply understands your catalog and settles orders on your website in under 10 minutes.")}
               </p>
             </div>
 
@@ -578,25 +536,25 @@ export default function HomePage() {
                 <div className="flex flex-col justify-between min-h-[300px]">
                   <div>
                     <div className="text-base font-semibold text-[#0f172a] mb-2">
-                      RAG Knowledge Base
+                      {t("landing.process.step1Title", "RAG Knowledge Base")}
                     </div>
                     <div className="space-y-2 text-sm text-[#475569]">
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Ingested Catalog</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step1Ingested", "Ingested Catalog")}</div>
                         <div className="font-medium text-[#0f172a]">price-list-2026.xlsx</div>
                       </div>
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Status</div>
-                        <div className="font-medium text-[#166534]">1,420 vectors indexed</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step1Status", "Status")}</div>
+                        <div className="font-medium text-[#166534]">{t("landing.process.step1Vectors", "1,420 vectors indexed")}</div>
                       </div>
                     </div>
                   </div>
                   <div className="mt-6">
                     <div className="text-sm font-semibold text-[#c2410c] mb-1">
-                      Step one
+                      {t("landing.process.step1Label", "Step one")}
                     </div>
                     <div className="text-base font-semibold text-[#0f172a] leading-snug">
-                      First, ingest catalog data into your private knowledge base.
+                      {t("landing.process.step1Desc", "First, ingest catalog data into your private knowledge base.")}
                     </div>
                   </div>
                 </div>
@@ -605,25 +563,25 @@ export default function HomePage() {
                 <div className="flex flex-col justify-between min-h-[300px]">
                   <div>
                     <div className="text-base font-semibold text-[#0f172a] mb-2">
-                      SePay Reconciliation Gateway
+                      {t("landing.process.step2Title", "SePay Reconciliation Gateway")}
                     </div>
                     <div className="space-y-2 text-sm text-[#475569]">
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Receiving Bank</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step2Bank", "Receiving Bank")}</div>
                         <div className="font-medium text-[#0f172a]">MBBank (0988291001)</div>
                       </div>
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Webhook URL</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step2Webhook", "Webhook URL")}</div>
                         <code className="text-[#166534] text-sm">/api/v1/sepay/listen</code>
                       </div>
                     </div>
                   </div>
                   <div className="mt-6">
                     <div className="text-sm font-semibold text-[#c2410c] mb-1">
-                      Step two
+                      {t("landing.process.step2Label", "Step two")}
                     </div>
                     <div className="text-base font-semibold text-[#0f172a] leading-snug">
-                      Then connect your bank account and SePay gateway in 2 minutes.
+                      {t("landing.process.step2Desc", "Then connect your bank account and SePay gateway in 2 minutes.")}
                     </div>
                   </div>
                 </div>
@@ -632,12 +590,12 @@ export default function HomePage() {
                 <div className="flex flex-col justify-between min-h-[300px]">
                   <div>
                     <div className="text-base font-semibold text-[#0f172a] mb-2">
-                      Embed Widget to Website
+                      {t("landing.process.step3Title", "Embed Widget to Website")}
                     </div>
                     <div className="space-y-2 text-sm text-[#475569]">
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Setup Time</div>
-                        <div className="font-medium text-[#0f172a]">30 seconds complete</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step3Time", "Setup Time")}</div>
+                        <div className="font-medium text-[#0f172a]">{t("landing.process.step3Speed", "30 seconds complete")}</div>
                       </div>
                       <div className="p-2.5 rounded bg-[#0f172a] text-[#f8fafc] text-sm overflow-x-auto">
                         <code>&lt;script src=&quot;widget.js&quot;&gt;&lt;/script&gt;</code>
@@ -646,10 +604,10 @@ export default function HomePage() {
                   </div>
                   <div className="mt-6">
                     <div className="text-sm font-semibold text-[#c2410c] mb-1">
-                      Step three
+                      {t("landing.process.step3Label", "Step three")}
                     </div>
                     <div className="text-base font-semibold text-[#0f172a] leading-snug">
-                      Next, paste a single line of widget script into your website.
+                      {t("landing.process.step3Desc", "Next, paste a single line of widget script into your website.")}
                     </div>
                   </div>
                 </div>
@@ -658,25 +616,25 @@ export default function HomePage() {
                 <div className="flex flex-col justify-between min-h-[300px]">
                   <div>
                     <div className="text-base font-semibold text-[#0f172a] mb-2">
-                      Autonomous Order Settle
+                      {t("landing.process.step4Title", "Autonomous Order Settle")}
                     </div>
                     <div className="space-y-2 text-sm text-[#475569]">
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#166534]">Status</div>
-                        <div className="font-medium text-[#166534]">Received 650,000 VND via VietQR</div>
+                        <div className="text-[13px] text-[#166534]">{t("landing.process.step4Status", "Status")}</div>
+                        <div className="font-medium text-[#166534]">{t("landing.process.step4Received", "Received 650,000 VND via VietQR")}</div>
                       </div>
                       <div className="p-2.5 rounded bg-[#ffffff]">
-                        <div className="text-[13px] text-[#475569]">Logistics</div>
-                        <div className="font-medium text-[#0f172a]">Dispatched to morning fulfillment shift</div>
+                        <div className="text-[13px] text-[#475569]">{t("landing.process.step4Logistics", "Logistics")}</div>
+                        <div className="font-medium text-[#0f172a]">{t("landing.process.step4Dispatched", "Dispatched to morning fulfillment shift")}</div>
                       </div>
                     </div>
                   </div>
                   <div className="mt-6">
                     <div className="text-sm font-semibold text-[#c2410c] mb-1">
-                      Step four
+                      {t("landing.process.step4Label", "Step four")}
                     </div>
                     <div className="text-base font-semibold text-[#0f172a] leading-snug">
-                      Finally, your AI agent operates 24/7 and closes midnight orders.
+                      {t("landing.process.step4Desc", "Finally, your AI agent operates 24/7 and closes midnight orders.")}
                     </div>
                   </div>
                 </div>
@@ -690,10 +648,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-3xl mb-12 motion-target">
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                Real-World Operations Across Brands
+                {t("landing.operations.title", "Real-World Operations Across Brands")}
               </h2>
               <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                ReplyEase AI powers retail stores and D2C brands from real-time customer consultation to warehouse packing stations.
+                {t("landing.operations.subtitle", "ReplyEase AI powers retail stores and D2C brands from real-time customer consultation to warehouse packing stations.")}
               </p>
             </div>
 
@@ -710,10 +668,10 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="text-base font-medium text-[#0f172a]">
-                  Fashion Boutique & Concept Store
+                  {t("landing.operations.photo1Title", "Fashion Boutique & Concept Store")}
                 </div>
                 <p className="text-sm text-[#64748b] leading-relaxed max-w-[50ch]">
-                  The AI assistant checks physical stock, recommends sizing based on height and weight, and generates instant VietQR payment codes throughout the night.
+                  {t("landing.operations.photo1Desc", "The AI assistant checks physical stock, recommends sizing based on height and weight, and generates instant VietQR payment codes throughout the night.")}
                 </p>
               </div>
 
@@ -729,10 +687,10 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="text-base font-medium text-[#0f172a]">
-                  Night Shift Packaging & Dispatch Station
+                  {t("landing.operations.photo2Title", "Night Shift Packaging & Dispatch Station")}
                 </div>
                 <p className="text-sm text-[#64748b] leading-relaxed max-w-[50ch]">
-                  Orders placed between 11:00 PM and 5:00 AM are verified via SePay and auto-synced to logistics couriers for immediate morning dispatch.
+                  {t("landing.operations.photo2Desc", "Orders placed between 11:00 PM and 5:00 AM are verified via SePay and auto-synced to logistics couriers for immediate morning dispatch.")}
                 </p>
               </div>
             </div>
@@ -744,10 +702,10 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="max-w-3xl mb-16 motion-target">
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                Deep Architecture
+                {t("landing.architecture.title", "Deep Architecture")}
               </h2>
               <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                Engineered specifically for conversational commerce, nuanced Vietnamese phrasing, and domestic instant bank payments.
+                {t("landing.architecture.subtitle", "Engineered specifically for conversational commerce, nuanced Vietnamese phrasing, and domestic instant bank payments.")}
               </p>
             </div>
 
@@ -757,26 +715,26 @@ export default function HomePage() {
               <div className="lg:col-span-3 space-y-8 motion-target">
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Multi-Layer Retail RAG
+                    {t("landing.architecture.f1Title", "Multi-Layer Retail RAG")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Accurately understands Vietnamese regional phrasing, shorthand, and product variants with 99.8% precision.
+                    {t("landing.architecture.f1Desc", "Accurately understands Vietnamese regional phrasing, shorthand, and product variants with 99.8% precision.")}
                   </p>
                 </div>
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Instant SePay Reconciliation
+                    {t("landing.architecture.f2Title", "Instant SePay Reconciliation")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Automatically parses transfer memos and delivers real-time confirmation notifications to customers within 2 seconds.
+                    {t("landing.architecture.f2Desc", "Automatically parses transfer memos and delivers real-time confirmation notifications to customers within 2 seconds.")}
                   </p>
                 </div>
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Real-Time Inventory Audit
+                    {t("landing.architecture.f3Title", "Real-Time Inventory Audit")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Directly syncs with live stock databases, eliminating out-of-stock misguidance.
+                    {t("landing.architecture.f3Desc", "Directly syncs with live stock databases, eliminating out-of-stock misguidance.")}
                   </p>
                 </div>
               </div>
@@ -791,7 +749,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-2">
                       <Sliders className="size-4 text-[#c2410c]" />
                       <span className="text-base font-semibold text-[#0f172a]">
-                        Agent Central Control Panel
+                        {t("landing.architecture.panelTitle", "Agent Central Control Panel")}
                       </span>
                     </div>
                     <span className="text-sm bg-[#ffffff] px-2.5 py-1 rounded text-[#475569]">
@@ -802,47 +760,47 @@ export default function HomePage() {
                   <div className="py-4 space-y-4 text-sm">
                     <div className="p-4 rounded-lg bg-[#ffffff]">
                       <div className="text-sm font-semibold text-[#64748b] mb-1">
-                        Model State & System Prompt
+                        {t("landing.architecture.modelState", "Model State & System Prompt")}
                       </div>
                       <div className="text-[#0f172a] font-medium">
-                        Retail Conversational RAG · Professional, courteous tone
+                        {t("landing.architecture.modelPrompt", "Retail Conversational RAG · Professional, courteous tone")}
                       </div>
                       <div className="text-sm text-[#64748b] mt-1">
-                        Temperature: 0.2 · Speculative answers strictly blocked
+                        {t("landing.architecture.modelTemp", "Temperature: 0.2 · Speculative answers strictly blocked")}
                       </div>
                     </div>
 
                     <div className="p-4 rounded-lg bg-[#ffffff]">
                       <div className="text-sm font-semibold text-[#64748b] mb-1">
-                        Banking Gateway & SePay Webhook
+                        {t("landing.architecture.bankingGateway", "Banking Gateway & SePay Webhook")}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0f172a] font-medium">MBBank (Account: 0988291001)</span>
+                        <span className="text-[#0f172a] font-medium">{t("landing.architecture.bankAccount", "MBBank (Account: 0988291001)")}</span>
                         <span className="text-sm font-medium text-[#166534] bg-[#dcfce7] px-2.5 py-0.5 rounded">
-                          Connected
+                          {t("landing.architecture.connected", "Connected")}
                         </span>
                       </div>
                       <div className="text-sm text-[#64748b] mt-1">
-                        Auto-generates dynamic Napas 247 QR codes per order
+                        {t("landing.architecture.qrDesc", "Auto-generates dynamic Napas 247 QR codes per order")}
                       </div>
                     </div>
 
                     <div className="p-4 rounded-lg bg-[#ffffff]">
                       <div className="text-sm font-semibold text-[#64748b] mb-1">
-                        Emergency Staff Escalation
+                        {t("landing.architecture.escalation", "Emergency Staff Escalation")}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[#0f172a] font-medium">Triggers when customer explicitly requests hotline assistance</span>
+                        <span className="text-[#0f172a] font-medium">{t("landing.architecture.escalationDesc", "Triggers when customer explicitly requests hotline assistance")}</span>
                         <span className="text-sm font-medium text-[#9a3412] bg-[#ffedd5] px-2.5 py-0.5 rounded">
-                          1-Click Handover
+                          {t("landing.architecture.handover", "1-Click Handover")}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="pt-3 flex items-center justify-between text-sm text-[#64748b]">
-                    <span>Operational Uptime: 99.98%</span>
-                    <span>Average Latency: 240ms</span>
+                    <span>{t("landing.architecture.uptime", "Operational Uptime: 99.98%")}</span>
+                    <span>{t("landing.architecture.avgLatency", "Average Latency: 240ms")}</span>
                   </div>
                 </div>
               </div>
@@ -851,26 +809,26 @@ export default function HomePage() {
               <div className="lg:col-span-3 space-y-8 motion-target">
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    1-Touch Staff Handover
+                    {t("landing.architecture.f4Title", "1-Touch Staff Handover")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Detects complex disputes or custom inquiries and routes the full transcript to human agents within seconds.
+                    {t("landing.architecture.f4Desc", "Detects complex disputes or custom inquiries and routes the full transcript to human agents within seconds.")}
                   </p>
                 </div>
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Zero-Data-Leak Privacy
+                    {t("landing.architecture.f5Title", "Zero-Data-Leak Privacy")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Proprietary product data and customer records are isolated and never used for public model training.
+                    {t("landing.architecture.f5Desc", "Proprietary product data and customer records are isolated and never used for public model training.")}
                   </p>
                 </div>
                 <div>
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Conversion Intelligence
+                    {t("landing.architecture.f6Title", "Conversion Intelligence")}
                   </div>
                   <p className="mt-1.5 text-sm text-[#64748b] leading-relaxed max-w-[36ch]">
-                    Tracks off-hour revenue volume, payment settlement speed, and customer satisfaction metrics.
+                    {t("landing.architecture.f6Desc", "Tracks off-hour revenue volume, payment settlement speed, and customer satisfaction metrics.")}
                   </p>
                 </div>
               </div>
@@ -887,10 +845,10 @@ export default function HomePage() {
                   240ms
                 </div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-[#0f172a]">
-                  Average Latency per RAG Query
+                  {t("landing.stats.avgLatencyTitle", "Average Latency per RAG Query")}
                 </h2>
                 <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                  Shoppers never wait for answers. The chart below illustrates automated order processing distributed across 24 hours.
+                  {t("landing.stats.avgLatencyDesc", "Shoppers never wait for answers. The chart below illustrates automated order processing distributed across 24 hours.")}
                 </p>
               </div>
 
@@ -898,15 +856,15 @@ export default function HomePage() {
               <div className="lg:col-span-5 grid grid-cols-3 gap-6 text-left">
                 <div className="motion-target">
                   <div className="text-3xl font-bold text-[#c2410c]">+38%</div>
-                  <div className="text-sm text-[#64748b] mt-1">Nighttime orders</div>
+                  <div className="text-sm text-[#64748b] mt-1">{t("landing.stats.nightOrders", "Nighttime orders")}</div>
                 </div>
                 <div className="motion-target">
                   <div className="text-3xl font-bold text-[#166534]">0</div>
-                  <div className="text-sm text-[#64748b] mt-1">Lost orders at 2:00 AM</div>
+                  <div className="text-sm text-[#64748b] mt-1">{t("landing.stats.zeroLostOrders", "Lost orders at 2:00 AM")}</div>
                 </div>
                 <div className="motion-target">
                   <div className="text-3xl font-bold text-[#0f172a]">99.8%</div>
-                  <div className="text-sm text-[#64748b] mt-1">SePay match rate</div>
+                  <div className="text-sm text-[#64748b] mt-1">{t("landing.stats.sepayMatchRate", "SePay match rate")}</div>
                 </div>
               </div>
             </div>
@@ -918,33 +876,33 @@ export default function HomePage() {
             >
               <div className="flex items-center justify-between mb-6 text-sm text-[#64748b]">
                 <span className="font-semibold text-[#0f172a]">
-                  Hourly Consultation & Order Volume (00:00 - 23:00)
+                  {t("landing.stats.chartTitle", "Hourly Consultation & Order Volume (00:00 - 23:00)")}
                 </span>
                 <span className="flex items-center gap-2">
                   <span className="size-2.5 rounded bg-[#c2410c]" />
-                  <span className="font-semibold text-[#c2410c]">Night Shift Window (00:00 - 06:00: 100% Autonomous AI)</span>
+                  <span className="font-semibold text-[#c2410c]">{t("landing.stats.chartLegendNight", "Night Shift Window (00:00 - 06:00: 100% Autonomous AI)")}</span>
                 </span>
               </div>
 
               {/* 12 Bars representing hours */}
               <div className="grid grid-cols-12 gap-2 sm:gap-3 items-end h-52 pt-6 pb-2">
                 {[
-                  { hour: "00h", height: "48%", night: true, count: "142 orders" },
-                  { hour: "02h", height: "58%", night: true, count: "168 orders" },
-                  { hour: "04h", height: "42%", night: true, count: "115 orders" },
-                  { hour: "06h", height: "30%", night: false, count: "89 orders" },
-                  { hour: "08h", height: "65%", night: false, count: "210 orders" },
-                  { hour: "10h", height: "82%", night: false, count: "295 orders" },
-                  { hour: "12h", height: "92%", night: false, count: "340 orders" },
-                  { hour: "14h", height: "85%", night: false, count: "310 orders" },
-                  { hour: "16h", height: "78%", night: false, count: "275 orders" },
-                  { hour: "18h", height: "68%", night: false, count: "230 orders" },
-                  { hour: "20h", height: "95%", night: false, count: "360 orders" },
-                  { hour: "22h", height: "88%", night: false, count: "325 orders" },
+                  { hour: "00h", height: "48%", night: true, num: 142 },
+                  { hour: "02h", height: "58%", night: true, num: 168 },
+                  { hour: "04h", height: "42%", night: true, num: 115 },
+                  { hour: "06h", height: "30%", night: false, num: 89 },
+                  { hour: "08h", height: "65%", night: false, num: 210 },
+                  { hour: "10h", height: "82%", night: false, num: 295 },
+                  { hour: "12h", height: "92%", night: false, num: 340 },
+                  { hour: "14h", height: "85%", night: false, num: 310 },
+                  { hour: "16h", height: "78%", night: false, num: 275 },
+                  { hour: "18h", height: "68%", night: false, num: 230 },
+                  { hour: "20h", height: "95%", night: false, num: 360 },
+                  { hour: "22h", height: "88%", night: false, num: 325 },
                 ].map((bar, idx) => (
                   <div key={idx} className="flex flex-col items-center h-full justify-end group">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity text-sm text-[#0f172a] mb-1 whitespace-nowrap">
-                      {bar.count}
+                      {t("landing.stats.ordersUnit", { count: bar.num }, `${bar.num} orders`)}
                     </div>
                     <div
                       style={{ height: bar.height }}
@@ -970,13 +928,13 @@ export default function HomePage() {
             <div className="max-w-3xl mb-14 motion-target">
               <div className="inline-flex items-center gap-1.5 rounded-full bg-[#f1f5f9] px-3 py-1 text-xs font-semibold text-[#c2410c] mb-3">
                 <Sparkles className="size-3.5" />
-                <span>Bảng giá & Hạn mức tính năng</span>
+                <span>{t("billing.title", "Plans & Pricing")}</span>
               </div>
               <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                Transparent Pricing · Bảng giá minh bạch
+                {t("landing.pricing.title", "Transparent Pricing")}
               </h2>
               <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[55ch]">
-                Lựa chọn gói cước phù hợp với quy mô bán hàng của bạn. Tích hợp thanh toán SePay VietQR tức thời, bộ nhớ Pinecone RAG chuyên sâu, không phí ẩn và hỗ trợ nâng cấp bất cứ lúc nào.
+                {t("billing.subtitle", "Choose the plan that fits your business scale. Instant SePay VietQR checkout, autonomous AI bots, and RAG search.")}
               </p>
             </div>
 
@@ -986,118 +944,118 @@ export default function HomePage() {
                 <thead>
                   <tr className="bg-[#f8f9fb] border-b border-slate-200/80">
                     <th className="p-6 text-base font-semibold text-[#0f172a] w-1/4 align-bottom">
-                      Tính năng so sánh
+                      {t("billing.featureComparison", "Feature Comparison")}
                     </th>
                     <th className="p-6 w-1/4 align-top">
                       <div className="text-lg font-bold text-[#0f172a]">Standard</div>
                       <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
-                        Dành cho cá nhân trải nghiệm & thử nghiệm AI
+                        {t("billing.plans.standard.tagline", "For individuals testing autonomous AI chatbots.")}
                       </div>
                       <div className="text-2xl font-extrabold text-[#0f172a] mt-2">0 VND</div>
-                      <div className="text-xs text-[#64748b] font-medium">Miễn phí trọn đời</div>
+                      <div className="text-xs text-[#64748b] font-medium">{t("billing.freeForever", "Free forever")}</div>
                     </th>
                     <th className="p-6 w-1/4 bg-[#f1f5f9] border-x border-slate-200/80 relative align-top">
                       <div className="absolute top-3 right-5">
                         <span className="inline-flex items-center gap-1 rounded bg-[#ffedd5] px-2.5 py-0.5 text-[11px] font-bold text-[#c2410c]">
                           <Sparkles className="size-3" />
-                          Phổ biến nhất
+                          {t("billing.plans.pro.badge", "Most Popular")}
                         </span>
                       </div>
                       <div className="text-lg font-bold text-[#0f172a]">Pro</div>
                       <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
-                        Lựa chọn tốt nhất cho doanh nghiệp vừa & nhỏ
+                        {t("billing.plans.pro.tagline", "Best choice for small & medium businesses automating sales.")}
                       </div>
                       <div className="text-2xl font-extrabold text-[#c2410c] mt-2">350.000 VND</div>
-                      <div className="text-xs text-[#64748b] font-medium">mỗi tháng (per month)</div>
+                      <div className="text-xs text-[#64748b] font-medium">{t("billing.periodMonth", "VND / month")}</div>
                     </th>
                     <th className="p-6 w-1/4 align-top">
                       <div className="flex items-center justify-between">
                         <div className="text-lg font-bold text-[#0f172a]">Ultimate</div>
                         <span className="inline-flex items-center gap-1 rounded bg-[#e2e8f0] px-2 py-0.5 text-[11px] font-bold text-[#334155]">
-                          Tối ưu nhất
+                          {t("billing.plans.ultimate.badge", "Enterprise Tier")}
                         </span>
                       </div>
                       <div className="text-xs text-[#64748b] mt-0.5 min-h-[32px]">
-                        Doanh nghiệp lớn cần tự động hoá tối đa quy mô
+                        {t("billing.plans.ultimate.tagline", "For high-volume retail stores and e-commerce enterprises.")}
                       </div>
                       <div className="text-2xl font-extrabold text-[#0f172a] mt-2">850.000 VND</div>
-                      <div className="text-xs text-[#64748b] font-medium">mỗi tháng (per month)</div>
+                      <div className="text-xs text-[#64748b] font-medium">{t("billing.periodMonth", "VND / month")}</div>
                     </th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-slate-200/70">
                   <tr>
-                    <td className="p-5 font-semibold text-[#0f172a]">Hạn mức Website / Domain</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("dashboard.domainQuota", "Connected Domains Quota")}</td>
                     <td className="p-5 text-[#475569]">
-                      <span className="font-semibold text-[#0f172a]">1 Website</span> kết nối
+                      <span className="font-semibold text-[#0f172a]">{t("landing.pricing.domainsCount", { count: 1 }, "1 Website")}</span>
                     </td>
                     <td className="p-5 bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      <span className="font-bold text-[#0f172a]">5 Websites</span> kết nối
+                      <span className="font-bold text-[#0f172a]">{t("landing.pricing.domainsCount", { count: 5 }, "5 Websites")}</span>
                     </td>
                     <td className="p-5 text-[#475569]">
-                      <span className="font-bold text-[#0f172a]">10 Websites</span> kết nối
+                      <span className="font-bold text-[#0f172a]">{t("landing.pricing.domainsCount", { count: 10 }, "10 Websites")}</span>
                     </td>
                   </tr>
                   <tr className="bg-[#f8f9fb]/60">
-                    <td className="p-5 font-semibold text-[#0f172a]">AI Chat Credits</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("billing.creditsUnit", "AI Chat Credits")}</td>
                     <td className="p-5 text-[#475569]">
-                      <span className="font-semibold text-[#0f172a]">100 credits</span> khởi đầu
+                      <span className="font-semibold text-[#0f172a]">{t("landing.pricing.creditsCount", { count: "100" }, "100 credits")}</span>
                     </td>
                     <td className="p-5 bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      <span className="font-bold text-[#c2410c]">500 credits</span> hàng tháng
+                      <span className="font-bold text-[#c2410c]">{t("landing.pricing.creditsCount", { count: "500" }, "500 credits")}</span>
                     </td>
                     <td className="p-5 text-[#475569]">
-                      <span className="font-bold text-[#0f172a]">5.000 credits</span> dung lượng lớn
+                      <span className="font-bold text-[#0f172a]">{t("landing.pricing.creditsCount", { count: "5,000" }, "5,000 credits")}</span>
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-5 font-semibold text-[#0f172a]">Huấn luyện AI & Pinecone RAG</td>
-                    <td className="p-5 text-[#475569]">Chatbot AI trả lời tự động cơ bản</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("settings.tabs.training", "AI Knowledge Training")}</td>
+                    <td className="p-5 text-[#475569]">{t("billing.plans.standard.f3", "Automated AI Bot responses")}</td>
                     <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      AI Sales Bot + Pinecone Vector RAG, huấn luyện FAQ HelpDesk chuyên sâu
+                      {t("billing.plans.pro.f3", "AI Sales Bot + Pinecone Vector RAG")}
                     </td>
                     <td className="p-5 text-[#475569]">
-                      Pinecone Vector RAG không giới hạn tài liệu & catalog sản phẩm
+                      {t("billing.plans.ultimate.f3", "Pinecone RAG Hybrid Search with maximum accuracy")}
                     </td>
                   </tr>
                   <tr className="bg-[#f8f9fb]/60">
-                    <td className="p-5 font-semibold text-[#0f172a]">Thanh toán SePay VietQR</td>
-                    <td className="p-5 text-[#475569]">Tự động tạo VietQR đơn hàng (Đối soát thủ công)</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">SePay VietQR</td>
+                    <td className="p-5 text-[#475569]">{t("billing.plans.standard.f6", "Automated order VietQR creation")}</td>
                     <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      Cổng SePay VietQR tự động đối soát & xác nhận đơn tức thì
+                      {t("billing.plans.pro.f6", "Automated SePay VietQR payment gateway")}
                     </td>
                     <td className="p-5 text-[#475569]">
-                      Tích hợp SePay Connect tài khoản riêng của Shop, nhận tiền trực tiếp
+                      {t("billing.plans.ultimate.f6", "Dedicated SePay Gateway with high-speed Webhook")}
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-5 font-semibold text-[#0f172a]">Live Messenger & Human Takeover</td>
-                    <td className="p-5 text-[#475569]">Thu thập email khách tiềm năng</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("billing.liveMessenger", "Live Messenger & Human Takeover")}</td>
+                    <td className="p-5 text-[#475569]">{t("billing.plans.standard.f4", "Capture lead emails")}</td>
                     <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      Live Messenger & Chuyển giao nhân viên 1 chạm tức thì
+                      {t("billing.plans.pro.f5", "Instant Live Messenger & Human Takeover")}
                     </td>
                     <td className="p-5 text-[#475569]">
-                      Chuyển tiếp đa kênh khẩn cấp & Cảnh báo tức thì
+                      {t("billing.plans.ultimate.f5", "Multi-agent real-time human chat queue")}
                     </td>
                   </tr>
                   <tr className="bg-[#f8f9fb]/60">
-                    <td className="p-5 font-semibold text-[#0f172a]">Bán hàng & Tiếp thị</td>
-                    <td className="p-5 text-[#475569]">Form thu thập khách tiềm năng</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("marketing.title", "Email Marketing & Leads")}</td>
+                    <td className="p-5 text-[#475569]">{t("billing.plans.standard.f4", "Capture lead emails")}</td>
                     <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      Quản lý đơn hàng & Đặt lịch hẹn khách hàng
+                      {t("billing.plans.pro.f7", "Order Management & Appointment Booking")}
                     </td>
                     <td className="p-5 text-[#475569]">
-                      Email Marketing hàng loạt tới Lead + Báo cáo Pipeline tài chính
+                      {t("billing.plans.ultimate.f7", "Real-time revenue analytics & CSV export")}
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-5 font-semibold text-[#0f172a]">Tích hợp & Hỗ trợ kỹ thuật</td>
-                    <td className="p-5 text-[#475569]">Mã nhúng iframe widget, hỗ trợ cộng đồng</td>
+                    <td className="p-5 font-semibold text-[#0f172a]">{t("billing.supportIntegration", "Support & Integration")}</td>
+                    <td className="p-5 text-[#475569]">{t("billing.plans.standard.f8", "Community support")}</td>
                     <td className="p-5 font-medium text-[#0f172a] bg-[#f1f5f9]/70 border-x border-slate-200/80">
-                      Nhúng đa nền tảng, hỗ trợ ưu tiên qua email
+                      {t("billing.plans.pro.f8", "Priority technical support via email")}
                     </td>
                     <td className="p-5 text-[#475569]">
-                      Hỗ trợ kỹ thuật 24/7 & Đồng hành onboarding trực tiếp 1-1
+                      {t("billing.plans.ultimate.f8", "24/7 dedicated support via hotline & Telegram")}
                     </td>
                   </tr>
                   <tr className="bg-[#f8f9fb] border-t border-slate-200/80">
@@ -1107,7 +1065,7 @@ export default function HomePage() {
                         href="/auth/sign-up"
                         className="inline-flex w-full h-11 items-center justify-center rounded-md bg-[#0f172a] text-white text-sm font-medium hover:bg-[#334155] transition-colors"
                       >
-                        Bắt đầu miễn phí
+                        {t("landing.startTrial", "Start 14-day free trial")}
                       </Link>
                     </td>
                     <td className="p-6 bg-[#f1f5f9] border-x border-slate-200/80">
@@ -1116,7 +1074,7 @@ export default function HomePage() {
                         className="inline-flex w-full h-11 items-center justify-center gap-1.5 rounded-md bg-[#c2410c] text-white text-sm font-semibold hover:bg-[#9a3412] transition-colors shadow-sm"
                       >
                         <Zap className="size-4 fill-current" />
-                        <span>Nâng cấp gói Pro</span>
+                        <span>{t("billing.plans.upgradeBtn", { plan: "Pro" }, "Upgrade to Pro")}</span>
                       </Link>
                     </td>
                     <td className="p-6">
@@ -1124,7 +1082,7 @@ export default function HomePage() {
                         href="/auth/sign-up"
                         className="inline-flex w-full h-11 items-center justify-center rounded-md bg-[#0f172a] text-white text-sm font-medium hover:bg-[#334155] transition-colors"
                       >
-                        Nâng cấp Ultimate
+                        {t("billing.plans.upgradeBtn", { plan: "Ultimate" }, "Upgrade to Ultimate")}
                       </Link>
                     </td>
                   </tr>
@@ -1138,66 +1096,66 @@ export default function HomePage() {
                 {
                   id: "STANDARD",
                   name: "Standard",
-                  tagline: "Dành cho cá nhân trải nghiệm và thử nghiệm AI Chatbot.",
+                  tagline: t("billing.plans.standard.tagline", "For individuals testing autonomous AI chatbots."),
                   price: "0 VND",
-                  period: "Miễn phí trọn đời",
-                  domains: "1 Website / Domain kết nối",
-                  credits: "100 AI Chat Credits khởi đầu",
+                  period: t("billing.freeForever", "Free forever"),
+                  domains: t("landing.pricing.domainsCount", { count: 1 }, "1 Website / Domain"),
+                  credits: t("landing.pricing.creditsCount", { count: "100" }, "100 AI Chat Credits"),
                   features: [
-                    "1 Website / Domain kết nối",
-                    "100 AI Chat Credits khởi đầu",
-                    "Chatbot AI trả lời tự động",
-                    "Thu thập email khách tiềm năng",
-                    "Tự động tạo VietQR đơn hàng",
-                    "Đối soát thanh toán thủ công",
-                    "Mã nhúng iframe widget đơn giản",
-                    "Hỗ trợ qua cộng đồng",
+                    t("billing.plans.standard.f1", "1 Connected Website / Domain"),
+                    t("billing.plans.standard.f2", "100 Initial AI Chat Credits"),
+                    t("billing.plans.standard.f3", "Automated AI Bot responses"),
+                    t("billing.plans.standard.f4", "Capture lead emails"),
+                    t("billing.plans.standard.f6", "Automated order VietQR creation"),
+                    t("billing.plans.standard.f7", "Manual payment reconciliation"),
+                    t("billing.plans.standard.f5", "Simple iframe widget embed"),
+                    t("billing.plans.standard.f8", "Community support"),
                   ],
-                  cta: "Bắt đầu miễn phí",
+                  cta: t("landing.startTrial", "Start 14-day free trial"),
                   recommended: false,
                 },
                 {
                   id: "PRO",
                   name: "Pro",
-                  badge: "Phổ biến nhất",
-                  tagline: "Lựa chọn tốt nhất cho doanh nghiệp vừa và nhỏ bán hàng tự động.",
-                  price: "350.000 VND",
-                  period: "VNĐ / tháng",
-                  domains: "5 Websites / Domains kết nối",
-                  credits: "500 AI Chat Credits hàng tháng",
+                  badge: t("billing.plans.pro.badge", "Most Popular"),
+                  tagline: t("billing.plans.pro.tagline", "Best choice for small & medium businesses automating sales."),
+                  price: "350,000 VND",
+                  period: t("billing.periodMonth", "VND / month"),
+                  domains: t("landing.pricing.domainsCount", { count: 5 }, "5 Websites / Domains"),
+                  credits: t("landing.pricing.creditsCount", { count: "500" }, "500 AI Chat Credits"),
                   features: [
-                    "5 Websites / Domains kết nối",
-                    "500 AI Chat Credits hàng tháng",
-                    "AI Sales Bot + Pinecone Vector RAG",
-                    "Huấn luyện FAQ HelpDesk chuyên sâu",
-                    "Cổng thanh toán SePay VietQR tự động",
-                    "Live Messenger & Human takeover tức thì",
-                    "Quản lý đơn hàng & Đặt lịch hẹn",
-                    "Hỗ trợ kỹ thuật ưu tiên qua email",
+                    t("billing.plans.pro.f1", "5 Connected Websites / Domains"),
+                    t("billing.plans.pro.f2", "500 AI Chat Credits monthly"),
+                    t("billing.plans.pro.f3", "AI Sales Bot + Pinecone Vector RAG"),
+                    t("billing.plans.pro.f4", "Advanced HelpDesk FAQ training"),
+                    t("billing.plans.pro.f6", "Automated SePay VietQR payment gateway"),
+                    t("billing.plans.pro.f5", "Instant Live Messenger & Human Takeover"),
+                    t("billing.plans.pro.f7", "Order Management & Appointment Booking"),
+                    t("billing.plans.pro.f8", "Priority technical support via email"),
                   ],
-                  cta: "Nâng cấp lên Pro",
+                  cta: t("billing.plans.upgradeBtn", { plan: "Pro" }, "Upgrade to Pro"),
                   recommended: true,
                 },
                 {
                   id: "ULTIMATE",
                   name: "Ultimate",
-                  badge: "Tối ưu nhất",
-                  tagline: "Dành cho các doanh nghiệp lớn cần tự động hoá tối đa quy mô.",
-                  price: "850.000 VND",
-                  period: "VNĐ / tháng",
-                  domains: "10 Websites / Domains kết nối",
-                  credits: "5.000 AI Chat Credits dung lượng lớn",
+                  badge: t("billing.plans.ultimate.badge", "Enterprise Tier"),
+                  tagline: t("billing.plans.ultimate.tagline", "For high-volume retail stores and e-commerce enterprises."),
+                  price: "850,000 VND",
+                  period: t("billing.periodMonth", "VND / month"),
+                  domains: t("landing.pricing.domainsCount", { count: 10 }, "10 Websites / Domains"),
+                  credits: t("landing.pricing.creditsCount", { count: "5,000" }, "5,000 AI Chat Credits"),
                   features: [
-                    "10 Websites / Domains kết nối",
-                    "5.000 AI Chat Credits dung lượng lớn",
-                    "Pinecone Vector RAG không giới hạn tài liệu",
-                    "Tích hợp SePay Connect tài khoản riêng của Shop",
-                    "Nhận tiền bán hàng trực tiếp về tài khoản ngân hàng",
-                    "Email Marketing hàng loạt tới Lead",
-                    "Báo cáo thống kê tài chính và Pipeline",
-                    "Hỗ trợ 24/7 & Hỗ trợ kỹ thuật trực tiếp",
+                    t("billing.plans.ultimate.f1", "10 Connected Websites / Domains"),
+                    t("billing.plans.ultimate.f2", "5,000 AI Chat Credits monthly"),
+                    t("billing.plans.ultimate.f3", "Pinecone RAG Hybrid Search with maximum accuracy"),
+                    t("billing.plans.ultimate.f4", "Unlimited FAQ & Lead qualifier questions"),
+                    t("billing.plans.ultimate.f6", "Dedicated SePay Gateway with high-speed Webhook"),
+                    t("billing.plans.ultimate.f5", "Multi-agent real-time human chat queue"),
+                    t("billing.plans.ultimate.f7", "Real-time revenue analytics & CSV export"),
+                    t("billing.plans.ultimate.f8", "24/7 dedicated support via hotline & Telegram"),
                   ],
-                  cta: "Nâng cấp Ultimate",
+                  cta: t("billing.plans.upgradeBtn", { plan: "Ultimate" }, "Upgrade to Ultimate"),
                   recommended: false,
                 },
               ].map((tier, idx) => (
@@ -1230,15 +1188,15 @@ export default function HomePage() {
                       </span>
                     </div>
                     <div className="mt-2 text-xs text-[#475569] flex flex-wrap gap-x-3 gap-y-1">
-                      <span>Hạn mức: <strong className="text-[#0f172a]">{tier.domains}</strong></span>
+                      <span>{t("common.limit", "Limit")}: <strong className="text-[#0f172a]">{tier.domains}</strong></span>
                       <span>•</span>
-                      <span>Credits: <strong className="text-[#0f172a]">{tier.credits}</strong></span>
+                      <span>{t("billing.currentCredits", "Credits")}: <strong className="text-[#0f172a]">{tier.credits}</strong></span>
                     </div>
                   </div>
 
                   <div className="mt-5 space-y-2.5">
                     <div className="text-xs font-semibold text-[#0f172a] uppercase tracking-wider">
-                      Tính năng bao gồm:
+                      {t("billing.plans.featuresIncluded", "Features included:")}
                     </div>
                     <ul className="space-y-2 text-xs text-[#475569]">
                       {tier.features.map((feature, fIdx) => (
@@ -1274,10 +1232,10 @@ export default function HomePage() {
               {/* Sticky Heading */}
               <div className="lg:col-span-4 lg:sticky lg:top-24 motion-target">
                 <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#0f172a]">
-                  Frequently Asked Questions
+                  {t("landing.faq.title", "Frequently Asked Questions")}
                 </h2>
                 <p className="mt-3 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                  Clear answers regarding RAG architecture, SePay payment integration, and data confidentiality.
+                  {t("landing.faq.subtitle", "Clear answers regarding RAG architecture, SePay payment integration, and data confidentiality.")}
                 </p>
               </div>
 
@@ -1285,28 +1243,28 @@ export default function HomePage() {
               <div className="lg:col-span-8 space-y-3.5 motion-target">
                 {[
                   {
-                    q: "How does ReplyEase AI differ from traditional rule-based chatbots?",
-                    a: "Traditional chatbots rely on rigid decision trees and fail when a customer phrases something unexpectedly. ReplyEase AI leverages large language models augmented with RAG to deeply understand product literature, converse naturally, and compute dynamic VietQR payment codes tailored to each order.",
+                    q: t("landing.faq.q1", "How does ReplyEase AI differ from traditional rule-based chatbots?"),
+                    a: t("landing.faq.a1", "Traditional chatbots rely on rigid decision trees and fail when a customer phrases something unexpectedly. ReplyEase AI leverages large language models augmented with RAG to deeply understand product literature, converse naturally, and compute dynamic VietQR payment codes tailored to each order."),
                   },
                   {
-                    q: "Is SePay VietQR integration secure, and does it require bank credentials?",
-                    a: "Completely secure. ReplyEase AI and SePay only monitor incoming balance fluctuation webhooks (read-only transaction alerts). We have zero access to initiate transactions or transfer funds from your account. You maintain full ownership and control of your banking.",
+                    q: t("landing.faq.q2", "Is SePay VietQR integration secure, and does it require bank credentials?"),
+                    a: t("landing.faq.a2", "Completely secure. ReplyEase AI and SePay only monitor incoming balance fluctuation webhooks (read-only transaction alerts). We have zero access to initiate transactions or transfer funds from your account. You maintain full ownership and control of your banking."),
                   },
                   {
-                    q: "What data should I prepare to train my AI assistant?",
-                    a: "Simply upload existing store materials: Excel price lists, product PDFs, shipping and return policies, or your public website URL. The system automatically chunks and indexes your documents in under 3 minutes.",
+                    q: t("landing.faq.q3", "What data should I prepare to train my AI assistant?"),
+                    a: t("landing.faq.a3", "Simply upload existing store materials: Excel price lists, product PDFs, shipping and return policies, or your public website URL. The system automatically chunks and indexes your documents in under 3 minutes."),
                   },
                   {
-                    q: "When does a human sales representative need to step in?",
-                    a: "When the AI identifies strong customer frustration, questions outside the uploaded knowledge base, or an explicit request to speak with staff, ReplyEase AI automatically triggers an urgent handover alert via Telegram, Zalo, or Email with the full conversation history.",
+                    q: t("landing.faq.q4", "When does a human sales representative need to step in?"),
+                    a: t("landing.faq.a4", "When the AI identifies strong customer frustration, questions outside the uploaded knowledge base, or an explicit request to speak with staff, ReplyEase AI automatically triggers an urgent handover alert via Telegram, Zalo, or Email with the full conversation history."),
                   },
                   {
-                    q: "Can I test the platform for free before committing to a paid plan?",
-                    a: "Yes. You can start immediately with our Standard Free plan (1 website, 100 AI Chat credits) with no credit card required. When your sales scale up, upgrade anytime to Pro (350,000 VND/mo for 5 domains & 500 credits) or Ultimate (850,000 VND/mo for 10 domains & 5,000 credits).",
+                    q: t("landing.faq.q5", "Can I test the platform for free before committing to a paid plan?"),
+                    a: t("landing.faq.a5", "Yes. You can start immediately with our Standard Free plan (1 website, 100 AI Chat credits) with no credit card required. When your sales scale up, upgrade anytime to Pro (350,000 VND/mo for 5 domains & 500 credits) or Ultimate (850,000 VND/mo for 10 domains & 5,000 credits)."),
                   },
                   {
-                    q: "How long does it take to embed ReplyEase AI into an active website?",
-                    a: "Approximately 5 minutes. Simply copy a single JavaScript widget snippet from your dashboard and paste it before the closing body tag. It works directly with WordPress, Shopify, Haravan, Sapo, Next.js, and custom web stacks.",
+                    q: t("landing.faq.q6", "How long does it take to embed ReplyEase AI into an active website?"),
+                    a: t("landing.faq.a6", "Approximately 5 minutes. Simply copy a single JavaScript widget snippet from your dashboard and paste it before the closing body tag. It works directly with WordPress, Shopify, Haravan, Sapo, Next.js, and custom web stacks."),
                   },
                 ].map((item, idx) => (
                   <details
@@ -1337,10 +1295,10 @@ export default function HomePage() {
               {/* Left Column: Form & Heading */}
               <div className="lg:col-span-7 motion-target">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#0f172a] leading-snug">
-                  Automate Conversational Sales with ReplyEase AI
+                  {t("landing.cta.title", "Automate Conversational Sales with ReplyEase AI")}
                 </h2>
                 <p className="mt-4 text-base text-[#475569] leading-relaxed max-w-[50ch]">
-                  Start your 14-day free trial. Ensure your customers are guided and checked out even while you sleep.
+                  {t("landing.cta.subtitle", "Start your 14-day free trial. Ensure your customers are guided and checked out even while you sleep.")}
                 </p>
 
                 {/* Inline form */}
@@ -1351,26 +1309,26 @@ export default function HomePage() {
                       required
                       value={inputEmail}
                       onChange={(e) => setInputEmail(e.target.value)}
-                      placeholder="Enter your business email..."
+                      placeholder={t("landing.cta.emailPlaceholder", "Enter your business email...")}
                       className="h-13 px-5 rounded-md bg-[#f8fafc] text-base text-[#0f172a] placeholder-[#94a3b8] focus:outline-none w-full sm:w-[360px]"
                     />
                     <button
                       type="submit"
                       className="h-13 px-7 rounded-md bg-[#c2410c] text-white text-base font-medium hover:bg-[#9a3412] active:scale-[0.98] transition-colors shrink-0"
                     >
-                      Start 14-day free trial
+                      {t("landing.cta.submitBtn", "Start 14-day free trial")}
                     </button>
                   </div>
                   {ctaSubmitted && (
                     <p className="mt-3 text-sm text-[#166534] font-medium flex items-center gap-1.5">
                       <CheckCircle2 className="size-4" />
-                      Thank you! The ReplyEase team will deliver your trial workspace to {inputEmail} shortly.
+                      {t("landing.cta.successMsg", { email: inputEmail }, `Thank you! The ReplyEase team will deliver your trial workspace to ${inputEmail} shortly.`)}
                     </p>
                   )}
                 </form>
 
                 <p className="mt-4 text-sm text-[#64748b]">
-                  No credit card required. Live in 5 minutes with dedicated technical onboarding.
+                  {t("landing.cta.footnote", "No credit card required. Live in 5 minutes with dedicated technical onboarding.")}
                 </p>
               </div>
 
@@ -1381,20 +1339,20 @@ export default function HomePage() {
                   className="p-8 rounded-xl bg-[#f8f9fb] space-y-6"
                 >
                   <div className="text-base font-semibold text-[#0f172a]">
-                    Enterprise-Grade Commitments
+                    {t("landing.cta.guaranteesTitle", "Enterprise-Grade Commitments")}
                   </div>
                   <div className="space-y-4 text-sm text-[#475569]">
                     <div className="space-y-1">
-                      <div className="font-medium text-[#0f172a]">RAG Data Confidentiality</div>
-                      <div className="text-sm text-[#64748b]">Strict isolation of internal product databases and customer transaction records</div>
+                      <div className="font-medium text-[#0f172a]">{t("landing.cta.g1Title", "RAG Data Confidentiality")}</div>
+                      <div className="text-sm text-[#64748b]">{t("landing.cta.g1Desc", "Strict isolation of internal product databases and customer transaction records")}</div>
                     </div>
                     <div className="space-y-1">
-                      <div className="font-medium text-[#0f172a]">High-Speed Infrastructure</div>
-                      <div className="text-sm text-[#64748b]">240ms benchmark latency hosted in domestic tier-3 clusters with zero packet loss</div>
+                      <div className="font-medium text-[#0f172a]">{t("landing.cta.g2Title", "High-Speed Infrastructure")}</div>
+                      <div className="text-sm text-[#64748b]">{t("landing.cta.g2Desc", "240ms benchmark latency hosted in domestic tier-3 clusters with zero packet loss")}</div>
                     </div>
                     <div className="space-y-1">
-                      <div className="font-medium text-[#0f172a]">1-on-1 Technical Onboarding</div>
-                      <div className="text-sm text-[#64748b]">Dedicated engineers to connect your SePay webhook and embed the widget script</div>
+                      <div className="font-medium text-[#0f172a]">{t("landing.cta.g3Title", "1-on-1 Technical Onboarding")}</div>
+                      <div className="text-sm text-[#64748b]">{t("landing.cta.g3Desc", "Dedicated engineers to connect your SePay webhook and embed the widget script")}</div>
                     </div>
                   </div>
                 </div>
@@ -1417,39 +1375,39 @@ export default function HomePage() {
                 ReplyEase AI
               </div>
               <p className="text-sm text-[#475569] leading-relaxed max-w-[45ch]">
-                ReplyEase AI is the premier conversational customer support and automated SePay VietQR checkout platform for modern e-commerce brands.
+                {t("landing.footer.desc", "ReplyEase AI is the premier conversational customer support and automated SePay VietQR checkout platform for modern e-commerce brands.")}
               </p>
               <div className="text-sm text-[#64748b]">
-                © 2026 ReplyEase AI. All rights reserved.
+                {t("landing.footer.copyright", "© 2026 ReplyEase AI. All rights reserved.")}
               </div>
             </div>
 
             {/* Nav */}
             <div className="lg:col-span-2 space-y-2 text-sm">
-              <div className="font-semibold text-[#0f172a] mb-3">Navigation</div>
-              <div><a href="#showcase" className="text-[#475569] hover:text-[#c2410c] transition-colors">Experience</a></div>
-              <div><a href="#how-it-works" className="text-[#475569] hover:text-[#c2410c] transition-colors">Process</a></div>
-              <div><a href="#pricing" className="text-[#475569] hover:text-[#c2410c] transition-colors">Pricing</a></div>
-              <div><a href="#faq" className="text-[#475569] hover:text-[#c2410c] transition-colors">FAQ</a></div>
+              <div className="font-semibold text-[#0f172a] mb-3">{t("landing.footer.navTitle", "Navigation")}</div>
+              <div><a href="#showcase" className="text-[#475569] hover:text-[#c2410c] transition-colors">{t("landing.nav.experience", "Experience")}</a></div>
+              <div><a href="#how-it-works" className="text-[#475569] hover:text-[#c2410c] transition-colors">{t("landing.nav.process", "Process")}</a></div>
+              <div><a href="#pricing" className="text-[#475569] hover:text-[#c2410c] transition-colors">{t("landing.nav.pricing", "Pricing")}</a></div>
+              <div><a href="#faq" className="text-[#475569] hover:text-[#c2410c] transition-colors">{t("landing.nav.faq", "FAQ")}</a></div>
             </div>
 
             {/* Operations */}
             <div className="lg:col-span-3 space-y-2 text-sm">
-              <div className="font-semibold text-[#0f172a] mb-3">Offices & Operating Hours</div>
-              <div className="text-[#0f172a] font-medium">Hanoi & Ho Chi Minh City</div>
-              <div className="text-[#64748b]">Indochina Time (GMT+7)</div>
+              <div className="font-semibold text-[#0f172a] mb-3">{t("landing.footer.officesTitle", "Offices & Operating Hours")}</div>
+              <div className="text-[#0f172a] font-medium">{t("landing.footer.cities", "Hanoi & Ho Chi Minh City")}</div>
+              <div className="text-[#64748b]">{t("landing.footer.timezone", "Indochina Time (GMT+7)")}</div>
               <div className="text-[#166534] font-medium flex items-center gap-2 pt-1">
                 <span className="size-2 rounded-full bg-[#15803d]" />
-                Systems operating 24/7/365
+                {t("landing.footer.uptimeBadge", "Systems operating 24/7/365")}
               </div>
             </div>
 
             {/* Support */}
             <div className="lg:col-span-3 space-y-2 text-sm">
-              <div className="font-semibold text-[#0f172a] mb-3">Support & Integrations</div>
+              <div className="font-semibold text-[#0f172a] mb-3">{t("landing.footer.supportTitle", "Support & Integrations")}</div>
               <div className="font-medium text-[#0f172a]">support@replyease.ai</div>
-              <div className="text-[#475569]">1900 8899 (24/7 Support)</div>
-              <div className="text-[#64748b] text-[13px] pt-1">Custom API and webhook advisory</div>
+              <div className="text-[#475569]">{t("landing.footer.supportHotline", "1900 8899 (24/7 Support)")}</div>
+              <div className="text-[#64748b] text-[13px] pt-1">{t("landing.footer.supportAdvisory", "Custom API and webhook advisory")}</div>
             </div>
           </div>
 
@@ -1468,7 +1426,7 @@ export default function HomePage() {
                   />
                 </div>
                 <span className="text-sm font-semibold text-[#94a3b8]">
-                  ReplyEase AI Enterprise
+                  {t("landing.footer.enterpriseTitle", "ReplyEase AI Enterprise")}
                 </span>
               </div>
               <div className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-white mt-4">
@@ -1482,11 +1440,11 @@ export default function HomePage() {
               className="lg:col-span-4 p-8 rounded-xl bg-[#c2410c] text-white flex flex-col justify-between min-h-[160px] hover:bg-[#9a3412] transition-colors group motion-target"
             >
               <div className="text-lg font-semibold leading-snug">
-                Start your 14-day free trial
+                {t("landing.footer.startTrial", "Start your 14-day free trial")}
               </div>
               <div className="flex items-center justify-between pt-4">
                 <span className="text-sm font-medium text-white/90">
-                  Live in 5 minutes
+                  {t("landing.footer.live5Min", "Live in 5 minutes")}
                 </span>
                 <ArrowUpRight className="size-6 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </div>

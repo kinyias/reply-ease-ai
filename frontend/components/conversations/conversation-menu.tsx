@@ -17,6 +17,7 @@ import { ChatCard } from "@/components/conversations/chat-card";
 import { ConversationTabs } from "@/components/conversations/conversation-tabs";
 import { ConversationRoomSummary, ConversationTab } from "@/types/conversation";
 import { Domain } from "@/types/domain";
+import { useI18n } from "@/context/i18n-context";
 
 interface ConversationMenuProps {
   domains: Domain[];
@@ -62,6 +63,7 @@ export function ConversationMenu({
   totalPages = 1,
   onPageChange,
 }: ConversationMenuProps) {
+  const { t } = useI18n();
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Keyboard shortcut '/' to focus search input
@@ -87,11 +89,11 @@ export function ConversationMenu({
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h1 className="font-semibold text-base text-foreground tracking-tight">
-              Hội thoại Live
+              {t("conversations.title", "Live Conversations")}
             </h1>
             {counts.unread > 0 && (
               <span className="text-[10px] bg-primary text-primary-foreground font-semibold px-2 py-0.5 rounded-full tabular-nums">
-                {counts.unread} mới
+                {t("conversations.newBadge", { count: counts.unread })}
               </span>
             )}
           </div>
@@ -102,7 +104,7 @@ export function ConversationMenu({
             onClick={onRefresh}
             disabled={isRefetching || isLoading}
             className="size-8 text-muted-foreground hover:text-foreground"
-            title="Làm mới danh sách"
+            title={t("conversations.refresh", "Refresh list")}
           >
             <RotateCwIcon
               className={`size-4 ${isRefetching ? "animate-spin text-primary" : ""}`}
@@ -118,7 +120,7 @@ export function ConversationMenu({
               onChange={(e) => onSelectDomain(e.target.value)}
               className="w-full h-8.5 text-xs bg-background/80 border border-border/70 rounded-md px-2.5 py-1 text-foreground focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer pr-8 truncate font-medium"
             >
-              <option value="all">Tất cả các Domain ({domains.length})</option>
+              <option value="all">{t("conversations.allDomains", { count: domains.length })}</option>
               {domains.map((dom) => (
                 <option key={dom.id} value={dom.id}>
                   {dom.name}
@@ -135,7 +137,7 @@ export function ConversationMenu({
           <Input
             ref={searchInputRef}
             type="text"
-            placeholder="Tìm theo email, nội dung tin nhắn... (/)"
+            placeholder={t("conversations.searchPlaceholder", "Search by email, message content... (/)")}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="h-8.5 pl-8 pr-7 text-xs bg-background/70 border-border/70"
@@ -187,18 +189,18 @@ export function ConversationMenu({
           <div className="py-16 text-center px-4 space-y-3">
             <InboxIcon className="size-8 mx-auto text-muted-foreground/50 stroke-[1.5]" />
             <p className="text-sm font-semibold text-foreground">
-              Không có cuộc hội thoại nào
+              {t("conversations.noConversations", "No conversations yet")}
             </p>
             <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
               {searchQuery
-                ? "Không tìm thấy kết quả phù hợp với từ khóa tìm kiếm của bạn."
+                ? t("conversations.noResults", "No results match your search keywords.")
                 : activeTab === "unread"
-                ? "Tuyệt vời! Bạn không còn tin nhắn chưa đọc nào."
+                ? t("conversations.noUnread", "Great job! You have no unread messages.")
                 : activeTab === "urgent"
-                ? "Không có cuộc hội thoại khẩn cấp nào cần xử lý ngay."
+                ? t("conversations.noUrgent", "No urgent conversations requiring immediate action.")
                 : activeTab === "live"
-                ? "Chưa có phòng chat nào đang kích hoạt chế độ Live."
-                : "Khi khách truy cập gửi tin nhắn qua Chatbot Widget, hội thoại sẽ hiển thị tại đây."}
+                ? t("conversations.noLive", "No chat rooms currently in Live mode.")
+                : t("conversations.noConversationsHint", "When visitors message through the Chatbot Widget, conversations will appear here.")}
             </p>
           </div>
         ) : (
@@ -217,7 +219,7 @@ export function ConversationMenu({
       {totalPages > 1 && onPageChange && (
         <div className="p-2.5 border-t border-border bg-sidebar/80 flex items-center justify-between text-xs shrink-0">
           <span className="text-muted-foreground font-medium">
-            Trang <span className="text-foreground font-semibold">{page}</span> / {totalPages}
+            {t("conversations.page", { page, total: totalPages })}
           </span>
           <div className="flex items-center gap-1">
             <Button
@@ -228,7 +230,7 @@ export function ConversationMenu({
               disabled={page <= 1 || isLoading}
             >
               <ChevronLeftIcon className="size-3.5 mr-0.5" />
-              Trước
+              {t("conversations.prev", "Previous")}
             </Button>
             <Button
               variant="outline"
@@ -237,7 +239,7 @@ export function ConversationMenu({
               onClick={() => onPageChange(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages || isLoading}
             >
-              Sau
+              {t("conversations.next", "Next")}
               <ChevronRightIcon className="size-3.5 ml-0.5" />
             </Button>
           </div>

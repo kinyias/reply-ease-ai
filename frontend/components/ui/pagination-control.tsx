@@ -8,6 +8,7 @@ import {
   ChevronsRightIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/context/i18n-context";
 
 export interface PaginationControlProps {
   currentPage: number;
@@ -30,8 +31,10 @@ export function PaginationControl({
   onPageSizeChange,
   pageSizeOptions = [10, 20, 50],
   className = "",
-  itemLabel = "mục",
+  itemLabel,
 }: PaginationControlProps) {
+  const { t } = useI18n();
+  const label = itemLabel || t("ui.pagination.items", "items");
   // If no pages at all or only 1 page with no items, hide or show minimal
   if (totalPages <= 1 && (!totalItems || totalItems <= (pageSize || 10))) {
     if (totalItems !== undefined && totalItems > 0) {
@@ -40,7 +43,7 @@ export function PaginationControl({
           className={`flex items-center justify-between text-xs text-muted-foreground py-2 px-1 ${className}`}
         >
           <span>
-            Hiển thị toàn bộ {totalItems} {itemLabel}
+            {t("ui.pagination.showAll", { count: totalItems, label })}
           </span>
         </div>
       );
@@ -84,21 +87,18 @@ export function PaginationControl({
       <div className="flex items-center gap-3">
         {totalItems !== undefined && startItem !== null && endItem !== null ? (
           <span className="tabular-nums">
-            Hiển thị <span className="font-medium text-foreground">{startItem}</span> -{" "}
-            <span className="font-medium text-foreground">{endItem}</span> trên{" "}
-            <span className="font-medium text-foreground">{totalItems}</span> {itemLabel}
+            <span>{startItem} - {endItem} / {totalItems} {label}</span>
           </span>
         ) : (
           <span className="tabular-nums">
-            Trang <span className="font-medium text-foreground">{currentPage}</span> /{" "}
-            <span className="font-medium text-foreground">{totalPages}</span>
+            <span>{t("ui.pagination.page", { page: currentPage, total: totalPages })}</span>
           </span>
         )}
 
         {/* Page size dropdown */}
         {onPageSizeChange && pageSize && (
           <div className="flex items-center gap-1.5 pl-2 border-l border-border/60">
-            <span className="text-[11px] hidden sm:inline">Mỗi trang:</span>
+            <span className="text-[11px] hidden sm:inline">{t("ui.pagination.perPage", "Per page:")}</span>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -125,7 +125,7 @@ export function PaginationControl({
           onClick={() => onPageChange(1)}
           disabled={currentPage <= 1}
           className="size-7.5 cursor-pointer disabled:pointer-events-none"
-          title="Trang đầu"
+          title={t("ui.pagination.first", "First page")}
         >
           <ChevronsLeftIcon className="size-3.5" />
         </Button>
@@ -135,7 +135,7 @@ export function PaginationControl({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           className="size-7.5 cursor-pointer disabled:pointer-events-none"
-          title="Trang trước"
+          title={t("ui.pagination.prev", "Previous")}
         >
           <ChevronLeftIcon className="size-3.5" />
         </Button>
@@ -171,7 +171,7 @@ export function PaginationControl({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           className="size-7.5 cursor-pointer disabled:pointer-events-none"
-          title="Trang sau"
+          title={t("ui.pagination.next", "Next")}
         >
           <ChevronRightIcon className="size-3.5" />
         </Button>
@@ -181,7 +181,7 @@ export function PaginationControl({
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
           className="size-7.5 cursor-pointer disabled:pointer-events-none"
-          title="Trang cuối"
+          title={t("ui.pagination.last", "Last page")}
         >
           <ChevronsRightIcon className="size-3.5" />
         </Button>

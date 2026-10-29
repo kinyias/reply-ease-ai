@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import React from "react";
 import {
   CheckCircle2Icon,
@@ -39,12 +41,13 @@ export function LeadAnswersModal({
   isSelected = false,
   onToggleSelectEmail,
 }: LeadAnswersModalProps) {
+  const { t } = useI18n();
   if (!lead) return null;
 
   const copyEmail = () => {
     if (lead.email) {
       navigator.clipboard.writeText(lead.email);
-      toast.success("Đã sao chép địa chỉ email vào clipboard!");
+      toast.success(t("marketing.copiedEmail", "Copied email address!"));
     }
   };
 
@@ -63,28 +66,28 @@ export function LeadAnswersModal({
           <div className="flex items-center gap-2 mb-1">
             <span className="size-2 rounded-full bg-primary" />
             <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              Khảo sát Lead Qualifier
+              {t("marketing.qualifierModalTitle", "Lead Qualifier Survey")}
             </span>
           </div>
           <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center justify-between">
-            <span className="truncate">{lead.email || "Khách hàng ẩn danh"}</span>
+            <span className="truncate">{lead.email || t("marketing.anonymousCustomer", "Anonymous Customer")}</span>
             {lead.email && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={copyEmail}
                 className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-                title="Sao chép email"
+                title={t("marketing.copyEmail", "Copy email")}
               >
                 <CopyIcon className="size-3.5 mr-1" />
-                Sao chép
+                {t("common.copy", "Copy")}
               </Button>
             )}
           </DialogTitle>
           <DialogDescription className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <GlobeIcon className="size-3.5 text-primary" />
-              {lead.domain_name || "Mặc định"}
+              {lead.domain_name || t("marketing.defaultDomain", "Default")}
             </span>
             <span>&bull;</span>
             <span className="flex items-center gap-1">
@@ -93,7 +96,7 @@ export function LeadAnswersModal({
             </span>
             <span>&bull;</span>
             <Badge variant="outline" className="text-[11px] font-medium">
-              Đã trả lời {lead.answered_count}/{lead.total_questions} câu hỏi
+              {t("marketing.answersCount", { answered: lead.answered_count, total: lead.total_questions }, `${lead.answered_count}/${lead.total_questions} questions`)}
             </Badge>
           </DialogDescription>
         </DialogHeader>
@@ -111,19 +114,19 @@ export function LeadAnswersModal({
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-xs font-semibold text-foreground leading-snug">
                       <span className="text-muted-foreground mr-1.5 font-normal">
-                        Câu {idx + 1}:
+                        {t("marketing.questionNum", { num: idx + 1 }, `Question ${idx + 1}:`)}
                       </span>
                       {resp.question}
                     </span>
                     {isAnswered ? (
                       <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px] shrink-0 font-medium">
                         <CheckCircle2Icon className="size-3 mr-1" />
-                        Đã trả lời
+                        {t("marketing.answeredStatus", "Answered")}
                       </Badge>
                     ) : (
                       <Badge variant="secondary" className="text-[10px] shrink-0 text-muted-foreground">
                         <CircleDashedIcon className="size-3 mr-1" />
-                        Chưa trả lời
+                        {t("marketing.unansweredStatus", "Unanswered")}
                       </Badge>
                     )}
                   </div>
@@ -135,7 +138,7 @@ export function LeadAnswersModal({
                       </p>
                     ) : (
                       <p className="text-muted-foreground italic">
-                        Khách hàng chưa cung cấp câu trả lời cho câu hỏi này.
+                        {t("marketing.noAnswerProvided", "Customer has not provided an answer for this question.")}
                       </p>
                     )}
                   </div>
@@ -144,7 +147,7 @@ export function LeadAnswersModal({
             })
           ) : (
             <div className="py-8 text-center text-muted-foreground text-xs">
-              <p>Chưa có câu hỏi sàng lọc nào được thiết lập cho domain này.</p>
+              <p>{t("marketing.noQualifiersForDomain", "No qualification questions configured for this domain.")}</p>
             </div>
           )}
         </div>
@@ -161,12 +164,12 @@ export function LeadAnswersModal({
               {isSelected ? (
                 <>
                   <UserMinusIcon className="size-3.5 mr-1.5 text-destructive" />
-                  Bỏ chọn email này
+                  {t("marketing.removeFromCampaign", "Remove email from list")}
                 </>
               ) : (
                 <>
                   <UserCheckIcon className="size-3.5 mr-1.5" />
-                  Thêm vào danh sách gửi
+                  {t("marketing.addToCampaign", "Add to send list")}
                 </>
               )}
             </Button>
@@ -175,7 +178,7 @@ export function LeadAnswersModal({
           )}
 
           <Button variant="secondary" size="sm" onClick={onClose} className="text-xs">
-            Đóng
+            {t("common.close", "Close")}
           </Button>
         </DialogFooter>
       </DialogContent>

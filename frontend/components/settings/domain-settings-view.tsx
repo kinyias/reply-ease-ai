@@ -21,6 +21,7 @@ import { BotTraining } from "@/components/settings/bot-training";
 import { ProductCatalog } from "@/components/settings/product-catalog";
 import { CodeSnippet } from "@/components/settings/code-snippet";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/context/i18n-context";
 
 interface DomainSettingsViewProps {
   domainIdentifier: string;
@@ -31,6 +32,7 @@ type SettingsTab = "general" | "customizer" | "training" | "products" | "embed";
 export function DomainSettingsView({
   domainIdentifier,
 }: DomainSettingsViewProps) {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<SettingsTab>("customizer");
 
   // Fetch domains list to find matching domain by ID or Name
@@ -53,7 +55,7 @@ export function DomainSettingsView({
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <Loader2 className="size-8 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">
-          Đang tải cấu hình domain & chatbot...
+          {t("settings.loading", "Loading domain & chatbot configuration...")}
         </p>
       </div>
     );
@@ -67,33 +69,33 @@ export function DomainSettingsView({
   const TABS = [
     {
       id: "customizer" as const,
-      label: "Giao diện Chatbot",
+      label: t("settings.tabs.customizer", "Chatbot Appearance"),
       icon: BotIcon,
-      description: "Câu chào, avatar, màu sắc",
+      description: t("settings.tabs.customizerDesc", "Welcome message, avatar, colors"),
     },
     {
       id: "training" as const,
-      label: "Huấn luyện AI",
+      label: t("settings.tabs.training", "AI Knowledge Training"),
       icon: GraduationCapIcon,
-      description: "HelpDesk FAQ & Câu hỏi lọc lead",
+      description: t("settings.tabs.trainingDesc", "HelpDesk FAQ & Lead qualification questions"),
     },
     {
       id: "products" as const,
-      label: "Sản phẩm & Dịch vụ",
+      label: t("settings.tabs.products", "Products & Services"),
       icon: PackageIcon,
-      description: "Kho hàng, bảng giá & VietQR",
+      description: t("settings.tabs.productsDesc", "Inventory, pricing & VietQR checkout"),
     },
     {
       id: "embed" as const,
-      label: "Mã nhúng Widget",
+      label: t("settings.tabs.embed", "Widget Embed Code"),
       icon: Code2Icon,
-      description: "Iframe & script nhúng website",
+      description: t("settings.tabs.embedDesc", "Iframe & JavaScript website snippet"),
     },
     {
       id: "general" as const,
-      label: "Cài đặt chung",
+      label: t("settings.tabs.general", "General Settings"),
       icon: Settings2Icon,
-      description: "Đổi tên domain & Xóa domain",
+      description: t("settings.tabs.generalDesc", "Rename domain & Delete domain"),
     },
   ];
 
@@ -123,7 +125,7 @@ export function DomainSettingsView({
             className="text-xs gap-1.5 h-8 font-medium border-border"
           >
             <Code2Icon className="size-3.5 text-primary" />
-            <span>Lấy mã nhúng</span>
+            <span>{t("settingsEmbed.copyCode", "Get Embed Code")}</span>
           </Button>
         </div>
       </div>

@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { paymentService } from "@/services/payment-service";
+import { useI18n } from "@/context/i18n-context";
 import { PaymentResponse, PaymentStatus } from "@/types/payment";
 
 interface SepayQrModalProps {
@@ -46,6 +47,7 @@ export function SepayQrModal({
   onCancelOrder,
   isCancelling = false,
 }: SepayQrModalProps) {
+  const { t } = useI18n();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   if (!payment) return null;
@@ -53,7 +55,7 @@ export function SepayQrModal({
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(label);
-    toast.success(`Đã sao chép ${label}!`);
+    toast.success(`${t("billing.sepayModal.copied", "Copied!")} (${label})`);
     setTimeout(() => {
       setCopiedKey(null);
     }, 2000);
@@ -67,13 +69,13 @@ export function SepayQrModal({
         payment.direct_checkout_url,
         "_blank"
       );
-      toast.info("Đã chuyển hướng đến cổng thanh toán SePay Payment Gateway.");
+      toast.info(t("billing.sepayModal.gatewayRedirect", "Redirecting to SePay Payment Gateway..."));
     }
   };
 
   const formattedAmount = payment.amount
     ? `${payment.amount.toLocaleString("vi-VN")} VNĐ`
-    : "0 VNĐ";
+    : "0 VND";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -87,25 +89,25 @@ export function SepayQrModal({
 
             <div className="space-y-1">
               <Badge variant="outline" className="text-emerald-500 border-emerald-500/30 bg-emerald-500/5 mb-1 text-xs">
-                Giao dịch hoàn tất
+                {t("billing.sepayModal.confirmed", "Payment confirmed successfully!")}
               </Badge>
               <h2 className="text-2xl font-bold tracking-tight text-foreground">
-                Thanh toán thành công!
+                {t("billing.sepayModal.confirmed")}
               </h2>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 {payment.payment_type === "CREDIT_PURCHASE" ? (
                   <>
-                    Tài khoản của bạn đã được cộng thêm{" "}
+                    {t("billing.sepayModal.creditSuccessNotice", "Your account has been credited with ")}
                     <strong className="text-foreground">
                       {payment.credits_added?.toLocaleString("vi-VN") || ""} AI Credits
                     </strong>{" "}
-                    thành công. Số dư credits đã sẵn sàng để trò chuyện AI và gửi email chiến dịch.
+                     {t("billing.sepayModal.readyNotice", "successfully. Credits are ready for AI chats and email campaigns.")}
                   </>
                 ) : (
                   <>
-                    Tài khoản của bạn đã được nâng cấp lên gói{" "}
+                    {t("billing.sepayModal.upgradeSuccessNotice", "Your account has been upgraded to ")}
                     <strong className="text-foreground">{payment.plan || "PRO"}</strong>{" "}
-                    thành công. Các đặc quyền và AI Credits đã được kích hoạt ngay lập tức.
+                     {t("billing.sepayModal.readyNotice", "successfully. Your privileges and credits are ready instantly.")}
                   </>
                 )}
               </p>
@@ -113,24 +115,24 @@ export function SepayQrModal({
 
             <div className="w-full max-w-sm rounded-xl border border-border/60 bg-muted/30 p-4 text-xs space-y-2 text-left">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Mã đơn hàng:</span>
+                <span className="text-muted-foreground">{t("billingHistory.colOrderId", "Order ID")}:</span>
                 <span className="font-mono font-medium text-foreground">{payment.order_code}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Dịch vụ:</span>
+                <span className="text-muted-foreground">{t("billing.serviceLabel", "Service")}:</span>
                 <span className="font-semibold text-foreground">
                   {payment.payment_type === "CREDIT_PURCHASE"
                     ? `Nạp +${payment.credits_added?.toLocaleString("vi-VN") || ""} Credits`
-                    : `Gói ${payment.plan || "PRO"}`}
+                    : `${t("billing.planLabel", "Plan")} ${payment.plan || "PRO"}`}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Số tiền:</span>
+                <span className="text-muted-foreground">{t("billing.sepayModal.amount", "Amount")}:</span>
                 <span className="font-semibold text-foreground">{formattedAmount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Hình thức:</span>
-                <span className="text-foreground">Chuyển khoản VietQR (SePay)</span>
+                <span className="text-muted-foreground">{t("billing.paymentMethodLabel", "Method")}:</span>
+                <span className="text-foreground">{t("billing.vietqrMethod", "VietQR Transfer (SePay)")}</span>
               </div>
             </div>
 
@@ -138,7 +140,7 @@ export function SepayQrModal({
               onClick={onClose}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-8 mt-2"
             >
-              Hoàn tất & Quay lại
+              {t("common.close", "Close")}
             </Button>
           </div>
         ) : (
@@ -153,22 +155,22 @@ export function SepayQrModal({
                   </div>
                   <div>
                     <h2 className="text-lg font-bold tracking-tight text-foreground">
-                      Thanh toán SePay VietQR
+                      {t("billing.sepayModal.title", "Scan VietQR to Pay via SePay")}
                     </h2>
                     <p className="text-xs text-muted-foreground">
                       {payment.payment_type === "CREDIT_PURCHASE" ? (
                         <>
-                          Nạp{" "}
+                          {t("billing.buyCredits", "Top-up")}{" "}
                           <span className="font-semibold text-primary">
                             {payment.credits_added?.toLocaleString("vi-VN") || ""} AI Credits
                           </span>{" "}
-                          • Tự động kích hoạt sau 3 - 5 giây
+                          • {t("billing.sepayModal.autoVerify", "Auto-verifies in 3 - 5 seconds")}
                         </>
                       ) : (
                         <>
-                          Nâng cấp gói{" "}
+                          {t("billing.upgrade", "Upgrade")}{" "}
                           <span className="font-semibold text-primary">{payment.plan}</span> •{" "}
-                          Tự động kích hoạt sau 3 - 5 giây
+                          {t("billing.sepayModal.autoVerify", "Auto-verifies in 3 - 5 seconds")}
                         </>
                       )}
                     </p>
@@ -176,7 +178,7 @@ export function SepayQrModal({
                 </div>
 
                 <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-500 border-amber-500/30 font-medium">
-                  Chờ thanh toán
+                  {t("billingHistory.statusPending", "Pending")}
                 </Badge>
               </div>
             </div>
@@ -197,7 +199,7 @@ export function SepayQrModal({
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
                   </span>
-                  <span>Đang chờ giao dịch từ ngân hàng...</span>
+                  <span>{t("billing.sepayModal.waiting", "Listening for SePay confirmation...")}</span>
                 </div>
               </div>
 
@@ -206,22 +208,22 @@ export function SepayQrModal({
                 <div className="rounded-xl border border-border/70 bg-card p-4 space-y-3 text-xs">
                   {/* Bank */}
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Ngân hàng:</span>
+                    <span className="text-muted-foreground">{t("billing.sepayModal.bank", "Bank")}:</span>
                     <span className="font-semibold text-foreground">{payment.bank_name}</span>
                   </div>
 
                   {/* Account Number */}
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Số tài khoản:</span>
+                    <span className="text-muted-foreground">{t("billing.sepayModal.account", "Beneficiary Account")}:</span>
                     <div className="flex items-center gap-1.5 font-mono font-semibold text-foreground">
                       <span>{payment.bank_account}</span>
                       <button
                         type="button"
-                        onClick={() => handleCopy(payment.bank_account, "Số tài khoản")}
+                        onClick={() => handleCopy(payment.bank_account, t("billing.sepayModal.account", "Beneficiary Account"))}
                         className="text-muted-foreground hover:text-foreground p-1 rounded-md transition-colors"
-                        title="Sao chép số tài khoản"
+                        title={t("billing.sepayModal.copy", "Copy")}
                       >
-                        {copiedKey === "Số tài khoản" ? (
+                        {copiedKey === t("billing.sepayModal.account", "Beneficiary Account") ? (
                           <CheckIcon className="size-3.5 text-emerald-500" />
                         ) : (
                           <CopyIcon className="size-3.5" />
@@ -232,22 +234,22 @@ export function SepayQrModal({
 
                   {/* Account Holder */}
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Chủ tài khoản:</span>
+                    <span className="text-muted-foreground">{t("integrations.accountHolderLabel", "Account Holder")}:</span>
                     <span className="font-semibold text-foreground">{payment.account_name}</span>
                   </div>
 
                   {/* Amount */}
                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                    <span className="text-muted-foreground">Số tiền:</span>
+                    <span className="text-muted-foreground">{t("billing.sepayModal.amount", "Amount")}:</span>
                     <div className="flex items-center gap-1.5 font-bold text-sm text-primary">
                       <span>{formattedAmount}</span>
                       <button
                         type="button"
-                        onClick={() => handleCopy(String(payment.amount), "Số tiền")}
+                        onClick={() => handleCopy(String(payment.amount), t("billing.sepayModal.amount", "Amount"))}
                         className="text-muted-foreground hover:text-foreground p-1 rounded-md transition-colors"
-                        title="Sao chép số tiền"
+                        title={t("billing.sepayModal.copy", "Copy")}
                       >
-                        {copiedKey === "Số tiền" ? (
+                        {copiedKey === t("billing.sepayModal.amount", "Amount") ? (
                           <CheckIcon className="size-3.5 text-emerald-500" />
                         ) : (
                           <CopyIcon className="size-3.5" />
@@ -260,31 +262,31 @@ export function SepayQrModal({
                   <div className="pt-2 border-t border-border/50">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="font-semibold text-foreground">
-                        Nội dung chuyển khoản (bắt buộc):
+                        {t("billing.sepayModal.content", "Transfer Content")} ({t("common.required", "required")}):
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-mono font-bold tracking-wider text-sm">
                       <span>{payment.content}</span>
                       <button
                         type="button"
-                        onClick={() => handleCopy(payment.content, "Nội dung chuyển khoản")}
+                        onClick={() => handleCopy(payment.content, t("billing.sepayModal.content", "Transfer Content"))}
                         className="p-1 rounded bg-background/80 hover:bg-background text-foreground transition-colors flex items-center gap-1 text-xs font-normal"
                       >
-                        {copiedKey === "Nội dung chuyển khoản" ? (
+                        {copiedKey === t("billing.sepayModal.content", "Transfer Content") ? (
                           <>
                             <CheckIcon className="size-3 text-emerald-500" />
-                            <span className="text-emerald-500 text-[10px]">Đã chép</span>
+                            <span className="text-emerald-500 text-[10px]">{t("billing.sepayModal.copied", "Copied!")}</span>
                           </>
                         ) : (
                           <>
                             <CopyIcon className="size-3" />
-                            <span className="text-[10px]">Sao chép</span>
+                            <span className="text-[10px]">{t("billing.sepayModal.copy", "Copy")}</span>
                           </>
                         )}
                       </button>
                     </div>
                     <p className="mt-1.5 text-[11px] text-muted-foreground leading-tight">
-                      Lưu ý: Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống đối soát và nâng cấp tài khoản tự động.
+                      {t("billing.sepayModal.contentNote", "Note: Please keep transfer content exact for automated real-time verification.")}
                     </p>
                   </div>
                 </div>
@@ -297,11 +299,11 @@ export function SepayQrModal({
                     className="w-full text-xs font-semibold gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs h-9.5"
                   >
                     <ExternalLinkIcon className="size-4" />
-                    <span>Mở Cổng Thanh Toán SePay (Khuyên dùng)</span>
+                    <span>{t("billing.sepayModal.openGateway", "Open SePay Payment Gateway")}</span>
                   </Button>
 
                   <p className="text-[11px] text-center text-muted-foreground">
-                    Cổng SePay hỗ trợ tự động mở App Ngân Hàng, VietQR, NAPAS và Thẻ ATM/Visa.
+                    {t("billing.sepayModal.gatewayHelp", "SePay gateway supports automatic Banking App opening, VietQR, and cards.")}
                   </p>
 
                   {/* Simulate instant confirmation for Testing/Demo */}
@@ -316,12 +318,12 @@ export function SepayQrModal({
                       {isSimulating ? (
                         <>
                           <Loader2Icon className="size-3 animate-spin" />
-                          <span>Đang giả lập thanh toán...</span>
+                          <span>{t("billing.sepayModal.simulating", "Simulating payment...")}</span>
                         </>
                       ) : (
                         <>
                           <SparklesIcon className="size-3 text-primary" />
-                          <span>Giả lập thanh toán thành công (Demo)</span>
+                          <span>{t("billing.sepayModal.simulate", "Test Payment Simulation")}</span>
                         </>
                       )}
                     </Button>
@@ -334,7 +336,7 @@ export function SepayQrModal({
             <div className="p-4 bg-muted/20 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <ShieldCheckIcon className="size-4 text-emerald-500" />
-                <span>Bảo mật giao dịch bởi SePay Payment Gateway</span>
+                <span>{t("billing.sepayModal.secureNotice", "Secured by SePay Payment Gateway")}</span>
               </div>
               <div className="flex items-center gap-2">
                 {onCancelOrder && (
@@ -349,10 +351,10 @@ export function SepayQrModal({
                     {isCancelling ? (
                       <>
                         <Loader2Icon className="size-3 animate-spin mr-1" />
-                        <span>Đang hủy...</span>
+                        <span>{t("common.cancelling", "Cancelling...")}</span>
                       </>
                     ) : (
-                      <span>Hủy đơn hàng</span>
+                      <span>{t("billing.sepayModal.cancel", "Cancel Payment")}</span>
                     )}
                   </Button>
                 )}
@@ -363,7 +365,7 @@ export function SepayQrModal({
                   onClick={onClose}
                   className="text-xs h-8"
                 >
-                  Đóng
+                  {t("common.close", "Close")}
                 </Button>
               </div>
             </div>

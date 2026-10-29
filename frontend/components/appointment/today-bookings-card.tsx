@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Appointment } from "@/types/dashboard";
 import { formatDateOnly } from "@/lib/utils";
+import { useI18n } from "@/context/i18n-context";
 
 interface TodayBookingsCardProps {
   todayBookings: Appointment[];
@@ -17,7 +18,9 @@ export function TodayBookingsCard({
   todayBookings = [],
   isLoading,
 }: TodayBookingsCardProps) {
-  const todayFormatted = new Intl.DateTimeFormat("vi-VN", {
+  const { t, locale } = useI18n();
+
+  const todayFormatted = new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -31,7 +34,7 @@ export function TodayBookingsCard({
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-amber-500" />
               <CardTitle className="text-sm font-semibold tracking-tight text-foreground">
-                Bookings For Today
+                {t("appointment.todayTitle", "Bookings For Today")}
               </CardTitle>
             </div>
             <p className="text-[11px] text-muted-foreground capitalize">
@@ -43,7 +46,7 @@ export function TodayBookingsCard({
             variant="outline"
             className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 font-semibold text-xs tabular-nums"
           >
-            {todayBookings.length} cuộc hẹn
+            {t("appointment.todayBadge", { count: todayBookings.length })}
           </Badge>
         </div>
       </CardHeader>
@@ -60,10 +63,10 @@ export function TodayBookingsCard({
               <CalendarIcon className="size-4" />
             </div>
             <p className="text-xs font-medium text-foreground">
-              Không có lịch hẹn hôm nay
+              {t("appointment.noToday", "No appointments scheduled for today")}
             </p>
             <p className="text-[11px] text-muted-foreground max-w-[220px] mx-auto">
-              Khi khách hàng chọn đặt lịch qua widget hoặc portal, cuộc hẹn trong ngày sẽ xuất hiện tại đây.
+              {t("appointment.noTodayDesc")}
             </p>
           </div>
         ) : (
@@ -110,7 +113,7 @@ export function TodayBookingsCard({
                         variant="ghost"
                         size="icon"
                         className="size-7 text-muted-foreground hover:text-foreground shrink-0"
-                        title={`Gửi email cho ${b.email}`}
+                        title={t("appointment.sendEmail", { email: b.email })}
                       >
                         <MailIcon className="size-3.5" />
                       </Button>

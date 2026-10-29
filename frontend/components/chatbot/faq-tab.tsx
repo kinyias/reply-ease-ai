@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronDownIcon, HelpCircleIcon, MessageCircleQuestionIcon, SearchIcon } from "lucide-react";
 import { ChatbotFAQItem } from "@/types/chatbot";
+import { useI18n } from "@/context/i18n-context";
 
 interface FAQTabProps {
   faqs: ChatbotFAQItem[];
@@ -11,6 +12,7 @@ interface FAQTabProps {
 }
 
 export function FAQTab({ faqs, themeColor, onAskFAQ }: FAQTabProps) {
+  const { t } = useI18n();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [openIds, setOpenIds] = React.useState<Record<string, boolean>>({});
 
@@ -40,7 +42,7 @@ export function FAQTab({ faqs, themeColor, onAskFAQ }: FAQTabProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm câu hỏi thường gặp..."
+            placeholder={t("chatbot.faqSearchPlaceholder", "Search frequently asked questions...")}
             className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-orange-500/50"
           />
         </div>
@@ -52,10 +54,10 @@ export function FAQTab({ faqs, themeColor, onAskFAQ }: FAQTabProps) {
           <div className="flex flex-col items-center justify-center text-center p-8 space-y-2">
             <HelpCircleIcon className="size-8 text-zinc-300 dark:text-zinc-600" />
             <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              {searchQuery ? "Không tìm thấy câu hỏi phù hợp." : "Chưa có câu hỏi FAQ nào."}
+              {searchQuery ? t("chatbot.faqEmptySearch", "No matching questions found.") : t("chatbot.faqEmptyAll", "No FAQ items configured yet.")}
             </p>
             <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              Bạn có thể chuyển sang tab Trò chuyện để hỏi trực tiếp Trợ lý AI.
+              {t("chatbot.faqEmptyHint")}
             </p>
           </div>
         ) : (
@@ -94,7 +96,7 @@ export function FAQTab({ faqs, themeColor, onAskFAQ }: FAQTabProps) {
                         className="inline-flex items-center gap-1 text-[11px] font-medium hover:underline cursor-pointer"
                       >
                         <MessageCircleQuestionIcon className="size-3" />
-                        Hỏi AI thêm về câu này
+                        {t("chatbot.faqAskMore", "Ask AI more about this")}
                       </button>
                     </div>
                   </div>

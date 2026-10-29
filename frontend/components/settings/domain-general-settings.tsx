@@ -31,6 +31,7 @@ import { updateDomainSchema, UpdateDomainFormValues } from "@/schemas/domain";
 import { Domain } from "@/types/domain";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import uploadService from "@/services/upload-service";
+import { useI18n } from "@/context/i18n-context";
 
 interface DomainGeneralSettingsProps {
   domain: Domain;
@@ -38,24 +39,25 @@ interface DomainGeneralSettingsProps {
 
 const PRESET_ICONS = [
   {
-    label: "Cửa hàng",
+    label: "Retail Store",
     url: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=100&auto=format&fit=crop&q=80",
   },
   {
-    label: "Công nghệ",
+    label: "Technology",
     url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=100&auto=format&fit=crop&q=80",
   },
   {
-    label: "Thời trang",
+    label: "Fashion",
     url: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=100&auto=format&fit=crop&q=80",
   },
   {
-    label: "Dịch vụ",
+    label: "Services",
     url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&auto=format&fit=crop&q=80",
   },
 ];
 
 export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -93,15 +95,15 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
       setSelectedIconFile(null);
       queryClient.invalidateQueries({ queryKey: ["domains"] });
       queryClient.invalidateQueries({ queryKey: ["domains", domain.id] });
-      toast.success("Cập nhật thông tin Domain thành công!");
+      toast.success(t("settingsGeneral.saveSuccess", "Domain updated successfully!"));
       if (updated.name !== domain.name) {
         router.push(`/settings/${updated.name}`);
       }
     },
     onError: (error: unknown) => {
       const err = error as { response?: { data?: { detail?: string } } };
-      toast.error("Không thể cập nhật domain", {
-        description: err.response?.data?.detail || "Đã xảy ra lỗi vui lòng thử lại.",
+      toast.error(t("settingsGeneral.saveError", "Could not update domain"), {
+        description: err.response?.data?.detail || t("common.errorTryAgain", "An error occurred, please try again."),
       });
     },
   });
@@ -112,14 +114,14 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["domains"] });
       queryClient.invalidateQueries({ queryKey: ["domains", "quota"] });
-      toast.success("Đã xóa Domain thành công");
+      toast.success(t("settingsGeneral.deleteSuccess", "Domain deleted successfully"));
       setIsDeleteDialogOpen(false);
       router.push("/dashboard");
     },
     onError: (error: unknown) => {
       const err = error as { response?: { data?: { detail?: string } } };
-      toast.error("Không thể xóa domain", {
-        description: err.response?.data?.detail || "Đã xảy ra lỗi vui lòng thử lại.",
+      toast.error(t("settingsGeneral.deleteError", "Could not delete domain"), {
+        description: err.response?.data?.detail || t("common.errorTryAgain", "An error occurred, please try again."),
       });
     },
   });
@@ -136,10 +138,10 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
       <Card className="border border-border/80 shadow-xs">
         <div className="px-6 py-4 border-b border-border/60">
           <h3 className="text-base font-semibold text-foreground">
-            Thông tin định danh Domain
+            {t("settings.general.infoTitle", "Domain Identification")}
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Cập nhật tên miền và biểu tượng hiển thị của website này.
+            {t("settings.general.infoSubtitle", "Update domain name and display icon for this website.")}
           </p>
         </div>
 
@@ -148,7 +150,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
             {/* Domain Name */}
             <div className="space-y-1.5 max-w-md">
               <Label htmlFor="domain-name" className="text-xs font-medium">
-                Tên miền / Website
+                {t("settingsGeneral.domainNameLabel", "Domain Name")}
               </Label>
               <div className="relative">
                 <GlobeIcon className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
@@ -171,8 +173,8 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
                 onChange={(url) => setValue("icon", url, { shouldDirty: true, shouldValidate: true })}
                 onFileSelect={setSelectedIconFile}
                 isSaving={updateMutation.isPending}
-                label="Icon đại diện website"
-                description="Xem trước tức thì và tải lên Cloudinary khi Lưu"
+                label={t("settingsGeneral.iconLabel", "Website Icon")}
+                description={t("settingsGeneral.iconDesc", "Instant preview, uploads to Cloudinary upon saving")}
                 aspectRatio="square"
                 previewHeight="h-28"
                 presets={PRESET_ICONS}
@@ -197,8 +199,8 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
                 )}
                 <span>
                   {updateMutation.isPending
-                    ? "Đang lưu & tải ảnh lên Cloudinary..."
-                    : "Lưu thay đổi Domain"}
+                    ? t("settingsGeneral.saving", "Saving & uploading...")
+                    : t("common.save", "Save Changes")}
                 </span>
               </Button>
             </div>
@@ -210,16 +212,16 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
       <Card className="border border-destructive/30 bg-destructive/5 shadow-xs">
         <div className="px-6 py-4 border-b border-destructive/20 flex items-center gap-2 text-destructive">
           <AlertTriangleIcon className="size-4" />
-          <h3 className="text-base font-semibold">Khu vực nguy hiểm (Danger Zone)</h3>
+          <h3 className="text-base font-semibold">{t("settings.general.dangerZone", "Danger Zone")}</h3>
         </div>
 
         <CardContent className="p-6 space-y-4">
           <div className="space-y-1">
             <h4 className="text-sm font-semibold text-foreground">
-              Xóa hoàn toàn Domain này
+              {t("settings.general.deleteDomainTitle", "Permanently Delete This Domain")}
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
-              Khi bạn xóa domain <strong className="text-foreground">{domain.name}</strong>, toàn bộ cấu hình ChatBot, cơ sở tri thức HelpDesk FAQs, chuỗi câu hỏi lọc lead, danh mục sản phẩm và lịch sử hội thoại của khách hàng sẽ bị xóa vĩnh viễn khỏi hệ thống.
+              {t("settingsGeneral.deleteDomainDesc", "Permanently delete this domain along with its chatbot, FAQ training, products, and conversations. This action cannot be undone.")}
             </p>
           </div>
 
@@ -233,7 +235,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
             className="text-xs gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-medium shadow-xs"
           >
             <Trash2Icon className="size-3.5" />
-            <span>Xóa Domain vĩnh viễn</span>
+            <span>{t("settings.general.deleteDomainBtn", "Delete Domain Permanently")}</span>
           </Button>
         </CardContent>
       </Card>
@@ -245,11 +247,11 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
             <div className="flex items-center gap-2 text-destructive mb-1">
               <AlertTriangleIcon className="size-5" />
               <DialogTitle className="text-destructive">
-                Xác nhận xóa vĩnh viễn Domain
+                {t("settingsGeneral.deleteModalTitle", { domain: domain.name }, `Confirm Delete Domain "${domain.name}"`)}
               </DialogTitle>
             </div>
             <DialogDescription>
-              Hành động này <strong className="text-foreground">KHÔNG THỂ HOÀN TÁC</strong>. Để xác nhận, vui lòng nhập chính xác tên domain bên dưới:
+              {t("settingsGeneral.deleteWarningConfirm", "This action CANNOT BE UNDONE. To confirm, please retype the exact domain name below:")}
             </DialogDescription>
           </DialogHeader>
 
@@ -260,7 +262,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
 
             <div className="space-y-1.5">
               <Label htmlFor="confirm-domain-name" className="text-xs font-medium">
-                Nhập lại tên domain:
+                {t("settingsGeneral.retypeDomainLabel", "Retype domain name:")}
               </Label>
               <Input
                 id="confirm-domain-name"
@@ -280,7 +282,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={deleteMutation.isPending}
             >
-              Hủy
+              {t("common.cancel", "Cancel")}
             </Button>
             <Button
               type="button"
@@ -292,7 +294,7 @@ export function DomainGeneralSettings({ domain }: DomainGeneralSettingsProps) {
               {deleteMutation.isPending ? (
                 <Loader2Icon className="size-3.5 animate-spin mr-1.5" />
               ) : null}
-              Xóa Domain
+              {t("settingsGeneral.deleteBtn", "Delete Domain")}
             </Button>
           </DialogFooter>
         </DialogContent>

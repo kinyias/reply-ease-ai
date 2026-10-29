@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { MessageItem } from "@/types/chatbot";
 import { ChatMessageContent } from "./chat-message-content";
+import { useI18n } from "@/context/i18n-context";
 
 interface ChatTabProps {
   messages: MessageItem[];
@@ -25,11 +26,11 @@ interface ChatTabProps {
   onSendMessage: (text: string) => void;
 }
 
-const QUICK_SUGGESTIONS = [
-  "Tư vấn sản phẩm & dịch vụ",
-  "Báo giá chi tiết",
-  "Tôi muốn đặt lịch hẹn",
-  "Gặp nhân viên tư vấn trực tiếp",
+const getQuickSuggestions = (t: (key: string, paramsOrFallback?: any, fallback?: string) => string) => [
+  t("chatbot.quickProduct", "Product & service consultation"),
+  t("chatbot.quickQuote", "Pricing & quote inquiry"),
+  t("chatbot.quickBooking", "Book a consultation call"),
+  t("chatbot.quickHuman", "Talk to a live specialist"),
 ];
 
 export function ChatTab({
@@ -37,10 +38,12 @@ export function ChatTab({
   isTyping,
   isLive,
   botIcon,
-  botName = "Trợ lý AI",
+  botName: propBotName,
   themeColor,
   onSendMessage,
 }: ChatTabProps) {
+  const { t } = useI18n();
+  const botName = propBotName || t("chatbot.defaultBotName", "AI Assistant");
   const [inputValue, setInputValue] = React.useState("");
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -83,7 +86,7 @@ export function ChatTab({
         <div className="bg-amber-500/10 border-b border-amber-500/20 px-3.5 py-2 flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
           <RadioIcon className="size-3.5 shrink-0 animate-pulse text-red-500" />
           <span>
-            Chế độ nhân viên trực tiếp đang bật. Đội ngũ tư vấn sẽ phản hồi bạn trong ít phút!
+            {t("chatbot.liveBanner")}
           </span>
         </div>
       )}
@@ -153,7 +156,7 @@ export function ChatTab({
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs transition-colors shadow-xs"
                         >
                           <CalendarDaysIcon className="size-3.5" />
-                          <span>Mở trang Đặt lịch hẹn</span>
+                          <span>{t("chatbot.openBookingPortal", "Open Consultation Booking")}</span>
                           <ArrowRightIcon className="size-3" />
                         </a>
                       ) : item.link.includes("/payment/") ? (
@@ -164,7 +167,7 @@ export function ChatTab({
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs transition-colors shadow-xs"
                         >
                           <CreditCardIcon className="size-3.5" />
-                          <span>Thanh toán đơn hàng VietQR</span>
+                          <span>{t("chatbot.payOrderVietqr", "Pay Order via VietQR")}</span>
                           <ArrowRightIcon className="size-3" />
                         </a>
                       ) : (
@@ -175,7 +178,7 @@ export function ChatTab({
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 dark:bg-zinc-700 hover:bg-zinc-900 text-white font-medium text-xs transition-colors shadow-xs"
                         >
                           <ExternalLinkIcon className="size-3.5" />
-                          <span>Xem liên kết</span>
+                          <span>{t("chatbot.viewLink", "View Link")}</span>
                         </a>
                       )}
                     </div>
@@ -226,10 +229,10 @@ export function ChatTab({
         {messages.length <= 3 && !isTyping && (
           <div className="pt-2">
             <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 mb-2 px-1">
-              Gợi ý câu hỏi nhanh:
+              {t("chatbot.quickSuggestionsLabel", "Quick suggestions:")}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {QUICK_SUGGESTIONS.map((suggestion) => (
+              {getQuickSuggestions(t).map((suggestion: string) => (
                 <button
                   key={suggestion}
                   type="button"
@@ -256,7 +259,7 @@ export function ChatTab({
               value={inputValue}
               onChange={handleTextareaInput}
               onKeyDown={handleKeyDown}
-              placeholder="Nhập tin nhắn... (Nhấn Enter để gửi)"
+              placeholder={t("chatbot.inputPlaceholder", "Type your message... (Press Enter to send)")}
               disabled={isTyping}
               className="w-full resize-none bg-transparent px-3.5 py-2.5 text-xs sm:text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-hidden max-h-[120px] leading-relaxed"
             />
@@ -267,7 +270,7 @@ export function ChatTab({
             disabled={!inputValue.trim() || isTyping}
             style={{ backgroundColor: accentColor }}
             className="size-9 rounded-xl text-white flex items-center justify-center shrink-0 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 active:scale-95 transition-all shadow-xs"
-            aria-label="Gửi tin nhắn"
+            aria-label={t("chatbot.sendMessage", "Send message")}
           >
             <SendIcon className="size-4" />
           </button>

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DomainSwitcher } from "@/components/sidebar/domain-switcher";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useI18n } from "@/context/i18n-context";
 
 export function MobileHeader({
   isOpen,
@@ -14,6 +16,7 @@ export function MobileHeader({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <header className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
       <Link href="/dashboard" className="flex items-center gap-2">
@@ -32,16 +35,17 @@ export function MobileHeader({
       </Link>
 
       <div className="flex items-center gap-2">
-        <div className="w-36">
+        <div className="w-32">
           <DomainSwitcher />
         </div>
+        <LanguageToggle />
 
         <Button
           variant="ghost"
           size="icon"
           onClick={onToggle}
           className="size-8 text-sidebar-foreground"
-          aria-label={isOpen ? "Đóng menu" : "Mở menu"}
+          aria-label={isOpen ? t("common.closeMenu", "Close menu") : t("common.openMenu", "Open menu")}
         >
           {isOpen ? <XIcon className="size-4" /> : <MenuIcon className="size-4" />}
         </Button>

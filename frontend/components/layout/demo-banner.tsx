@@ -15,12 +15,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { useI18n } from "@/context/i18n-context"
 
 export function DemoBanner() {
   const router = useRouter()
   const { user, logout } = useAuth()
   const [dismissed, setDismissed] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
+  const { t } = useI18n()
 
   // Detect whether current session is a demo
   const isDemo = Boolean(
@@ -94,7 +96,7 @@ export function DemoBanner() {
     }
     authService.logout()
     logout()
-    toast.info("Đã thoát phiên dùng thử.")
+    toast.info(t("demoBanner.exitedNotice", "Exited demo trial session."))
     router.push("/auth/sign-in")
   }
 
@@ -122,7 +124,7 @@ export function DemoBanner() {
     <>
       <div
         role="banner"
-        aria-label="Thông báo phiên dùng thử 30 phút"
+        aria-label={t("demoBanner.bannerAria", "30-minute Demo Sandbox Banner")}
         className={`relative z-50 w-full border-b px-4 py-2 transition-all shadow-xs ${
           isExpired
             ? "bg-red-600 text-white border-red-700"
@@ -136,10 +138,10 @@ export function DemoBanner() {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-xs px-2.5 py-0.5 text-xs font-bold text-white shadow-xs">
               <Sparkles className="size-3 text-amber-200" />
-              Sandbox Demo 30 Phút
+              {t("demoBanner.badge", "Demo Session")}
             </span>
             <span className="font-medium text-white/95 hidden md:inline">
-              Bạn đang trong phiên trải nghiệm dùng thử độc lập. Thoải mái kiểm tra các tính năng AI bán hàng & CSKH.
+              {t("demoBanner.title", "30-Minute Interactive Sandbox")}
             </span>
           </div>
 
@@ -150,7 +152,7 @@ export function DemoBanner() {
               className={`flex items-center gap-1.5 font-mono text-xs sm:text-sm font-bold px-2.5 py-1 rounded bg-black/30 text-white border border-white/25 shadow-xs ${
                 isExpired ? "bg-black/50 text-amber-300" : ""
               }`}
-              title="Thời gian dùng thử còn lại"
+              title={t("demoBanner.timeLeft", "Time remaining")}
             >
               <Clock className={`size-3.5 ${isExpired ? "text-red-300" : "text-amber-200 animate-pulse"}`} />
               <span className="tracking-wider">{formatTime(timeLeft)}</span>
@@ -162,7 +164,7 @@ export function DemoBanner() {
               onClick={handleRegister}
               className="h-7 text-xs px-2.5 bg-white text-orange-700 hover:bg-white/90 font-semibold shadow-xs"
             >
-              <span>Đăng ký thật</span>
+              <span>{t("demoBanner.upgrade", "Upgrade")}</span>
               <ArrowRight className="size-3 ml-1" />
             </Button>
 
@@ -172,10 +174,10 @@ export function DemoBanner() {
               variant="ghost"
               onClick={handleExit}
               className="h-7 text-xs px-2 text-white bg-black/20 hover:bg-black/35 border border-white/20"
-              title="Thoát phiên dùng thử"
+              title={t("demoBanner.exitTitle", "Exit demo trial")}
             >
               <LogOut className="size-3 mr-1" />
-              <span>Thoát</span>
+              <span>{t("demoBanner.exitDemo", "Exit")}</span>
             </Button>
 
             {/* Close / Dismiss Banner if not expired */}
@@ -183,7 +185,7 @@ export function DemoBanner() {
               <button
                 onClick={() => setDismissed(true)}
                 className="text-white/70 hover:text-white p-1 rounded transition-colors ml-1"
-                title="Đóng thông báo"
+                title={t("common.close", "Close")}
               >
                 <X className="size-3.5" />
               </button>
@@ -195,32 +197,32 @@ export function DemoBanner() {
       {/* Blocking Modal when 30-Minute Trial Session Expires */}
       <Dialog open={isExpired}>
         <DialogContent
-          className="max-w-md p-6 text-center [&_[aria-label=Đóng]]:hidden [&_button[aria-label=Đóng]]:hidden shadow-2xl border-orange-200 dark:border-orange-950/50"
+          className="max-w-md p-6 text-center [&_[aria-label=Close]]:hidden [&_button[aria-label=Close]]:hidden shadow-2xl border-orange-200 dark:border-orange-950/50"
         >
           <DialogHeader className="items-center text-center space-y-3 mb-2">
             <div className="size-14 rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center mx-auto shadow-inner">
               <Clock className="size-7 animate-pulse" />
             </div>
             <DialogTitle className="text-xl font-bold tracking-tight text-foreground text-center">
-              Phiên Dùng Thử 30 Phút Đã Kết Thúc
+              {t("demoBanner.expiredTitle", "Demo Session Expired")}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed text-center px-2">
-              Cảm ơn bạn đã trải nghiệm ReplyEase AI! Thời gian dùng thử 30 phút đã kết thúc. Vui lòng đăng ký tài khoản chính thức để tiếp tục xây dựng chatbot AI bán hàng và CSKH không giới hạn.
+              {t("demoBanner.expiredDesc", "Your 30-minute sandbox session has ended. Register for a permanent workspace.")}
             </DialogDescription>
           </DialogHeader>
 
           <DialogFooter className="mt-6 flex flex-col gap-2.5 sm:flex-col border-t-0 pt-0">
-            {/* Primary Action: Đăng ký tài khoản chính thức */}
+            {/* Primary Action: Sign up for official account */}
             <Button
               size="lg"
               onClick={handleRegister}
               className="w-full h-10 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-semibold shadow-md flex items-center justify-center gap-2 text-sm"
             >
-              <span>Đăng ký tài khoản chính thức</span>
+              <span>{t("demoBanner.signUpOfficial", "Sign Up for Full Account")}</span>
               <ArrowRight className="size-4" />
             </Button>
 
-            {/* Secondary Action: Thoát */}
+            {/* Secondary Action: Exit */}
             <Button
               variant="outline"
               size="default"
@@ -228,7 +230,7 @@ export function DemoBanner() {
               className="w-full text-muted-foreground hover:text-foreground hover:bg-muted font-medium flex items-center justify-center gap-2 text-xs"
             >
               <LogOut className="size-3.5" />
-              <span>Thoát</span>
+              <span>{t("demoBanner.exitDemo", "Exit")}</span>
             </Button>
           </DialogFooter>
         </DialogContent>

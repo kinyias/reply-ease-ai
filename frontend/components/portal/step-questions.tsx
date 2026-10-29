@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { ArrowRightIcon, HelpCircleIcon, MessageSquareIcon } from "lucide-react";
 import { CustomerResponseItem } from "@/types/portal";
 
@@ -20,6 +22,7 @@ export function StepQuestions({
   isSubmitting,
   onSkip,
 }: StepQuestionsProps) {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xs">
@@ -29,10 +32,10 @@ export function StepQuestions({
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              Thông tin trước buổi hẹn
+              {t("portal.preAppointmentTitle", "Pre-Consultation Survey")}
             </h2>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
-              Vui lòng cung cấp thêm thông tin để chúng tôi có thể chuẩn bị buổi tư vấn chu đáo nhất.
+              {t("portal.preAppointmentDesc", "Please provide more details so we can best prepare for your session.")}
             </p>
           </div>
         </div>
@@ -50,7 +53,7 @@ export function StepQuestions({
                   className="block text-xs sm:text-sm font-medium text-zinc-900 dark:text-zinc-100"
                 >
                   <span className="text-orange-600 font-semibold mr-1.5">
-                    Câu {index + 1}:
+                    {t("portal.questionNum", { num: index + 1 }, `Question ${index + 1}:`)}
                   </span>
                   {q.question}
                 </label>
@@ -59,7 +62,7 @@ export function StepQuestions({
                   rows={2}
                   value={currentVal}
                   onChange={(e) => onAnswerChange(q.id, e.target.value)}
-                  placeholder="Nhập câu trả lời của bạn..."
+                  placeholder={t("portal.answerPlaceholder", "Type your answer...")}
                   className="w-full px-3.5 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-zinc-400"
                 />
               </div>
@@ -75,7 +78,7 @@ export function StepQuestions({
               onClick={onSkip}
               className="text-xs sm:text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 font-medium transition-colors"
             >
-              Bỏ qua bước này &rarr;
+              {t("portal.skipStep", "Skip this step →")}
             </button>
           ) : (
             <div />
@@ -87,7 +90,7 @@ export function StepQuestions({
             disabled={isSubmitting}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs sm:text-sm shadow-xs transition-colors disabled:opacity-50"
           >
-            <span>{isSubmitting ? "Đang lưu..." : "Tiếp tục chọn lịch"}</span>
+            <span>{isSubmitting ? t("portal.saving", "Saving...") : t("portal.continueSchedule", "Continue to Schedule")}</span>
             <ArrowRightIcon className="size-4" />
           </button>
         </div>

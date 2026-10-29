@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PaginationControl } from "@/components/ui/pagination-control";
 import { Appointment } from "@/types/dashboard";
 import { formatDate, formatDateOnly } from "@/lib/utils";
+import { useI18n } from "@/context/i18n-context";
 
 interface AppointmentListProps {
   appointments?: Appointment[];
@@ -26,6 +27,7 @@ export function AppointmentList({
   appointments = [],
   isLoading,
 }: AppointmentListProps) {
+  const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<string>("ALL");
   const [page, setPage] = useState(1);
@@ -89,10 +91,10 @@ export function AppointmentList({
           <div>
             <CardTitle className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
               <CalendarIcon className="size-4 text-muted-foreground" />
-              <span>Danh sách Lịch hẹn Khách hàng ({filteredAppointments.length})</span>
+              <span>{t("appointmentList.title", { count: filteredAppointments.length })}</span>
             </CardTitle>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Toàn bộ lịch tư vấn được khách hàng đặt qua chatbot và portal
+              {t("appointmentList.subtitle")}
             </p>
           </div>
 
@@ -100,7 +102,7 @@ export function AppointmentList({
             <div className="relative w-48 sm:w-60">
               <SearchIcon className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
               <Input
-                placeholder="Tìm email, domain, giờ..."
+                placeholder={t("appointmentList.searchPlaceholder", "Search email, domain, time...")}
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="h-8 pl-8 text-xs bg-background"
@@ -113,7 +115,7 @@ export function AppointmentList({
                 onChange={(e) => handleDomainChange(e.target.value)}
                 className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
               >
-                <option value="ALL">Tất cả website</option>
+                <option value="ALL">{t("appointmentList.allWebsites", "All websites")}</option>
                 {uniqueDomains.map((d) => (
                   <option key={d} value={d}>
                     {d}
@@ -152,13 +154,13 @@ export function AppointmentList({
             </div>
             <h4 className="text-sm font-medium text-foreground">
               {searchTerm || selectedDomain !== "ALL"
-                ? "Không tìm thấy lịch hẹn phù hợp"
-                : "Chưa có lịch hẹn nào được ghi nhận"}
+                ? t("appointmentList.noAppointmentsSearch", "No matching appointments found")
+                : t("appointmentList.noAppointmentsAll", "No appointments recorded yet")}
             </h4>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
               {searchTerm || selectedDomain !== "ALL"
-                ? "Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để hiển thị toàn bộ."
-                : "Khi khách hàng trò chuyện với AI Bot và chọn đặt lịch tư vấn, toàn bộ cuộc hẹn sẽ được lưu trữ tự động tại đây."}
+                ? t("appointmentList.noAppointmentsSearchHint")
+                : t("appointmentList.noAppointmentsAllHint")}
             </p>
           </div>
         ) : (
@@ -166,12 +168,12 @@ export function AppointmentList({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-border/60 bg-muted/20 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  <th className="py-2.5 px-4">Khách hàng</th>
-                  <th className="py-2.5 px-4">Website / Domain</th>
-                  <th className="py-2.5 px-4">Ngày hẹn</th>
-                  <th className="py-2.5 px-4">Khung giờ</th>
-                  <th className="py-2.5 px-4">Ngày đặt lịch</th>
-                  <th className="py-2.5 px-4 text-right">Thao tác</th>
+                  <th className="py-2.5 px-4">{t("appointmentList.colCustomer", "Customer")}</th>
+                  <th className="py-2.5 px-4">{t("appointmentList.colDomain", "Website / Domain")}</th>
+                  <th className="py-2.5 px-4">{t("appointmentList.colDate", "Appointment Date")}</th>
+                  <th className="py-2.5 px-4">{t("appointmentList.colSlot", "Time Slot")}</th>
+                  <th className="py-2.5 px-4">{t("appointmentList.colCreatedAt", "Booking Date")}</th>
+                  <th className="py-2.5 px-4 text-right">{t("appointmentList.colActions", "Actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 text-xs">
@@ -201,7 +203,7 @@ export function AppointmentList({
                           </span>
                         ) : (
                           <span className="text-muted-foreground italic">
-                            Chưa gán
+                            {t("common.unassigned", "Unassigned")}
                           </span>
                         )}
                       </td>
@@ -255,7 +257,7 @@ export function AppointmentList({
               onPageChange={setPage}
               onPageSizeChange={setPageSize}
               pageSizeOptions={[5, 10, 20, 50]}
-              itemLabel="lịch hẹn"
+              itemLabel={t("appointment.itemLabel", "appointments")}
             />
           </div>
         )}

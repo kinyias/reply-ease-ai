@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useMemo } from "react";
 import { Loader2Icon } from "lucide-react";
 import { usePortalAppointment } from "@/hooks/portal/use-portal-appointment";
@@ -15,6 +17,7 @@ interface AppointmentWizardProps {
 }
 
 export function AppointmentWizard({ domainId, customerId }: AppointmentWizardProps) {
+  const { t } = useI18n();
   const {
     data,
     isLoading,
@@ -41,21 +44,21 @@ export function AppointmentWizard({ domainId, customerId }: AppointmentWizardPro
     if (data && data.questions.length > 0) {
       list.push({
         id: "questions",
-        label: "Khảo sát",
-        description: "Thông tin sơ bộ",
+        label: t("portal.stepSurveyLabel", "Survey"),
+        description: t("portal.stepSurveyDesc", "Initial details"),
       });
     }
 
     list.push(
       {
         id: "schedule",
-        label: "Chọn ngày & giờ",
-        description: "Khung thời gian phù hợp",
+        label: t("portal.stepScheduleLabel", "Date & Time"),
+        description: t("portal.stepScheduleDesc", "Suitable time slot"),
       },
       {
         id: "confirmed",
-        label: "Xác nhận",
-        description: "Hoàn tất đặt lịch",
+        label: t("portal.stepConfirmLabel", "Confirm"),
+        description: t("portal.stepConfirmDesc", "Complete booking"),
       }
     );
 
@@ -67,7 +70,7 @@ export function AppointmentWizard({ domainId, customerId }: AppointmentWizardPro
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
         <Loader2Icon className="size-8 text-orange-600 animate-spin mb-3" />
         <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-          Đang tải thông tin đặt lịch hẹn...
+          {t("portal.loadingAppointment", "Loading appointment details...")}
         </p>
       </div>
     );
@@ -77,10 +80,10 @@ export function AppointmentWizard({ domainId, customerId }: AppointmentWizardPro
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4 text-center">
         <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
-          Không tìm thấy trang đặt lịch
+          {t("portal.appointmentNotFound", "Appointment page not found")}
         </h2>
         <p className="text-sm text-zinc-500 max-w-sm">
-          Đường dẫn không hợp lệ hoặc thông tin khách hàng không tồn tại.
+          {t("portal.invalidLink", "Invalid URL or customer record does not exist.")}
         </p>
       </div>
     );
@@ -92,8 +95,8 @@ export function AppointmentWizard({ domainId, customerId }: AppointmentWizardPro
       <PortalHeader
         domainName={data.domain_name}
         domainIcon={data.domain_icon}
-        subtitle="Cổng thông tin đặt lịch hẹn trực tuyến"
-        badgeText="Bảo mật SSL 256-bit"
+        subtitle={t("portal.portalSubtitleBooking", "Online consultation booking portal")}
+        badgeText={t("portal.securityBadge", "256-bit SSL Secure")}
       />
 
       {/* Progress Stepper */}
@@ -140,7 +143,7 @@ export function AppointmentWizard({ domainId, customerId }: AppointmentWizardPro
 
       {/* Footer */}
       <footer className="py-6 border-t border-zinc-200/80 dark:border-zinc-800 text-center text-xs text-zinc-400">
-        Được cung cấp bởi Reply Ease AI &bull; Hệ thống trợ lý AI & Đặt lịch tự động
+        {t("portal.poweredBy", "Powered by ReplyEase AI • Autonomous AI Assistant & Booking System")}
       </footer>
     </div>
   );

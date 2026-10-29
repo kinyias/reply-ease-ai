@@ -40,7 +40,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="vi"
+      lang="en"
       suppressHydrationWarning
       className={`${beVietnamPro.variable} ${geistMono.variable} h-full antialiased font-sans`}
     >

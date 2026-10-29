@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { CheckIcon, ClockIcon, LockIcon } from "lucide-react";
 import { DEFAULT_TIMESLOTS } from "@/hooks/portal/use-portal-appointment";
 
@@ -18,6 +20,7 @@ export function TimeslotPicker({
   isSlotBooked,
   selectedDate,
 }: TimeslotPickerProps) {
+  const { t } = useI18n();
   const formattedDate = selectedDate
     ? selectedDate.toLocaleDateString("vi-VN", {
         weekday: "long",
@@ -33,7 +36,7 @@ export function TimeslotPicker({
         <div className="flex items-center gap-2">
           <ClockIcon className="size-4 text-orange-600 dark:text-orange-400" />
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base">
-            Khung giờ hẹn
+            {t("portal.timeSlotTitle", "Appointment Timeslots")}
           </h3>
         </div>
         {formattedDate && (
@@ -69,7 +72,7 @@ export function TimeslotPicker({
               ) : booked ? (
                 <span className="text-[10px] uppercase font-semibold text-zinc-400 dark:text-zinc-600 flex items-center gap-0.5 no-underline">
                   <LockIcon className="size-2.5" />
-                  Kín
+                  {t("portal.bookedSlot", "Full")}
                 </span>
               ) : null}
             </button>
@@ -81,15 +84,15 @@ export function TimeslotPicker({
       <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
         <div className="flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-orange-600" />
-          <span>Đang chọn</span>
+          <span>{t("portal.selecting", "Selected")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="size-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900" />
-          <span>Còn trống</span>
+          <span>{t("portal.available", "Available")}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="size-2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-          <span>Đã có người đặt</span>
+          <span>{t("portal.reserved", "Reserved")}</span>
         </div>
       </div>
     </div>

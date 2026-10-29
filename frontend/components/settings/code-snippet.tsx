@@ -12,6 +12,7 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/context/i18n-context";
 
 interface CodeSnippetProps {
   domainId: string;
@@ -19,6 +20,7 @@ interface CodeSnippetProps {
 }
 
 export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = React.useState<"script" | "iframe">("script");
   const [copied, setCopied] = React.useState(false);
 
@@ -50,12 +52,12 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
     try {
       await navigator.clipboard.writeText(currentCode);
       setCopied(true);
-      toast.success("Đã sao chép mã nhúng vào Clipboard", {
-        description: "Dán đoạn mã này vào website của bạn trước thẻ đóng </body>.",
+      toast.success(t("settingsEmbed.copied", "Copied to clipboard!"), {
+        description: t("settingsEmbed.snippetDesc", "Paste this code snippet into your website before the closing </body> tag."),
       });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Không thể tự động sao chép, vui lòng copy thủ công.");
+      toast.error(t("settingsEmbed.copyFail", "Could not copy automatically, please copy manually."));
     }
   };
 
@@ -66,14 +68,14 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold text-foreground">
-              Mã nhúng Trợ lý AI (Iframe & Widget Snippet)
+              {t("settingsEmbed.title", "Widget Embed Code")}
             </h3>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
               Domain: {domainName}
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Dán đoạn mã vào bất kỳ nền tảng nào (WordPress, Shopify, Haravan, Next.js, HTML) để hiển thị ChatBot.
+            {t("settingsEmbed.subtitle")}
           </p>
         </div>
 
@@ -85,7 +87,7 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
             className="text-xs h-9 gap-1.5"
           >
             <ExternalLinkIcon className="size-3.5" />
-            Mở thử nghiệm Widget
+            {t("settingsEmbed.testWidget", "Preview Widget")}
           </Button>
 
           <Button
@@ -96,12 +98,12 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
             {copied ? (
               <>
                 <CheckIcon className="size-3.5 text-emerald-400" />
-                Đã sao chép
+                {t("settingsEmbed.copied", "Copied!")}
               </>
             ) : (
               <>
                 <CopyIcon className="size-3.5" />
-                Sao chép mã
+                {t("settingsEmbed.copyCode", "Copy Code")}
               </>
             )}
           </Button>
@@ -120,7 +122,7 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
           }`}
         >
           <Code2Icon className="size-3.5" />
-          Bong bóng Chat nổi (Widget Script - Khuyên dùng)
+          {t("settingsEmbed.scriptTab", "Floating Chat Bubble (Script)")}
         </button>
 
         <button
@@ -133,7 +135,7 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
           }`}
         >
           <LayersIcon className="size-3.5" />
-          Khung Iframe trực tiếp (Direct Embed)
+          {t("settingsEmbed.iframeTab", "Direct Iframe Embed")}
         </button>
       </div>
 
@@ -155,7 +157,7 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
             ) : (
               <CopyIcon className="size-3.5" />
             )}
-            <span>{copied ? "Đã copy" : "Copy"}</span>
+            <span>{copied ? t("common.copied", "Copied") : t("common.copy", "Copy")}</span>
           </button>
         </div>
 
@@ -170,9 +172,9 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
           <div className="size-7 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
             1
           </div>
-          <h4 className="text-xs font-semibold text-foreground">Sao chép mã nhúng</h4>
+          <h4 className="text-xs font-semibold text-foreground">{t("settingsEmbed.copyCode", "Copy Code")} nhúng</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Click vào nút &quot;Sao chép mã&quot; ở trên để lưu đoạn mã có sẵn mã định danh `domain_id` của bạn.
+            Click vào nút &quot;{t("settingsEmbed.copyCode", "Copy Code")}&quot; ở trên để lưu đoạn mã có sẵn mã định danh `domain_id` của bạn.
           </p>
         </div>
 
@@ -180,9 +182,9 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
           <div className="size-7 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
             2
           </div>
-          <h4 className="text-xs font-semibold text-foreground">Dán vào Website</h4>
+          <h4 className="text-xs font-semibold text-foreground">{t("settingsEmbed.pasteNotice", "Paste into Website")}</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Mở mã nguồn website (hoặc cài đặt Custom HTML) và dán đoạn mã ngay trước thẻ đóng `&lt;/body&gt;`.
+            {t("settingsEmbed.step2Desc", "Open your website HTML and paste the snippet right before the closing </body> tag.")}
           </p>
         </div>
 
@@ -190,9 +192,9 @@ export function CodeSnippet({ domainId, domainName }: CodeSnippetProps) {
           <div className="size-7 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">
             3
           </div>
-          <h4 className="text-xs font-semibold text-foreground">Kích hoạt & Trải nghiệm</h4>
+          <h4 className="text-xs font-semibold text-foreground">{t("settingsEmbed.step3Title", "Activate & Test")}</h4>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Lưu file và tải lại website. Trợ lý AI sẽ tự động xuất hiện ở góc dưới bên phải với giao diện của bạn.
+            {t("settingsEmbed.step3Desc", "Save changes and reload your website. The AI assistant will appear at the bottom right corner.")}
           </p>
         </div>
       </div>

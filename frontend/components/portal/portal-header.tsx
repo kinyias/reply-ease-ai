@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2Icon, ShieldCheckIcon } from "lucide-react";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useI18n } from "@/context/i18n-context";
 
 interface PortalHeaderProps {
   domainName: string;
@@ -15,8 +17,9 @@ export function PortalHeader({
   domainName,
   domainIcon,
   subtitle,
-  badgeText = "Bảo mật SSL 256-bit",
+  badgeText,
 }: PortalHeaderProps) {
+  const { t } = useI18n();
   return (
     <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-0 z-30">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -49,11 +52,15 @@ export function PortalHeader({
           </div>
         </div>
 
-        {/* Right: Security Badge */}
+        {/* Right: Language Toggle & Security Badge */}
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-xs font-medium border border-zinc-200/80 dark:border-zinc-800">
           <ShieldCheckIcon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span className="hidden sm:inline">{badgeText}</span>
-          <span className="sm:hidden">Bảo mật</span>
+          <span className="hidden sm:inline">{badgeText || t("portal.securityBadge", "256-bit SSL Secure")}</span>
+          <span className="sm:hidden">{t("portal.securityShort", "Secure")}</span>
+        </div>
         </div>
       </div>
     </header>

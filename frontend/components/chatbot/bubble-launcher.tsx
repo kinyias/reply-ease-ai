@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { MessageSquareIcon, SparklesIcon, XIcon } from "lucide-react";
+import { useI18n } from "@/context/i18n-context";
 
 interface BubbleLauncherProps {
   isOpen: boolean;
@@ -16,9 +17,11 @@ export function BubbleLauncher({
   isOpen,
   onToggle,
   botIcon,
-  botName = "Trợ lý AI",
+  botName: propBotName,
   themeColor,
 }: BubbleLauncherProps) {
+  const { t } = useI18n();
+  const botName = propBotName || t("chatbot.defaultBotName", "AI Assistant");
   const [showTooltip, setShowTooltip] = React.useState(true);
 
   // Auto-hide tooltip after 8 seconds
@@ -39,7 +42,7 @@ export function BubbleLauncher({
         >
           <div className="size-2 rounded-full bg-emerald-500 " />
           <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
-            Xin chào! Em có thể giúp gì cho mình ạ?
+            {t("chatbot.bubbleGreeting", "Hello! How can I assist you today?")}
           </span>
           <button
             type="button"
@@ -48,7 +51,7 @@ export function BubbleLauncher({
               setShowTooltip(false);
             }}
             className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-0.5 rounded-full"
-            aria-label="Đóng gợi ý"
+            aria-label={t("chatbot.bubbleClose", "Dismiss tooltip")}
           >
             <XIcon className="size-3" />
           </button>
@@ -59,7 +62,7 @@ export function BubbleLauncher({
       <button
         type="button"
         onClick={onToggle}
-        aria-label={isOpen ? "Đóng cửa sổ chat" : "Mở cửa sổ chat"}
+        aria-label={isOpen ? t("chatbot.bubbleCloseWindow", "Close chat window") : t("chatbot.bubbleOpen", "Open chat window")}
         style={{ backgroundColor: bgColor }}
         className="relative size-14 sm:size-15 rounded-full flex items-center justify-center text-white shadow-md shadow-orange-950/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
       >

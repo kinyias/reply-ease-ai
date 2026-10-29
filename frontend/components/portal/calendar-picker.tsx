@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/context/i18n-context";
+
 import { useMemo, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
@@ -9,27 +11,16 @@ interface CalendarPickerProps {
   minDate?: Date;
 }
 
-const DAYS_OF_WEEK = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-const MONTH_NAMES = [
-  "Tháng 1",
-  "Tháng 2",
-  "Tháng 3",
-  "Tháng 4",
-  "Tháng 5",
-  "Tháng 6",
-  "Tháng 7",
-  "Tháng 8",
-  "Tháng 9",
-  "Tháng 10",
-  "Tháng 11",
-  "Tháng 12",
-];
+const VI_DAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const EN_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function CalendarPicker({
   selectedDate,
   onSelectDate,
   minDate = new Date(),
 }: CalendarPickerProps) {
+  const { t, locale } = useI18n();
+  const daysOfWeek = locale === "vi" ? VI_DAYS : EN_DAYS;
   const [viewDate, setViewDate] = useState<Date>(() => new Date(selectedDate));
 
   const year = viewDate.getFullYear();
@@ -95,13 +86,13 @@ export function CalendarPicker({
       {/* Month & Year Navigation Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm sm:text-base">
-          {MONTH_NAMES[month]} {year}
+          {viewDate.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: "long", year: "numeric" })}
         </h3>
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={handlePrevMonth}
-            aria-label="Tháng trước"
+            aria-label={t("portal.prevMonth", "Previous Month")}
             className="p-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <ChevronLeftIcon className="size-4" />
@@ -109,7 +100,7 @@ export function CalendarPicker({
           <button
             type="button"
             onClick={handleNextMonth}
-            aria-label="Tháng sau"
+            aria-label={t("portal.nextMonth", "Next Month")}
             className="p-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <ChevronRightIcon className="size-4" />
@@ -119,7 +110,7 @@ export function CalendarPicker({
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 text-center mb-2">
-        {DAYS_OF_WEEK.map((d) => (
+        {daysOfWeek.map((d: string) => (
           <span
             key={d}
             className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 py-1"

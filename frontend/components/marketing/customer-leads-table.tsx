@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaginationControl } from "@/components/ui/pagination-control";
+import { useI18n } from "@/context/i18n-context";
 import { CustomerLead } from "@/types/marketing";
 
 interface DomainOption {
@@ -69,6 +70,7 @@ export function CustomerLeadsTable({
   onClearSelection,
   onInspectLead,
 }: CustomerLeadsTableProps) {
+  const { t } = useI18n();
 
   // All valid emails currently listed in table
   const tableEmails = useMemo(() => {
@@ -83,7 +85,7 @@ export function CustomerLeadsTable({
 
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
-    toast.success("Đã sao chép email!");
+    toast.success(t("marketing.copiedEmail", "Copied email address!"));
   };
 
   return (
@@ -94,15 +96,15 @@ export function CustomerLeadsTable({
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
               <UsersIcon className="size-4 text-primary" />
-              Danh sách Leads & Khách hàng
+              {t("marketing.leadListTitle", "Customer Leads List")}
             </h2>
             <Badge variant="secondary" className="text-[10px] font-medium">
-              {total !== undefined ? total : leads.length} khách
+              {t("marketing.customersUnit", { count: total !== undefined ? total : leads.length }, `${total !== undefined ? total : leads.length} leads`)}
             </Badge>
 
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            Lọc khách hàng tiềm năng qua câu hỏi sàng lọc và chọn để gửi email hàng loạt
+            {t("marketing.leadsDesc", "Filter customer prospects via qualification responses and select for mass emailing.")}
           </p>
         </div>
 
@@ -111,17 +113,17 @@ export function CustomerLeadsTable({
           <div className="flex items-center gap-2">
             <Badge className="bg-primary/10 text-primary border-primary/20 text-xs py-1 px-2.5">
               <UserCheckIcon className="size-3.5 mr-1" />
-              Đã chọn {selectedEmails.length} email
+              {t("marketing.selectedEmailsCount", { count: selectedEmails.length }, `${selectedEmails.length} emails selected`)}
             </Badge>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearSelection}
               className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
-              title="Bỏ chọn tất cả"
+              title={t("marketing.deselectAll", "Deselect All")}
             >
               <XIcon className="size-3.5 mr-1" />
-              Bỏ chọn
+              {t("marketing.deselectAll", "Deselect")}
             </Button>
           </div>
         )}
@@ -136,7 +138,7 @@ export function CustomerLeadsTable({
             onChange={(e) => onSelectDomain(e.target.value)}
             className="w-full h-8.5 rounded-lg border border-border/70 bg-background px-3 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer pr-8"
           >
-            <option value="all">Tất cả Domain ({domains.length})</option>
+            <option value="all">{t("marketing.allDomainsFilter", { count: domains.length }, `All Domains (${domains.length})`)}</option>
             {domains.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name}
@@ -151,7 +153,7 @@ export function CustomerLeadsTable({
           <Input
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Tìm theo email hoặc nội dung câu trả lời..."
+            placeholder={t("marketing.searchLeadPlaceholder", "Search by email or answer content...")}
             className="h-8.5 pl-8 text-xs"
           />
           <SearchIcon className="size-3.5 text-muted-foreground absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -176,12 +178,12 @@ export function CustomerLeadsTable({
             {areAllSelected ? (
               <>
                 <SquareIcon className="size-3.5 mr-1 text-primary" />
-                Bỏ chọn trang này
+                {t("marketing.deselectPage", "Deselect Page")}
               </>
             ) : (
               <>
                 <CheckSquareIcon className="size-3.5 mr-1 text-primary" />
-                Chọn tất cả ({tableEmails.length})
+                {t("marketing.selectAllCount", { count: tableEmails.length }, `Select All (${tableEmails.length})`)}
               </>
             )}
           </Button>
@@ -205,14 +207,14 @@ export function CustomerLeadsTable({
                     className="size-3.5 rounded border-border/80 text-primary focus:ring-primary cursor-pointer"
                   />
                 </th>
-                <th className="p-3 font-semibold text-muted-foreground">Email Khách hàng</th>
+                <th className="p-3 font-semibold text-muted-foreground">{t("marketing.colEmail", "Customer Email")}</th>
                 <th className="p-3 font-semibold text-muted-foreground hidden sm:table-cell">
                   Domain
                 </th>
                 <th className="p-3 font-semibold text-muted-foreground text-center">
-                  Khảo sát Lead
+                  {t("marketing.colSurvey", "Lead Qualification")}
                 </th>
-                <th className="p-3 font-semibold text-muted-foreground text-right">Hành động</th>
+                <th className="p-3 font-semibold text-muted-foreground text-right">{t("marketing.colActions", "Actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -240,7 +242,7 @@ export function CustomerLeadsTable({
               ) : leads.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-muted-foreground text-xs">
-                    Không tìm thấy khách hàng nào phù hợp với bộ lọc hiện tại.
+                    {t("marketing.noLeadsMatch", "No customers match the current search or filters.")}
                   </td>
                 </tr>
               ) : (
@@ -276,7 +278,7 @@ export function CustomerLeadsTable({
                         <div className="flex items-center gap-1.5">
                           <MailIcon className="size-3.5 text-muted-foreground shrink-0" />
                           <span className="truncate max-w-[200px] sm:max-w-[260px]">
-                            {lead.email || "Khách chưa để lại email"}
+                            {lead.email || t("marketing.noEmailProvided", "No email provided")}
                           </span>
                           {lead.email && (
                             <button
@@ -286,7 +288,7 @@ export function CustomerLeadsTable({
                                 copyEmail(lead.email!);
                               }}
                               className="text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100 p-0.5"
-                              title="Sao chép email"
+                              title={t("marketing.copyEmail", "Copy email")}
                             >
                               <CopyIcon className="size-3" />
                             </button>
@@ -298,7 +300,7 @@ export function CustomerLeadsTable({
                       <td className="p-3 text-muted-foreground hidden sm:table-cell">
                         <span className="flex items-center gap-1 truncate max-w-[140px]">
                           <GlobeIcon className="size-3 text-muted-foreground shrink-0" />
-                          {lead.domain_name || "Mặc định"}
+                          {lead.domain_name || t("marketing.defaultDomain", "Default")}
                         </span>
                       </td>
 
@@ -313,11 +315,11 @@ export function CustomerLeadsTable({
                                 : ""
                             }`}
                           >
-                            {lead.answered_count}/{lead.total_questions} câu trả lời
+                            {t("marketing.answersCount", { answered: lead.answered_count, total: lead.total_questions }, `${lead.answered_count}/${lead.total_questions} answers`)}
                           </Badge>
                         ) : (
                           <span className="text-[11px] text-muted-foreground italic">
-                            Chưa có khảo sát
+                            {t("marketing.noSurveyYet", "No survey responses")}
                           </span>
                         )}
                       </td>
@@ -331,7 +333,7 @@ export function CustomerLeadsTable({
                           className="h-7 px-2 text-[11px] font-medium text-primary hover:text-primary hover:bg-primary/10"
                         >
                           <HelpCircleIcon className="size-3 mr-1" />
-                          Xem câu trả lời
+                          {t("marketing.viewAnswers", "View Answers")}
                         </Button>
                       </td>
                     </tr>
@@ -353,7 +355,7 @@ export function CustomerLeadsTable({
               onPageChange={onPageChange}
               onPageSizeChange={onPageSizeChange}
               pageSizeOptions={[5, 10, 20, 50]}
-              itemLabel="khách hàng"
+              itemLabel={t("marketing.customersUnit", { count: "" }, "leads")}
             />
           </div>
         )}

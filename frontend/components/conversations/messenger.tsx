@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useChatWindow } from "@/hooks/conversation/use-chat-window";
 import { ConversationRoomSummary } from "@/types/conversation";
 import { MessageSkeleton } from "./message-skeleton";
+import { useI18n } from "@/context/i18n-context";
 import { ChatMessageContent } from "@/components/chatbot/chat-message-content";
 
 interface MessengerProps {
@@ -25,11 +26,11 @@ interface MessengerProps {
   onRoomUpdated?: () => void;
 }
 
-const QUICK_RESPONSES = [
-  "Chào bạn, mình có thể hỗ trợ gì cho bạn ạ?",
-  "Dạ bên mình đang kiểm tra thông tin và sẽ phản hồi ngay nhé!",
-  "Bạn vui lòng để lại số điện thoại để chuyên viên tư vấn chi tiết hơn nhé ạ.",
-  "Dạ hiện tại bên em đang có chương trình ưu đãi đặc biệt hôm nay ạ!",
+const DEFAULT_QUICK_RESPONSES = [
+  "quick1",
+  "quick2",
+  "quick3",
+  "quick4",
 ];
 
 function formatMessageTime(dateString: string): string {
@@ -45,6 +46,7 @@ function formatMessageTime(dateString: string): string {
 }
 
 export function Messenger({ room, onRoomUpdated }: MessengerProps) {
+  const { t } = useI18n();
   const {
     messages,
     isLoadingMessages,
@@ -100,7 +102,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
   };
 
   const customerEmail = room.customer?.email;
-  const customerIdentity = customerEmail || `Khách truy cập #${room.id.slice(0, 8)}`;
+  const customerIdentity = customerEmail || t("messenger.visitor", { id: room.id.slice(0, 8) }, `Visitor #${room.id.slice(0, 8)}`);
 
   return (
     <div className="flex-1 flex flex-col h-full bg-background overflow-hidden">
@@ -137,10 +139,10 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                   }`}
                 />
                 {connectionStatus === "connected"
-                  ? "Trực tuyến"
+                  ? t("messenger.online", "Online")
                   : connectionStatus === "connecting"
-                  ? "Đang nối..."
-                  : "Ngoại tuyến"}
+                  ? t("messenger.connecting", "Connecting...")
+                  : t("messenger.offline", "Offline")}
               </span>
             </div>
 
@@ -153,8 +155,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                 <>
                   <span>•</span>
                   <span>
-                    Đã trả lời {room.customer.answered_questions_count}/
-                    {room.customer.total_questions_count} câu hỏi lọc
+                    {t("messenger.answeredCount", { answered: room.customer.answered_questions_count, total: room.customer.total_questions_count }, `Answered ${room.customer.answered_questions_count}/${room.customer.total_questions_count} questions`)}
                   </span>
                 </>
               )}
@@ -171,18 +172,18 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                   isLive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
                 }`}
               >
-                {isLive ? "Live: Nhân viên trực tiếp" : "AI Tự động"}
+                {isLive ? t("messenger.liveAgent", "Live: Human Agent") : t("messenger.aiAuto", "Autonomous AI")}
               </span>
               {isLive && <RadioIcon className="size-3 text-emerald-500 animate-pulse" />}
             </div>
             <p className="text-[10px] text-muted-foreground">
-              {isLive ? "Bot tạm dừng để bạn chat" : "Bot AI đang tự xử lý"}
+              {isLive ? t("messenger.botPaused", "Bot paused for agent intervention") : t("messenger.botHandling", "AI Bot is handling autonomously")}
             </p>
           </div>
           <Switch
             checked={isLive}
             onCheckedChange={(checked) => toggleLiveMode(checked)}
-            aria-label="Chuyển chế độ can thiệp người thật"
+            aria-label={t("messenger.toggleAria", "Toggle human agent takeover")}
           />
         </div>
       </header>
@@ -193,8 +194,8 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
           <MessageSkeleton />
         ) : messages.length === 0 ? (
           <div className="py-16 text-center space-y-1 text-muted-foreground">
-            <p className="text-sm font-medium">Chưa có tin nhắn trong phòng này</p>
-            <p className="text-xs">Hãy gửi tin nhắn đầu tiên để chào đón khách hàng.</p>
+            <p className="text-sm font-medium">{t("messenger.emptyRoomTitle", "No messages in this chat yet")}</p>
+            <p className="text-xs">{t("messenger.emptyRoomDesc", "Send the first message to greet your customer.")}</p>
           </div>
         ) : (
           messages.map((item) => {
@@ -240,7 +241,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                           className="inline-flex items-center gap-1.5 text-xs underline font-medium text-primary-foreground hover:opacity-90"
                         >
                           <ExternalLinkIcon className="size-3.5" />
-                          <span>Mở trang thao tác (Portal)</span>
+                          <span>{t("messenger.openPortal", "Open Action Portal")}</span>
                         </a>
                       </div>
                     )}
@@ -254,7 +255,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                   >
                     <span>{timeStr}</span>
                     {!isUser && (
-                      <span title={item.seen ? "Đã đọc" : "Đã gửi"}>
+                      <span title={item.seen ? t("messenger.seen", "Seen") : t("messenger.sent", "Sent")}>
                         {item.seen ? (
                           <CheckCheckIcon className="size-3 text-sky-500 inline" />
                         ) : (
@@ -283,9 +284,14 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
         {/* Quick reply suggestion chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
           <span className="text-[11px] text-muted-foreground shrink-0 font-medium mr-1 flex items-center gap-1">
-            <SparklesIcon className="size-3 text-primary" /> Gợi ý:
+            <SparklesIcon className="size-3 text-primary" /> {t("messenger.suggestions", "Suggestions:")}
           </span>
-          {QUICK_RESPONSES.map((chip, idx) => (
+          {[
+            t("messenger.quick1", "Hello! How can I help you today?"),
+            t("messenger.quick2", "We are checking your request and will get back to you shortly!"),
+            t("messenger.quick3", "Please leave your phone number so our specialist can assist you directly."),
+            t("messenger.quick4", "We currently have a special promotion today!"),
+          ].map((chip, idx) => (
             <button
               key={idx}
               type="button"
@@ -308,15 +314,15 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
               onKeyDown={handleKeyDown}
               placeholder={
                 isLive
-                  ? "Nhập tin nhắn phản hồi trực tiếp cho khách hàng (Enter để gửi)..."
-                  : "Chế độ AI đang bật. Bạn có thể gửi tin nhắn để trả lời thay AI bất cứ lúc nào..."
+                  ? t("messenger.livePlaceholder", "Type response directly to customer (Enter to send)...")
+                  : t("messenger.aiPlaceholder", "AI mode active. You can send a message to take over anytime...")
               }
               className="w-full resize-none bg-transparent p-3 text-xs md:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none max-h-32 min-h-[44px]"
             />
 
             <div className="flex items-center justify-between px-3 pb-2 pt-1 border-t border-border/30">
               <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                Enter để gửi • Shift + Enter xuống dòng
+                {t("messenger.keyHint", "Enter to send • Shift + Enter for new line")}
               </span>
 
               <Button
@@ -329,7 +335,7 @@ export function Messenger({ room, onRoomUpdated }: MessengerProps) {
                   <Loader2Icon className="size-3.5 animate-spin" />
                 ) : (
                   <>
-                    <span>Gửi</span>
+                    <span>{t("messenger.send", "Send")}</span>
                     <SendIcon className="size-3.5" />
                   </>
                 )}

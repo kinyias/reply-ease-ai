@@ -5,6 +5,7 @@ import { FlameIcon, RadioIcon, SparklesIcon } from "lucide-react";
 import { ConversationRoomSummary } from "@/types/conversation";
 import { Badge } from "@/components/ui/badge";
 import { stripImageTagsForPreview } from "@/components/chatbot/chat-message-content";
+import { useI18n } from "@/context/i18n-context";
 
 // Deterministic pastel color palette for avatars (house style: calm, non-garish)
 const AVATAR_PALETTE = [
@@ -26,7 +27,7 @@ function getAvatarColor(str: string) {
   return AVATAR_PALETTE[index];
 }
 
-function formatChatTime(dateString: string): string {
+function formatChatTime(dateString: string, yesterdayLabel = "Yesterday"): string {
   try {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return "";
@@ -44,7 +45,7 @@ function formatChatTime(dateString: string): string {
       return `${hours}:${minutes}`;
     }
     if (isYesterday) {
-      return "Hôm qua";
+      return yesterdayLabel;
     }
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -61,24 +62,26 @@ interface ChatCardProps {
 }
 
 export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
+  const { t } = useI18n();
   const customerEmail = room.customer?.email;
   const displayName = customerEmail
     ? customerEmail.split("@")[0]
-    : `Khách #${room.id.slice(0, 4)}`;
+    : t("chatCard.guestPrefix", { id: room.id.slice(0, 4) }, `Guest #${room.id.slice(0, 4)}`);
 
-  const fullIdentity = customerEmail || `Khách truy cập #${room.id.slice(0, 6)}`;
+  const fullIdentity = customerEmail || t("chatCard.visitorPrefix", { id: room.id.slice(0, 6) }, `Visitor #${room.id.slice(0, 6)}`);
   const initial = displayName.charAt(0).toUpperCase() || "K";
   const avatarStyle = getAvatarColor(customerEmail || room.id);
 
   const lastMsg = room.last_message;
+  const yLabel = t("chatCard.yesterday", "Yesterday");
   const timeDisplay = lastMsg?.created_at
-    ? formatChatTime(lastMsg.created_at)
-    : formatChatTime(room.updated_at);
+    ? formatChatTime(lastMsg.created_at, yLabel)
+    : formatChatTime(room.updated_at, yLabel);
 
   const senderPrefix = lastMsg
     ? lastMsg.role === "user"
-      ? "Khách: "
-      : "Bạn: "
+      ? t("chatCard.customerPrefix", "Customer: ")
+      : t("chatCard.youPrefix", "You: ")
     : "";
 
   return (
@@ -112,7 +115,7 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
             {room.live && (
               <span
                 className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded-full border border-emerald-500/20 shrink-0"
-                title="Đang trong chế độ Live nhân viên hỗ trợ"
+                title={t("chatCard.liveTooltip", "Active in live human agent mode")}
               >
                 <span className="size-1.5 rounded-full bg-emerald-500 " />
                 Live
@@ -127,7 +130,7 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
         {/* Message snippet preview */}
         <p className="text-xs text-muted-foreground line-clamp-1 break-all mb-1.5 leading-relaxed">
           <span className="font-medium text-foreground/80">{senderPrefix}</span>
-          {lastMsg ? stripImageTagsForPreview(lastMsg.message) : "Chưa có tin nhắn nào"}
+          {lastMsg ? stripImageTagsForPreview(lastMsg.message) : t("chatCard.noMessages", "No messages yet")}
         </p>
 
         {/* Meta tags: Domain badge, urgent tag, unread counter */}
@@ -140,14 +143,13 @@ export function ChatCard({ room, isActive, onSelect }: ChatCardProps) {
             {room.is_urgent && (
               <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 shrink-0">
                 <FlameIcon className="size-2.5 text-amber-500" />
-                Gấp
+                {t("chatCard.urgent", "Urgent")}
               </span>
             )}
 
             {room.customer && room.customer.total_questions_count > 0 && (
               <span className="text-[10px] text-muted-foreground/75 truncate">
-                {room.customer.answered_questions_count}/
-                {room.customer.total_questions_count} câu hỏi
+                {t("chatCard.questionsCount", { count: `${room.customer.answered_questions_count}/${room.customer.total_questions_count}` }, `${room.customer.answered_questions_count}/${room.customer.total_questions_count} questions`)}
               </span>
             )}
           </div>
