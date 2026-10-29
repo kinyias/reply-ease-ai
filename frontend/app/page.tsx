@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { LandingHeader } from "@/components/layout/landing-header";
+import { ServerNoticeDialog } from "@/components/common/server-notice-dialog";
 import { useI18n } from "@/context/i18n-context";
 import Link from "next/link";
 import {
@@ -178,6 +179,7 @@ export default function HomePage() {
   return (
     <div className="min-h-[100svh] bg-[#ffffff] text-[#0f172a] selection:bg-[#c2410c] selection:text-white overflow-x-clip">
       {/* 1. Header / Navigation */}
+      <ServerNoticeDialog />
       <LandingHeader />
 
       <main>
